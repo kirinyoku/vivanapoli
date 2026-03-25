@@ -21,7 +21,7 @@ const (
 	OrderStatusDelivered OrderStatus = "delivered"
 )
 
-func (e *OrderStatus) Scan(src interface{}) error {
+func (e *OrderStatus) Scan(src any) error {
 	switch s := src.(type) {
 	case []byte:
 		*e = OrderStatus(s)
@@ -39,7 +39,7 @@ type NullOrderStatus struct {
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullOrderStatus) Scan(value interface{}) error {
+func (ns *NullOrderStatus) Scan(value any) error {
 	if value == nil {
 		ns.OrderStatus, ns.Valid = "", false
 		return nil
@@ -63,7 +63,7 @@ const (
 	OrderTypePickup   OrderType = "pickup"
 )
 
-func (e *OrderType) Scan(src interface{}) error {
+func (e *OrderType) Scan(src any) error {
 	switch s := src.(type) {
 	case []byte:
 		*e = OrderType(s)
@@ -81,7 +81,7 @@ type NullOrderType struct {
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullOrderType) Scan(value interface{}) error {
+func (ns *NullOrderType) Scan(value any) error {
 	if value == nil {
 		ns.OrderType, ns.Valid = "", false
 		return nil
@@ -127,7 +127,7 @@ type MenuItem struct {
 }
 
 type Order struct {
-	ID              pgtype.UUID      `json:"id"`
+	ID              int32            `json:"id"`
 	CustomerName    string           `json:"customer_name"`
 	CustomerPhone   string           `json:"customer_phone"`
 	CustomerAddress string           `json:"customer_address"`

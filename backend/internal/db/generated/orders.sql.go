@@ -61,7 +61,7 @@ SELECT id, customer_name, customer_phone, customer_address, order_type, order_st
 WHERE id = $1
 `
 
-func (q *Queries) GetOrderByID(ctx context.Context, id pgtype.UUID) (Order, error) {
+func (q *Queries) GetOrderByID(ctx context.Context, id int32) (Order, error) {
 	row := q.db.QueryRow(ctx, getOrderByID, id)
 	var i Order
 	err := row.Scan(
@@ -123,7 +123,7 @@ RETURNING id, customer_name, customer_phone, customer_address, order_type, order
 `
 
 type UpdateOrderStatusParams struct {
-	ID          pgtype.UUID `json:"id"`
+	ID          int32       `json:"id"`
 	OrderStatus OrderStatus `json:"order_status"`
 }
 

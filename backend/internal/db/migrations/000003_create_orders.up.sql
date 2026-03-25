@@ -2,7 +2,7 @@ CREATE TYPE order_type AS ENUM('delivery', 'pickup');
 CREATE TYPE order_status AS ENUM('new', 'confirmed', 'preparing', 'ready', 'delivered');
 
 CREATE TABLE IF NOT EXISTS orders (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id SERIAL PRIMARY KEY,
     customer_name VARCHAR(255) NOT NULL,
     customer_phone VARCHAR(255) NOT NULL,
     customer_address TEXT NOT NULL,
