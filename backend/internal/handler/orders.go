@@ -125,7 +125,6 @@ func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	// 7. Возвращаем ответ
 	respondData(w, http.StatusCreated, createOrderResponse{
 		ID:         order.ID,
 		Status:     string(order.OrderStatus),
@@ -151,7 +150,6 @@ func (h *Handler) buildOrderSnapshots(
 			return nil, 0, fmt.Errorf("menu item '%s' is not available", menuItem.Name)
 		}
 
-		// Определяем цену в зависимости от размера
 		unitPrice, err := resolvePrice(menuItem, item.Size)
 		if err != nil {
 			return nil, 0, fmt.Errorf("menu item '%s': %w", menuItem.Name, err)
@@ -192,14 +190,12 @@ func resolvePrice(item generated.MenuItem, size string) (float64, error) {
 	}
 }
 
-// floatToNumeric конвертирует float64 в pgtype.Numeric
 func floatToNumeric(f float64) pgtype.Numeric {
 	n := pgtype.Numeric{}
 	_ = n.Scan(fmt.Sprintf("%.2f", f))
 	return n
 }
 
-// sendOrderEmail — заглушка, реализуем в Шаге 4
 func (h *Handler) sendOrderEmail(order generated.Order, items []orderItemSnapshot) error {
 	log.Printf("sendOrderEmail: order #%d, total: %.2f NOK — email not implemented yet",
 		order.ID, 0.0)
