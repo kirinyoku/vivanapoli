@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -195,7 +196,7 @@ func seedMenuItems(ctx context.Context, q *generated.Queries) {
 		{
 			CategorySlug: "burgers",
 			Name:         "Classic Burger",
-			Description:  "Storfekjøtt, salat, tomat, løk, dressing",
+			Description:  "Storfekjøtt, salat, tomat, løк, dressing",
 			PriceLarge:   179,
 			Allergens:    []string{"gluten", "melk", "sennep"},
 		},
@@ -217,14 +218,14 @@ func seedMenuItems(ctx context.Context, q *generated.Queries) {
 		{
 			CategorySlug: "kebab",
 			Name:         "Kebab Tallerken",
-			Description:  "Kebabkjøtt, salat, tomat, løk, hvitløkssaus, pommes frites",
+			Description:  "Kebabkjøtt, salat, tomat, løк, hvitløkssaus, pommes frites",
 			PriceLarge:   189,
 			Allergens:    []string{"gluten", "melk"},
 		},
 		{
 			CategorySlug: "kebab",
 			Name:         "Kebab i Pita",
-			Description:  "Kebabkjøtt, salat, tomat, løk, hvitløkssaus",
+			Description:  "Kebabkjøtt, salat, tomat, løк, hvitløkssaus",
 			PriceLarge:   169,
 			Allergens:    []string{"gluten", "melk", "sesamfrø"},
 		},
@@ -247,7 +248,7 @@ func seedMenuItems(ctx context.Context, q *generated.Queries) {
 		{
 			CategorySlug: "barnemeny",
 			Name:         "Barnemeny Burger",
-			Description:  "Liten burger med pommes frites og juice",
+			Description:  "Liten burger med pommes frites и juice",
 			PriceLarge:   129,
 			Allergens:    []string{"gluten", "melk"},
 		},
@@ -282,13 +283,12 @@ func seedMenuItems(ctx context.Context, q *generated.Queries) {
 		},
 	}
 
-	for _, item := range items {
+	for i, item := range items {
 		category, err := q.GetCategoryBySlug(ctx, item.CategorySlug)
 		if err != nil {
 			log.Fatalf("  Category '%s' not found: %v", item.CategorySlug, err)
 		}
 
-		// Идемпотентность — проверяем по имени + категории
 		existing, _ := q.GetMenuItemsByCategory(ctx, category.ID)
 		alreadyExists := false
 		for _, e := range existing {
@@ -309,10 +309,11 @@ func seedMenuItems(ctx context.Context, q *generated.Queries) {
 			PriceLarge:  pgNumeric(item.PriceLarge),
 			Allergens:   item.Allergens,
 			IsAvailable: true,
+			SortOrder:   int32(i + 1),
 		}
 
 		if item.PriceSmall != nil {
-			params.PriceSmall = pgNumericPtr(*item.PriceSmall)
+			params.PriceSmall = pgNumeric(*item.PriceSmall)
 		}
 
 		created, err := q.CreateMenuItem(ctx, params)
@@ -350,7 +351,7 @@ func seedAdminUser(ctx context.Context, q *generated.Queries, cfg *config.Config
 	}
 
 	log.Printf("  Created admin user '%s' (id=%d)", admin.Email, admin.ID)
-	log.Println("  Password: admin123  ← сменить после первого входа!")
+	log.Println("  Password: admin123  ← change after the first login!")
 }
 
 // -----------------------------------------------------------------------
@@ -366,10 +367,6 @@ func pgStringPtr(s string) *string {
 
 func pgNumeric(v float64) pgtype.Numeric {
 	n := pgtype.Numeric{}
-	_ = n.Scan(v)
+	_ = n.Scan(fmt.Sprintf("%.2f", v))
 	return n
-}
-
-func pgNumericPtr(v float64) pgtype.Numeric {
-	return pgNumeric(v)
 }
