@@ -8,14 +8,17 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// Config holds all environment-based configuration for the backend application.
 type Config struct {
-	Port           string
-	DBUrl          string
-	JWTSecret      string
-	ResendApiKey   string
-	AllowedOrigins []string
+	Port           string   // HTTP port the server listens on
+	DBUrl          string   // PostgreSQL connection URL
+	JWTSecret      string   // Secret key for JWT authentication
+	ResendApiKey   string   // API key for Resend email service
+	AllowedOrigins []string // CORS allowed origins
 }
 
+// Load reads configuration from .env file or environment variables.
+// It prioritizes .env but falls back to environment variables or defaults.
 func Load() *Config {
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, reading from environment")

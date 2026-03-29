@@ -10,11 +10,13 @@ import (
 	"github.com/rs/cors"
 )
 
+// Handler struct encapsulates all API request handlers and their dependencies.
 type Handler struct {
-	queries *generated.Queries
-	config  *config.Config
+	queries *generated.Queries // sqlc-generated database queries
+	config  *config.Config     // Application configuration
 }
 
+// New creates a new Handler instance with database and config dependencies.
 func New(queries *generated.Queries, config *config.Config) *Handler {
 	return &Handler{
 		queries: queries,
@@ -22,19 +24,23 @@ func New(queries *generated.Queries, config *config.Config) *Handler {
 	}
 }
 
+// SetupRoutes initializes the Chi router and defines all API endpoints.
 func (h *Handler) SetupRoutes() *chi.Mux {
 	r := chi.NewRouter()
 
+	// Global middleware
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(h.corsMiddleware())
 
+	// Health check endpoint
 	r.Get("/health", h.handleHealth)
 
+	// API endpoints group
 	r.Route("/api", func(r chi.Router) {
-		r.Get("/menu", h.GetMenu)
-		r.Get("/settings", h.GetSettings)
-		r.Post("/orders", h.CreateOrder)
+		r.Get("/menu", h.GetMenu)          // Fetch full menu grouped by categories
+		r.Get("/settings", h.GetSettings)  // Fetch restaurant configuration
+		r.Post("/orders", h.CreateOrder)   // Place a new order
 	})
 
 	return r
