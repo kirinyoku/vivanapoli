@@ -3,11 +3,15 @@ package handler
 import (
 	"log"
 	"net/http"
+	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/kirinyoku/vivanapoli/backend/internal/db/generated"
 )
 
+// menuItemResponse is the public DTO for a menu item.
+// Prices are pointers to float64 to correctly represent NULL values from the DB.
 type menuItemResponse struct {
 	ID          int32    `json:"id"`
 	Name        string   `json:"name"`
@@ -25,6 +29,7 @@ type categoryResponse struct {
 	Items []menuItemResponse `json:"items"`
 }
 
+// toMenuItemResponse converts a DB model to a JSON-friendly response struct.
 func toMenuItemResponse(item generated.MenuItem) menuItemResponse {
 	return menuItemResponse{
 		ID:          item.ID,
@@ -37,6 +42,9 @@ func toMenuItemResponse(item generated.MenuItem) menuItemResponse {
 	}
 }
 
+// GetMenu fetches all categories and their items in a nested structure.
+// NOTE: This performs multiple queries (N+1-ish) which is acceptable for a
+// small menu, but might need optimization if the menu grows significantly.
 func (h *Handler) GetMenu(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -50,6 +58,7 @@ func (h *Handler) GetMenu(w http.ResponseWriter, r *http.Request) {
 	response := make([]categoryResponse, 0, len(categories))
 
 	for _, cat := range categories {
+		// We only fetch items that are marked as 'available' for the public menu.
 		items, err := h.queries.GetAvailableMenuItemsByCategory(ctx, cat.ID)
 		if err != nil {
 			log.Printf("GetMenu: failed to get items for category %d: %v", cat.ID, err)
@@ -73,6 +82,220 @@ func (h *Handler) GetMenu(w http.ResponseWriter, r *http.Request) {
 	respondData(w, http.StatusOK, response)
 }
 
+// Admin Menu Categories Handlers
+func (h *Handler) AdminGetCategories(w http.ResponseWriter, r *http.Request) {
+	categories, err := h.queries.GetCategories(r.Context())
+	if err != nil {
+		log.Printf("AdminGetCategories: %v", err)
+		respondInternalError(w)
+		return
+	}
+	respondData(w, http.StatusOK, categories)
+}
+
+func (h *Handler) AdminCreateCategory(w http.ResponseWriter, r *http.Request) {
+	var params generated.CreateCategoryParams
+	if !decodeJSON(w, r, &params) {
+		return
+	}
+
+	if params.Name == "" || params.Slug == "" {
+		respondBadRequest(w, "name and slug are required")
+		return
+	}
+
+	category, err := h.queries.CreateCategory(r.Context(), params)
+	if err != nil {
+		log.Printf("AdminCreateCategory: %v", err)
+		respondInternalError(w)
+		return
+	}
+
+	respondData(w, http.StatusCreated, category)
+}
+
+func (h *Handler) AdminUpdateCategory(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		respondBadRequest(w, "invalid category id")
+		return
+	}
+
+	var params generated.UpdateCategoryParams
+	if !decodeJSON(w, r, &params) {
+		return
+	}
+	params.ID = int32(id)
+
+	if params.Name == "" || params.Slug == "" {
+		respondBadRequest(w, "name and slug are required")
+		return
+	}
+
+	category, err := h.queries.UpdateCategory(r.Context(), params)
+	if err != nil {
+		log.Printf("AdminUpdateCategory: %v", err)
+		respondInternalError(w)
+		return
+	}
+
+	respondData(w, http.StatusOK, category)
+}
+
+func (h *Handler) AdminDeleteCategory(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		respondBadRequest(w, "invalid category id")
+		return
+	}
+
+	err = h.queries.DeleteCategory(r.Context(), int32(id))
+	if err != nil {
+		log.Printf("AdminDeleteCategory: %v", err)
+		respondInternalError(w)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// Admin Menu Items Handlers
+
+// adminMenuItemRequest handles the input for creating/updating items.
+// We use *float64 for prices to differentiate between 0 and "not provided" (null).
+type adminMenuItemRequest struct {
+	CategoryID  int32    `json:"category_id"`
+	Name        string   `json:"name"`
+	Description *string  `json:"description"`
+	PriceSmall  *float64 `json:"price_small"`
+	PriceLarge  *float64 `json:"price_large"`
+	Allergens   []string `json:"allergens"`
+	IsAvailable bool     `json:"is_available"`
+	SortOrder   int32    `json:"sort_order"`
+}
+
+func (h *Handler) AdminGetMenuItems(w http.ResponseWriter, r *http.Request) {
+	items, err := h.queries.GetMenuItems(r.Context())
+	if err != nil {
+		log.Printf("AdminGetMenuItems: %v", err)
+		respondInternalError(w)
+		return
+	}
+
+	response := make([]menuItemResponse, 0, len(items))
+	for _, item := range items {
+		response = append(response, toMenuItemResponse(item))
+	}
+
+	respondData(w, http.StatusOK, response)
+}
+
+func (h *Handler) AdminCreateMenuItem(w http.ResponseWriter, r *http.Request) {
+	var req adminMenuItemRequest
+	if !decodeJSON(w, r, &req) {
+		return
+	}
+
+	if req.Name == "" || req.CategoryID == 0 {
+		respondBadRequest(w, "name and category_id are required")
+		return
+	}
+
+	params := generated.CreateMenuItemParams{
+		CategoryID:  req.CategoryID,
+		Name:        req.Name,
+		Description: req.Description,
+		PriceSmall:  ptrToPgNumeric(req.PriceSmall),
+		PriceLarge:  ptrToPgNumeric(req.PriceLarge),
+		Allergens:   req.Allergens,
+		IsAvailable: req.IsAvailable,
+		SortOrder:   req.SortOrder,
+	}
+
+	item, err := h.queries.CreateMenuItem(r.Context(), params)
+	if err != nil {
+		log.Printf("AdminCreateMenuItem: %v", err)
+		respondInternalError(w)
+		return
+	}
+
+	respondData(w, http.StatusCreated, toMenuItemResponse(item))
+}
+
+func (h *Handler) AdminUpdateMenuItem(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		respondBadRequest(w, "invalid menu item id")
+		return
+	}
+
+	var req adminMenuItemRequest
+	if !decodeJSON(w, r, &req) {
+		return
+	}
+
+	if req.Name == "" || req.CategoryID == 0 {
+		respondBadRequest(w, "name and category_id are required")
+		return
+	}
+
+	params := generated.UpdateMenuItemParams{
+		ID:          int32(id),
+		CategoryID:  req.CategoryID,
+		Name:        req.Name,
+		Description: req.Description,
+		PriceSmall:  ptrToPgNumeric(req.PriceSmall),
+		PriceLarge:  ptrToPgNumeric(req.PriceLarge),
+		Allergens:   req.Allergens,
+		IsAvailable: req.IsAvailable,
+		SortOrder:   req.SortOrder,
+	}
+
+	item, err := h.queries.UpdateMenuItem(r.Context(), params)
+	if err != nil {
+		log.Printf("AdminUpdateMenuItem: %v", err)
+		respondInternalError(w)
+		return
+	}
+
+	respondData(w, http.StatusOK, toMenuItemResponse(item))
+}
+
+func (h *Handler) AdminDeleteMenuItem(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		respondBadRequest(w, "invalid menu item id")
+		return
+	}
+
+	err = h.queries.DeleteMenuItem(r.Context(), int32(id))
+	if err != nil {
+		log.Printf("AdminDeleteMenuItem: %v", err)
+		respondInternalError(w)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// ptrToPgNumeric converts a Go float64 pointer to a PostgreSQL numeric type.
+// This is required because pgx/sqlc uses pgtype.Numeric for high-precision decimals.
+func ptrToPgNumeric(f *float64) pgtype.Numeric {
+	if f == nil {
+		return pgtype.Numeric{Valid: false}
+	}
+	n := pgtype.Numeric{}
+	// Scan handles the string conversion to numeric internally.
+	_ = n.Scan(strconv.FormatFloat(*f, 'f', 2, 64))
+	return n
+}
+
+// pgNumericToPtr converts a PostgreSQL numeric back to a Go float64 pointer.
+// Returns nil if the value is NULL in the database.
 func pgNumericToPtr(n pgtype.Numeric) *float64 {
 	if !n.Valid {
 		return nil

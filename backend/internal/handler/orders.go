@@ -6,10 +6,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/kirinyoku/vivanapoli/backend/internal/db/generated"
+	"github.com/resend/resend-go/v3"
 )
 
 type orderItemRequest struct {
@@ -43,6 +46,8 @@ type createOrderResponse struct {
 	Items      []orderItemSnapshot `json:"items"`
 }
 
+// validate checks the integrity of the order request.
+// It enforces that delivery orders must have an address.
 func (req *createOrderRequest) validate() string {
 	if strings.TrimSpace(req.CustomerName) == "" {
 		return "customer_name is required"
@@ -73,6 +78,11 @@ func (req *createOrderRequest) validate() string {
 	return ""
 }
 
+// CreateOrder processes a new customer order.
+// 1. Validates input.
+// 2. Fetches current prices from DB (snapshots).
+// 3. Saves to database.
+// 4. Sends email notification to the restaurant (asynchronously).
 func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -86,6 +96,8 @@ func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// buildOrderSnapshots fetches current item data to calculate totals
+	// and verify availability. Never trust prices sent from the frontend.
 	snapshots, totalPrice, err := h.buildOrderSnapshots(ctx, req.Items)
 	if err != nil {
 		log.Printf("CreateOrder: failed to build snapshots: %v", err)
@@ -119,6 +131,8 @@ func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// We send the email in a separate goroutine so the user doesn't
+	// have to wait for the email service to respond.
 	go func() {
 		if err := h.sendOrderEmail(order, snapshots); err != nil {
 			log.Printf("CreateOrder: failed to send email for order %d: %v", order.ID, err)
@@ -171,6 +185,8 @@ func (h *Handler) buildOrderSnapshots(
 	return snapshots, totalPrice, nil
 }
 
+// resolvePrice determines which price (small/large) to use based on the requested size.
+// It returns an error if the requested size has no price defined in the DB.
 func resolvePrice(item generated.MenuItem, size string) (float64, error) {
 	switch size {
 	case "small":
@@ -196,8 +212,158 @@ func floatToNumeric(f float64) pgtype.Numeric {
 	return n
 }
 
+// sendOrderEmail generates an HTML email for the restaurant owners.
+// It uses Resend and falls back gracefully if the API key is missing.
 func (h *Handler) sendOrderEmail(order generated.Order, items []orderItemSnapshot) error {
-	log.Printf("sendOrderEmail: order #%d, total: %.2f NOK — email not implemented yet",
-		order.ID, 0.0)
+	if h.config.ResendApiKey == "" {
+		log.Println("sendOrderEmail: RESEND_API_KEY is not set, skipping email")
+		return nil
+	}
+
+	f, _ := order.TotalPrice.Float64Value()
+	totalPrice := f.Float64
+
+	var itemsHtml strings.Builder
+	for _, item := range items {
+		sizeStr := ""
+		switch item.Size {
+		case "large":
+			sizeStr = " (Stor)"
+		case "small":
+			sizeStr = " (Liten)"
+		}
+
+		itemsHtml.WriteString(fmt.Sprintf(
+			"<li><strong>%s%s</strong> x %d — %.2f NOK</li>",
+			item.Name, sizeStr, item.Quantity, item.TotalPrice,
+		))
+	}
+
+	addressLine := ""
+	if order.OrderType == "delivery" {
+		addressLine = fmt.Sprintf("<p><strong>Adresse:</strong> %s</p>", order.CustomerAddress)
+	}
+
+	commentLine := ""
+	if order.Comment != nil && *order.Comment != "" {
+		commentLine = fmt.Sprintf("<p><strong>Kommentar:</strong> %s</p>", *order.Comment)
+	}
+
+	htmlContent := fmt.Sprintf(`
+		<h1>Ny bestilling #%d</h1>
+		<p><strong>Kunde:</strong> %s</p>
+		<p><strong>Telefon:</strong> %s</p>
+		%s
+		<p><strong>Type:</strong> %s</p>
+		%s
+		<hr />
+		<ul>
+			%s
+		</ul>
+		<p><strong>Totalpris: %.2f NOK</strong></p>
+	`,
+		order.ID,
+		order.CustomerName,
+		order.CustomerPhone,
+		addressLine,
+		order.OrderType,
+		commentLine,
+		itemsHtml.String(),
+		totalPrice,
+	)
+
+	params := &resend.SendEmailRequest{
+		From:    h.config.OrderEmailFrom,
+		To:      []string{h.config.OrderEmailTo},
+		Subject: fmt.Sprintf("Ny bestilling #%d - %s", order.ID, order.CustomerName),
+		Html:    htmlContent,
+	}
+
+	_, err := h.resend.Emails.Send(params)
+	if err != nil {
+		return fmt.Errorf("failed to send email via Resend: %w", err)
+	}
+
+	log.Printf("sendOrderEmail: email sent for order #%d", order.ID)
 	return nil
+}
+
+type orderResponse struct {
+	ID              int32               `json:"id"`
+	CustomerName    string              `json:"customer_name"`
+	CustomerPhone   string              `json:"customer_phone"`
+	CustomerAddress string              `json:"customer_address"`
+	OrderType       string              `json:"order_type"`
+	OrderStatus     string              `json:"order_status"`
+	Items           []orderItemSnapshot `json:"items"`
+	TotalPrice      float64             `json:"total_price"`
+	Comment         *string             `json:"comment"`
+	CreatedAt       pgtype.Timestamp    `json:"created_at"`
+}
+
+func toOrderResponse(o generated.Order) orderResponse {
+	var items []orderItemSnapshot
+	_ = json.Unmarshal(o.Items, &items)
+
+	f, _ := o.TotalPrice.Float64Value()
+
+	return orderResponse{
+		ID:              o.ID,
+		CustomerName:    o.CustomerName,
+		CustomerPhone:   o.CustomerPhone,
+		CustomerAddress: o.CustomerAddress,
+		OrderType:       string(o.OrderType),
+		OrderStatus:     string(o.OrderStatus),
+		Items:           items,
+		TotalPrice:      f.Float64,
+		Comment:         o.Comment,
+		CreatedAt:       o.CreatedAt,
+	}
+}
+
+// Admin Order Handlers
+func (h *Handler) AdminGetOrders(w http.ResponseWriter, r *http.Request) {
+	orders, err := h.queries.GetOrders(r.Context())
+	if err != nil {
+		log.Printf("AdminGetOrders: %v", err)
+		respondInternalError(w)
+		return
+	}
+
+	response := make([]orderResponse, 0, len(orders))
+	for _, o := range orders {
+		response = append(response, toOrderResponse(o))
+	}
+
+	respondData(w, http.StatusOK, response)
+}
+
+type updateOrderStatusRequest struct {
+	Status string `json:"status"`
+}
+
+func (h *Handler) AdminUpdateOrderStatus(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		respondBadRequest(w, "invalid order id")
+		return
+	}
+
+	var req updateOrderStatusRequest
+	if !decodeJSON(w, r, &req) {
+		return
+	}
+
+	order, err := h.queries.UpdateOrderStatus(r.Context(), generated.UpdateOrderStatusParams{
+		ID:          int32(id),
+		OrderStatus: generated.OrderStatus(req.Status),
+	})
+	if err != nil {
+		log.Printf("AdminUpdateOrderStatus: %v", err)
+		respondInternalError(w)
+		return
+	}
+
+	respondData(w, http.StatusOK, toOrderResponse(order))
 }

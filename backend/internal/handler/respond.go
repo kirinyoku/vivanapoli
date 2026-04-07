@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// respondJSON is the base helper for sending JSON responses.
 func respondJSON(w http.ResponseWriter, status int, data any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -25,6 +26,7 @@ func respondError(w http.ResponseWriter, status int, message string) {
 	})
 }
 
+// respondData wraps the payload in a "data" object for consistent API structure.
 func respondData(w http.ResponseWriter, status int, data any) {
 	respondJSON(w, status, map[string]any{
 		"data": data,
@@ -47,11 +49,19 @@ func respondInternalError(w http.ResponseWriter) {
 	respondError(w, http.StatusInternalServerError, "internal server error")
 }
 
+func respondNotImplemented(w http.ResponseWriter) {
+	respondError(w, http.StatusNotImplemented, "not implemented")
+}
+
+// decodeJSON reads the request body into a destination struct.
+// SECURITY: It limits the body size to 1MB and rejects unknown fields
+// to prevent malicious payloads or accidental data binding.
 func decodeJSON(w http.ResponseWriter, r *http.Request, dst any) bool {
+	// Limit request body size to 1MB to prevent memory exhaustion attacks.
 	r.Body = http.MaxBytesReader(w, r.Body, 1<<20)
 
 	dec := json.NewDecoder(r.Body)
-	dec.DisallowUnknownFields()
+	dec.DisallowUnknownFields() // Error if the JSON contains fields not in the struct.
 
 	if err := dec.Decode(dst); err != nil {
 		respondBadRequest(w, "invalid request body")

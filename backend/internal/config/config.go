@@ -14,6 +14,8 @@ type Config struct {
 	DBUrl          string   // PostgreSQL connection URL
 	JWTSecret      string   // Secret key for JWT authentication
 	ResendApiKey   string   // API key for Resend email service
+	OrderEmailTo   string   // Recipient email for orders (restaurant)
+	OrderEmailFrom string   // Sender email (e.g. hello@vivanapolinotodden.no)
 	AllowedOrigins []string // CORS allowed origins
 }
 
@@ -29,6 +31,8 @@ func Load() *Config {
 		DBUrl:          getEnv("DB_URL", ""),
 		JWTSecret:      getEnv("JWT_SECRET", ""),
 		ResendApiKey:   getEnv("RESEND_API_KEY", ""),
+		OrderEmailTo:   getEnv("ORDER_EMAIL_TO", ""),
+		OrderEmailFrom: getEnv("ORDER_EMAIL_FROM", ""),
 		AllowedOrigins: parseList(getEnv("ALLOWED_ORIGINS", "http://localhost:3000")),
 	}
 }
