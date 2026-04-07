@@ -1,0 +1,11 @@
+.git
+.env
+docker-compose.yml
+**/tests/**
+**/*_test.go
+*.md
+Makefile
+sqlc.yaml
+queries/
+seed/
+vendor/

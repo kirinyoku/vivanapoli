@@ -10,6 +10,30 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d vivanapoli"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vivanapoli-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - DB_URL=postgres://user:password@localhost:5432/vivanapoli?sslmode=disable
+      - ALLOWED_ORIGINS=http://localhost:3000
+      - JWT_SECRET=
+      - RESEND_API_KEY=
+      - ORDER_EMAIL_TO=
+      - ORDER_EMAIL_FROM=
 
 volumes:
   postgres_data:
