@@ -2,75 +2,45 @@ import SectionTitle from '@/components/ui/SectionTitle';
 import MenuItem from '@/components/ui/MenuItem';
 import Logo from '@/components/ui/Logo';
 import CartTrigger from '@/components/ui/CartTrigger';
+import ScrollSpy from '@/components/ScrollSpy';
+import { api } from '@/lib/api';
 
-const mockPizza = [
-  {
-    id: '1',
-    name: '01. Margherita',
-    description: 'Tomatsaus, fersk mozzarella, basilikum, olivenolje',
-    price: 189,
-    allergens: ['M', 'H'],
-  },
-  {
-    id: '2',
-    name: '02. Diavola',
-    description: 'Tomatsaus, mozzarella, ventricina salami, chili, oregano',
-    price: 215,
-    allergens: ['M', 'H'],
-  },
-  {
-    id: '3',
-    name: '03. Nduja Speciale',
-    description:
-      'Tomatsaus, mozzarella, sterk nduja fra Spilinga, rødløk, oliven',
-    price: 235,
-    isHot: true,
-    allergens: ['M', 'H'],
-  },
-];
+export default async function MenuContent() {
+  let categories = [];
+  try {
+    categories = await api.getMenu();
+  } catch (error) {
+    console.error('Failed to fetch menu:', error);
+  }
 
-const mockMexican = [
-  {
-    id: '15',
-    name: '15. El Paso',
-    description: 'Kjøttdeig, jalapeños, nachochips, tacokrydder',
-    price: 220,
-    allergens: ['M', 'H'],
-  },
-];
+  const categorySlugs = categories.map((cat) => cat.slug);
 
-export default function MenuContent() {
   return (
-    <div className="h-full overflow-y-auto px-6 py-10 lg:px-12 lg:py-16">
+    <div className="h-full overflow-y-auto px-6 py-10 lg:px-12 lg:py-16 scroll-smooth">
+      <ScrollSpy categories={categorySlugs} />
+
       {/* Mobile Header */}
       <header className="mb-8 flex items-center justify-between lg:hidden">
         <Logo className="text-2xl" />
-        <CartTrigger count={2} />
+        <CartTrigger />
       </header>
 
-      <section id="pizza" className="mb-16">
-        <SectionTitle
-          title="Pizze Rosse"
-          description="Laget med San Marzano tomater og fersk mozzarella"
-        />
-        <div className="grid gap-10">
-          {mockPizza.map((item) => (
-            <MenuItem key={item.id} {...item} />
-          ))}
+      {categories.length === 0 ? (
+        <div className="flex h-64 items-center justify-center">
+          <p className="text-text-muted">Kunne ikke laste menyen.</p>
         </div>
-      </section>
-
-      <section id="mexican" className="mb-16">
-        <SectionTitle
-          title="Mexikansk Pizza"
-          description="Kombinasjonen av Italia og Mexico"
-        />
-        <div className="grid gap-10">
-          {mockMexican.map((item) => (
-            <MenuItem key={item.id} {...item} />
-          ))}
-        </div>
-      </section>
+      ) : (
+        categories.map((category) => (
+          <section key={category.id} id={category.slug} className="mb-16">
+            <SectionTitle title={category.name} />
+            <div className="grid gap-10">
+              {category.items.map((item) => (
+                <MenuItem key={item.id} {...item} />
+              ))}
+            </div>
+          </section>
+        ))
+      )}
     </div>
   );
 }

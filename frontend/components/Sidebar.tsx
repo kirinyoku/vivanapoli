@@ -1,23 +1,27 @@
 import Logo from '@/components/ui/Logo';
 import CategoryLink from '@/components/ui/CategoryLink';
 import Badge from '@/components/ui/Badge';
+import { api } from '@/lib/api';
 
-const categories = [
-  { id: 'pizza', name: 'Pizze Rosse', href: '#pizza' },
-  { id: 'mexican', name: 'Mexikansk Pizza', href: '#mexican' },
-  { id: 'nyheter', name: 'Nyheter', href: '#nyheter' },
-  { id: 'calzone', name: 'Calzone', href: '#calzone' },
-  { id: 'burgers', name: 'Burgere', href: '#burgers' },
-  { id: 'kebab', name: 'Kebab', href: '#kebab' },
-  { id: 'drinks', name: 'Drikke', href: '#drinks' },
-];
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+}
 
-export default function Sidebar() {
+export default async function Sidebar() {
+  let categories: Category[] = [];
+  try {
+    categories = await api.getMenu();
+  } catch (error) {
+    console.error('Failed to fetch categories:', error);
+  }
+
   return (
-    <aside className="hidden flex-col border-r border-border-light bg-bg-sidebar px-6 py-10 lg:flex">
+    <aside className="border-border-light bg-bg-sidebar hidden flex-col border-r px-6 py-10 lg:flex">
       <div className="mb-12">
         <Logo className="mb-1 text-3xl" />
-        <p className="font-body text-[0.8rem] tracking-wider text-text-muted uppercase">
+        <p className="font-body text-text-muted text-[0.8rem] tracking-wider uppercase">
           Ekte italiensk siden 2010
         </p>
       </div>
@@ -26,15 +30,13 @@ export default function Sidebar() {
         <ul className="space-y-1">
           {categories.map((cat) => (
             <li key={cat.id}>
-              <CategoryLink href={cat.href} isActive={cat.id === 'pizza'}>
-                {cat.name}
-              </CategoryLink>
+              <CategoryLink href={`#${cat.slug}`}>{cat.name}</CategoryLink>
             </li>
           ))}
         </ul>
       </nav>
 
-      <div className="mt-auto pt-8 font-body text-sm text-text-muted">
+      <div className="font-body text-text-muted mt-auto pt-8 text-sm">
         <p className="mb-2 flex items-center gap-2">
           <span>📍</span> Gamle Hellviksvei 3
         </p>

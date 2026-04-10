@@ -1,16 +1,26 @@
 import {
   Category,
   MenuItem,
+  MenuCategory,
   Order,
+  CreateOrderRequest,
+  LoginRequest,
+  LoginResponse,
   RestaurantSettings,
   OrderType,
 } from '../types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
 type FetchOptions = RequestInit & {
   params?: Record<string, string>;
 };
+
+interface ApiResponse<T> {
+  data: T;
+  error?: string;
+}
 
 class ApiError extends Error {
   status: number;
@@ -21,9 +31,12 @@ class ApiError extends Error {
   }
 }
 
-async function request<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
+async function request<T>(
+  endpoint: string,
+  options: FetchOptions = {}
+): Promise<T> {
   const { params, ...init } = options;
-  
+
   let url = `${API_BASE_URL}${endpoint}`;
   if (params) {
     const searchParams = new URLSearchParams(params);
@@ -52,7 +65,7 @@ async function request<T>(endpoint: string, options: FetchOptions = {}): Promise
     let errorMessage = 'An error occurred';
     try {
       const errorData = await response.json();
-      errorMessage = errorData.message || errorMessage;
+      errorMessage = errorData.error || errorMessage;
     } catch {
       // ignore json parse error
     }
@@ -63,72 +76,67 @@ async function request<T>(endpoint: string, options: FetchOptions = {}): Promise
     return {} as T;
   }
 
-  return response.json();
+  const result: ApiResponse<T> = await response.json();
+  return result.data;
 }
 
 export const api = {
   // Public
-  getMenu: () => request<Category[]>('/menu'),
+  getMenu: () => request<MenuCategory[]>('/menu'),
   getSettings: () => request<RestaurantSettings>('/settings'),
-  placeOrder: (orderData: {
-    customer_name: string;
-    customer_phone: string;
-    customer_address: string;
-    order_type: OrderType;
-    items: any[];
-    comment?: string;
-  }) => request<Order>('/orders', {
-    method: 'POST',
-    body: JSON.stringify(orderData),
-  }),
+  placeOrder: (orderData: CreateOrderRequest) =>
+    request<Order>('/orders', {
+      method: 'POST',
+      body: JSON.stringify(orderData),
+    }),
 
   // Admin Auth
-  login: (credentials: { email: string; password_hash: string }) => 
-    request<{ token: string }>('/admin/login', {
+  login: (credentials: LoginRequest) =>
+    request<LoginResponse>('/admin/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     }),
 
   // Admin Categories
   getCategories: () => request<Category[]>('/admin/menu/categories'),
-  createCategory: (data: Partial<Category>) => 
+  createCategory: (data: Partial<Category>) =>
     request<Category>('/admin/menu/categories', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-  updateCategory: (id: number, data: Partial<Category>) => 
+  updateCategory: (id: number, data: Partial<Category>) =>
     request<Category>(`/admin/menu/categories/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
-  deleteCategory: (id: number) => 
+  deleteCategory: (id: number) =>
     request<void>(`/admin/menu/categories/${id}`, { method: 'DELETE' }),
 
   // Admin Items
   getItems: () => request<MenuItem[]>('/admin/menu/items'),
-  createItem: (data: Partial<MenuItem>) => 
+  createItem: (data: Partial<MenuItem>) =>
     request<MenuItem>('/admin/menu/items', {
       method: 'POST',
       body: JSON.stringify(data),
     }),
-  updateItem: (id: number, data: Partial<MenuItem>) => 
+  updateItem: (id: number, data: Partial<MenuItem>) =>
     request<MenuItem>(`/admin/menu/items/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     }),
-  deleteItem: (id: number) => 
+  deleteItem: (id: number) =>
     request<void>(`/admin/menu/items/${id}`, { method: 'DELETE' }),
 
   // Admin Orders
   getOrders: () => request<Order[]>('/admin/orders'),
-  updateOrder: (id: number, status: string) => 
+  updateOrder: (id: number, status: string) =>
     request<Order>(`/admin/orders/${id}`, {
       method: 'PUT',
       body: JSON.stringify({ order_status: status }),
     }),
 
   // Admin Settings
-  updateSettings: (settings: Record<string, string>) => 
+  updateSettings: (settings: Record<string, string>) =>
     request<void>('/admin/settings', {
       method: 'PUT',
       body: JSON.stringify(settings),

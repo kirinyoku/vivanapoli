@@ -1,15 +1,30 @@
 'use client';
 
 import Button from '@/components/ui/Button';
+import { useCartStore } from '@/store/useCartStore';
 
 interface AddToCartButtonProps {
-  itemId: string;
+  itemId: number;
+  name: string;
+  price: number;
+  size?: 'small' | 'large';
 }
 
-export default function AddToCartButton({ itemId }: AddToCartButtonProps) {
+export default function AddToCartButton({
+  itemId,
+  name,
+  price,
+  size,
+}: AddToCartButtonProps) {
+  const { addItem } = useCartStore();
+
   const handleAdd = () => {
-    console.log('Adding to cart:', itemId);
-    // Logic with Zustand will go here later
+    addItem({
+      menu_item_id: itemId,
+      name,
+      price,
+      size,
+    });
   };
 
   return (

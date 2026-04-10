@@ -19,15 +19,28 @@ export interface MenuItem {
   created_at: string;
 }
 
-export type OrderStatus = 'new' | 'confirmed' | 'preparing' | 'ready' | 'delivered';
+export interface MenuCategory {
+  id: number;
+  name: string;
+  slug: string;
+  items: MenuItem[];
+}
+
+export type OrderStatus =
+  | 'new'
+  | 'confirmed'
+  | 'preparing'
+  | 'ready'
+  | 'delivered';
 export type OrderType = 'delivery' | 'pickup';
 
 export interface OrderItem {
-  id: number;
+  menu_item_id: number;
   name: string;
-  price: number;
   quantity: number;
-  size?: 'small' | 'large';
+  size: 'small' | 'large';
+  unit_price: number;
+  total_price: number;
 }
 
 export interface Order {
@@ -41,6 +54,30 @@ export interface Order {
   total_price: number;
   comment: string | null;
   created_at: string;
+}
+
+export interface CreateOrderItem {
+  menu_item_id: number;
+  quantity: number;
+  size: 'small' | 'large';
+}
+
+export interface CreateOrderRequest {
+  customer_name: string;
+  customer_phone: string;
+  customer_address: string;
+  order_type: OrderType;
+  comment: string;
+  items: CreateOrderItem[];
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  token: string;
 }
 
 export interface Setting {

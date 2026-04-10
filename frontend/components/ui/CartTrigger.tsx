@@ -2,6 +2,7 @@
 
 import { ShoppingCart } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useCartStore } from '@/store/useCartStore';
 
 interface CartTriggerProps {
   count?: number;
@@ -10,10 +11,14 @@ interface CartTriggerProps {
 }
 
 export default function CartTrigger({
-  count = 0,
+  count: propCount,
   className,
   onClick,
 }: CartTriggerProps) {
+  const { getTotalItems } = useCartStore();
+  const storeCount = getTotalItems();
+  const count = propCount !== undefined ? propCount : storeCount;
+
   return (
     <button
       onClick={onClick}
