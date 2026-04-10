@@ -1,57 +1,47 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --color-primary: #dc2626;
-  --color-primary-hover: #b91c1c;
-  --color-secondary: #16a34a;
-  --color-accent: #f59e0b;
+  --color-primary: #8b0000;
+  --color-primary-dark: #6b0000;
+  --color-text-dark: #1a1a1a;
+  --color-text-muted: #666666;
+  --color-bg-page: #f9f8f4;
+  --color-bg-sidebar: #ffffff;
+  --color-accent-gold: #c5a059;
+  --color-border-light: #ecebe4;
+  --color-status-success-bg: #e7f5ed;
+  --color-status-success-text: #16a34a;
+  --color-tag-hot-bg: #fee2e2;
+  --color-tag-hot-text: #dc2626;
 
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
-  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo,
-    Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --font-heading: var(--font-heading), 'Cormorant Garamond', serif;
+  --font-body: var(--font-body), 'Inter', sans-serif;
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #111827;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #f9fafb;
-  }
+  --background: #f9f8f4;
+  --foreground: #1a1a1a;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-@layer base {
-  *,
-  ::after,
-  ::before {
-    border-color: var(--color-gray-200);
+@layer utilities {
+  .animate-spin-slow {
+    animation: spin 20s linear infinite;
   }
-}
 
-/* Custom utility for container if needed, though Tailwind 4 has its own logic */
-.container {
-  max-width: 1280px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-
-@media (min-width: 640px) {
-  .container {
-    padding-left: 2rem;
-    padding-right: 2rem;
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
   }
 }
