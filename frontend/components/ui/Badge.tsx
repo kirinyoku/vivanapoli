@@ -15,6 +15,7 @@ export default function Badge({
   const variants = {
     success: 'bg-status-success-bg text-status-success-text',
     hot: 'bg-tag-hot-bg text-tag-hot-text uppercase font-bold',
+    error: 'bg-tag-hot-bg text-tag-hot-text',
     outline: 'border border-border-light text-text-muted',
     ghost: 'text-text-muted text-[10px] uppercase tracking-wider',
   };

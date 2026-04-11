@@ -1,8 +1,10 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCartStore } from '@/store/useCartStore';
+import Link from 'next/link';
 
 interface CartTriggerProps {
   count?: number;
@@ -15,13 +17,18 @@ export default function CartTrigger({
   className,
   onClick,
 }: CartTriggerProps) {
+  const [mounted, setMounted] = useState(false);
   const { getTotalItems } = useCartStore();
-  const storeCount = getTotalItems();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const storeCount = mounted ? getTotalItems() : 0;
   const count = propCount !== undefined ? propCount : storeCount;
 
-  return (
-    <button
-      onClick={onClick}
+  const content = (
+    <div
       className={cn(
         'relative inline-flex items-center justify-center rounded-full p-2 transition-colors hover:bg-black/5',
         className
@@ -33,6 +40,17 @@ export default function CartTrigger({
           {count}
         </span>
       )}
-    </button>
+    </div>
   );
+
+  if (onClick) {
+    return (
+      <button onClick={onClick} className="p-0 border-none bg-transparent">
+        {content}
+      </button>
+    );
+  }
+
+  return <Link href="/checkout">{content}</Link>;
 }
+

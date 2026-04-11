@@ -1,15 +1,22 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Price from '@/components/ui/Price';
 import Button from '@/components/ui/Button';
 import { useCartStore } from '@/store/useCartStore';
 import { Minus, Plus, Trash2 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function CartPanel() {
+  const [mounted, setMounted] = useState(false);
   const { items, updateQuantity, removeItem, getTotalPrice } = useCartStore();
   const totalPrice = getTotalPrice();
 
-  if (items.length === 0) {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || items.length === 0) {
     return (
       <aside className="hidden flex-col border-l border-border-light bg-bg-sidebar px-6 py-10 lg:flex">
         <div className="flex flex-col h-full">
@@ -88,9 +95,11 @@ export default function CartPanel() {
             <Price amount={totalPrice} className="text-xl" />
           </div>
 
-          <Button size="lg" className="w-full rounded-xl">
-            Gå til kassen
-          </Button>
+          <Link href="/checkout">
+            <Button size="lg" className="w-full rounded-xl">
+              Gå til kassen
+            </Button>
+          </Link>
           <p className="mt-4 text-center text-xs text-text-muted italic">
             Minste bestilling for levering er 200,-
           </p>
@@ -99,3 +108,4 @@ export default function CartPanel() {
     </aside>
   );
 }
+

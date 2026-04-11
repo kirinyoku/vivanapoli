@@ -1,6 +1,6 @@
 import Logo from '@/components/ui/Logo';
 import CategoryLink from '@/components/ui/CategoryLink';
-import Badge from '@/components/ui/Badge';
+import ShopStatusBadge from '@/components/ui/ShopStatusBadge';
 import { api } from '@/lib/api';
 
 interface Category {
@@ -11,10 +11,17 @@ interface Category {
 
 export default async function Sidebar() {
   let categories: Category[] = [];
+  let isManualOpen = true;
+
   try {
-    categories = await api.getMenu();
+    const [menuData, settingsData] = await Promise.all([
+      api.getMenu(),
+      api.getSettings(),
+    ]);
+    categories = menuData;
+    isManualOpen = (settingsData as any).is_open !== 'false';
   } catch (error) {
-    console.error('Failed to fetch categories:', error);
+    console.error('Failed to fetch sidebar data:', error);
   }
 
   return (
@@ -43,8 +50,9 @@ export default async function Sidebar() {
         <p className="mb-4 flex items-center gap-2">
           <span>📞</span> 90 89 77 77
         </p>
-        <Badge variant="success">Åpent til 22:00</Badge>
+        <ShopStatusBadge isManualClosed={!isManualOpen} />
       </div>
     </aside>
   );
 }
+
