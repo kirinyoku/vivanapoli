@@ -13,6 +13,8 @@ export interface MenuItem {
   description: string | null;
   price_small: number | null;
   price_large: number | null;
+  discount_price_small: number | null;
+  discount_price_large: number | null;
   allergens: string[];
   is_available: boolean;
   sort_order: number;
@@ -86,11 +88,11 @@ export interface Setting {
 }
 
 export interface RestaurantSettings {
-  name: string;
   address: string;
   phone: string;
-  opening_hours: string;
+  open_time: string;
+  close_time: string;
   delivery_time: string;
-  currency: string;
-  language: string;
+  min_order_price: string;
+  is_open: string;
 }

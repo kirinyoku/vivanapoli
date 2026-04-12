@@ -41,10 +41,10 @@ export default function CategoryLink({
       href={href}
       onClick={handleClick}
       className={cn(
-        'block py-2 font-heading text-[1.1rem] font-semibold transition-all duration-200 no-underline',
+        'font-heading block cursor-pointer py-2 text-[1.1rem] font-semibold no-underline transition-all duration-200',
         isActive
-          ? 'translate-x-1 text-primary'
-          : 'text-text-muted hover:translate-x-1 hover:text-primary',
+          ? 'text-primary translate-x-1'
+          : 'text-text-muted hover:text-primary hover:translate-x-1',
         className
       )}
     >

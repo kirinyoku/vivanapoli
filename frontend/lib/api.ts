@@ -22,7 +22,7 @@ interface ApiResponse<T> {
   error?: string;
 }
 
-class ApiError extends Error {
+export class ApiError extends Error {
   status: number;
   constructor(message: string, status: number) {
     super(message);
@@ -65,7 +65,8 @@ async function request<T>(
     let errorMessage = 'An error occurred';
     try {
       const errorData = await response.json();
-      errorMessage = errorData.error || errorMessage;
+      // Handle both {"error": "message"} and {"data": {"error": "message"}} formats
+      errorMessage = errorData.error || errorData.data?.error || errorMessage;
     } catch {
       // ignore json parse error
     }
@@ -129,10 +130,12 @@ export const api = {
 
   // Admin Orders
   getOrders: () => request<Order[]>('/admin/orders'),
+  getStats: () =>
+    request<{ total_orders: number; total_revenue: number }>('/admin/stats'),
   updateOrder: (id: number, status: string) =>
-    request<Order>(`/admin/orders/${id}`, {
+    request<Order>(`/admin/orders/${id}/status`, {
       method: 'PUT',
-      body: JSON.stringify({ order_status: status }),
+      body: JSON.stringify({ status: status }),
     }),
 
   // Admin Settings

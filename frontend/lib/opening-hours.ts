@@ -1,23 +1,3 @@
-export interface DayHours {
-  open: string; // HH:mm
-  close: string; // HH:mm
-  closed?: boolean;
-}
-
-export interface WeeklyHours {
-  [key: number]: DayHours; // 0 (Sunday) to 6 (Saturday)
-}
-
-export const OPENING_HOURS: WeeklyHours = {
-  1: { open: '14:00', close: '22:00' }, // Monday
-  2: { open: '14:00', close: '22:00' }, // Tuesday
-  3: { open: '14:00', close: '22:00' }, // Wednesday
-  4: { open: '14:00', close: '22:00' }, // Thursday
-  5: { open: '14:00', close: '22:00' }, // Friday
-  6: { open: '14:00', close: '22:00' }, // Saturday
-  0: { open: '14:00', close: '22:00' }, // Sunday
-};
-
 export type StatusType = 'open' | 'closed' | 'closing_soon';
 
 export interface ShopStatus {
@@ -25,10 +5,24 @@ export interface ShopStatus {
   message: string;
 }
 
-export function getShopStatus(isManualClosed: boolean = false): ShopStatus {
-  if (isManualClosed) {
+/**
+ * Calculates if the shop is currently open based on Norway's timezone.
+ * @param openTime - Opening time in HH:mm format (e.g., "14:00")
+ * @param closeTime - Closing time in HH:mm format (e.g., "22:00")
+ * @param isManualClosed - Force-closed flag from admin settings
+ */
+export function getShopStatus(
+  openTime: any = '14:00',
+  closeTime: any = '22:00',
+  isManualClosed: boolean = false
+): ShopStatus {
+  if (isManualClosed === true) {
     return { status: 'closed', message: 'Stengt for øyeblikket' };
   }
+
+  // Ensure we have strings to split
+  const strOpen = typeof openTime === 'string' ? openTime : '14:00';
+  const strClose = typeof closeTime === 'string' ? closeTime : '22:00';
 
   // Use Norway's timezone (Central European Time)
   const now = new Date();
@@ -36,55 +30,38 @@ export function getShopStatus(isManualClosed: boolean = false): ShopStatus {
     timeZone: 'Europe/Oslo',
     hour: 'numeric',
     minute: 'numeric',
-    second: 'numeric',
     weekday: 'short',
     hour12: false,
   }).formatToParts(now);
 
   const getPart = (type: string) => norwayTime.find(p => p.type === type)?.value;
-  
-  const weekdayStr = getPart('weekday') || 'Sun';
-  const dayMap: Record<string, number> = {
-    'Sun': 0, 'Mon': 1, 'Tue': 2, 'Wed': 3, 'Thu': 4, 'Fri': 5, 'Sat': 6
-  };
-  
-  const weekday = dayMap[weekdayStr];
+
   const hours = parseInt(getPart('hour') || '0');
   const minutes = parseInt(getPart('minute') || '0');
   const currentTimeInMinutes = hours * 60 + minutes;
 
-  const todayHours = OPENING_HOURS[weekday];
+  const [openH, openM] = strOpen.split(':').map(Number);
+  const [closeH, closeM] = strClose.split(':').map(Number);
 
-  if (todayHours.closed) {
-    return { status: 'closed', message: 'Stengt i dag' };
-  }
-
-  const [openH, openM] = todayHours.open.split(':').map(Number);
-  const [closeH, closeM] = todayHours.close.split(':').map(Number);
-  
-  const openTimeInMinutes = openH * 60 + openM;
-  const closeTimeInMinutes = closeH * 60 + closeM;
+  const openTimeInMinutes = (openH || 0) * 60 + (openM || 0);
+  const closeTimeInMinutes = (closeH || 0) * 60 + (closeM || 0);
 
   if (currentTimeInMinutes >= openTimeInMinutes && currentTimeInMinutes < closeTimeInMinutes) {
     // If less than 30 minutes until closing
     if (closeTimeInMinutes - currentTimeInMinutes <= 30) {
-      return { status: 'closing_soon', message: `Stenger snart (${todayHours.close})` };
+      return { status: 'closing_soon', message: `Stenger snart (${strClose})` };
     }
-    return { status: 'open', message: `Åpent til ${todayHours.close}` };
+    return { status: 'open', message: `Åpent til ${strClose}` };
   }
 
   // If closed, check when it opens next
   if (currentTimeInMinutes < openTimeInMinutes) {
-    return { status: 'closed', message: `Stengt - Åpner ${todayHours.open}` };
+    return { status: 'closed', message: `Stengt - Åpner ${strOpen}` };
   }
 
-  // If already closed today, check tomorrow
-  const nextDay = (weekday + 1) % 7;
-  const tomorrowHours = OPENING_HOURS[nextDay];
+  // If already closed today
   return { 
     status: 'closed', 
-    message: tomorrowHours.closed 
-      ? 'Stengt - Åpner mandag' 
-      : `Stengt - Åpner i morgen ${tomorrowHours.open}` 
+    message: `Stengt - Åpner i morgen ${strOpen}` 
   };
 }

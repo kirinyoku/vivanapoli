@@ -30,7 +30,7 @@ export default function AddToCartButton({
   return (
     <Button
       variant="link"
-      className="text-primary hover:underline"
+      className="text-primary hover:text-primary-dark transition-colors duration-200 hover:underline"
       onClick={handleAdd}
     >
       Legg til +

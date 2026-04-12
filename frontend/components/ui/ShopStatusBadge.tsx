@@ -6,8 +6,12 @@ import { getShopStatus, ShopStatus } from '@/lib/opening-hours';
 
 export default function ShopStatusBadge({
   isManualClosed = false,
+  openTime = '14:00',
+  closeTime = '22:00',
 }: {
   isManualClosed?: boolean;
+  openTime?: string;
+  closeTime?: string;
 }) {
   const [mounted, setMounted] = useState(false);
   const [status, setStatus] = useState<ShopStatus | null>(null);
@@ -21,13 +25,13 @@ export default function ShopStatusBadge({
   useEffect(() => {
     if (!mounted) return;
 
-    const update = () => setStatus(getShopStatus(isManualClosed));
+    const update = () => setStatus(getShopStatus(openTime, closeTime, isManualClosed));
     update();
 
     // Update every minute to keep the status fresh
     const timer = setInterval(update, 60000);
     return () => clearInterval(timer);
-  }, [mounted, isManualClosed]);
+  }, [mounted, isManualClosed, openTime, closeTime]);
 
   if (!mounted || !status) {
     return (

@@ -6,9 +6,11 @@ interface MenuItemProps {
   id: number;
   name: string;
   description: string | null;
-  price?: number; // Keep optional for backward compatibility with any remaining mock data
+  price?: number;
   price_small?: number | null;
   price_large?: number | null;
+  discount_price_small?: number | null;
+  discount_price_large?: number | null;
   allergens?: string[];
   isHot?: boolean;
 }
@@ -20,17 +22,21 @@ export default function MenuItem({
   price,
   price_small,
   price_large,
+  discount_price_small,
+  discount_price_large,
   allergens,
   isHot,
 }: MenuItemProps) {
   const hasMultiplePrices = price_small && price_large;
+  const hasDiscount = !!(discount_price_small || discount_price_large);
 
   return (
-    <div className="group relative flex flex-col gap-1">
+    <div className="group relative flex cursor-default flex-col gap-1">
       <div className="flex items-baseline gap-2">
         <h3 className="font-heading text-text-dark text-[1.4rem] font-semibold">
           {name}
         </h3>
+        {hasDiscount && <Badge variant="hot">Tilbud</Badge>}
         <div className="relative -top-1 flex-grow border-b border-dotted border-gray-300" />
 
         <div className="flex gap-4">
@@ -41,7 +47,19 @@ export default function MenuItem({
                   Liten
                 </span>
               )}
-              <Price amount={price_small} />
+              {discount_price_small ? (
+                <div className="flex flex-col items-end">
+                  <span className="text-text-muted text-xs line-through decoration-red-500/50">
+                    {price_small},-
+                  </span>
+                  <Price
+                    amount={discount_price_small}
+                    className="text-primary font-bold"
+                  />
+                </div>
+              ) : (
+                <Price amount={price_small} />
+              )}
             </div>
           )}
           {price_large && (
@@ -51,7 +69,19 @@ export default function MenuItem({
                   Stor
                 </span>
               )}
-              <Price amount={price_large} />
+              {discount_price_large ? (
+                <div className="flex flex-col items-end">
+                  <span className="text-text-muted text-xs line-through decoration-red-500/50">
+                    {price_large},-
+                  </span>
+                  <Price
+                    amount={discount_price_large}
+                    className="text-primary font-bold"
+                  />
+                </div>
+              ) : (
+                <Price amount={price_large} />
+              )}
             </div>
           )}
           {!price_small && !price_large && price && <Price amount={price} />}
@@ -86,7 +116,7 @@ export default function MenuItem({
             <AddToCartButton
               itemId={id}
               name={`${name} (Liten)`}
-              price={price_small}
+              price={discount_price_small || price_small}
               size="small"
             />
           )}
@@ -94,7 +124,7 @@ export default function MenuItem({
             <AddToCartButton
               itemId={id}
               name={price_small ? `${name} (Stor)` : name}
-              price={price_large}
+              price={discount_price_large || price_large}
               size="large"
             />
           )}

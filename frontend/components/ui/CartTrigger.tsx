@@ -30,13 +30,13 @@ export default function CartTrigger({
   const content = (
     <div
       className={cn(
-        'relative inline-flex items-center justify-center rounded-full p-2 transition-colors hover:bg-black/5',
+        'relative inline-flex cursor-pointer items-center justify-center rounded-full p-2 transition-all duration-200 hover:bg-black/5 hover:shadow-md',
         className
       )}
     >
       <ShoppingCart className="h-6 w-6" />
       {count > 0 && (
-        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
+        <span className="bg-primary absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white">
           {count}
         </span>
       )}
@@ -45,7 +45,10 @@ export default function CartTrigger({
 
   if (onClick) {
     return (
-      <button onClick={onClick} className="p-0 border-none bg-transparent">
+      <button
+        onClick={onClick}
+        className="cursor-pointer border-none bg-transparent p-0"
+      >
         {content}
       </button>
     );
@@ -53,4 +56,3 @@ export default function CartTrigger({
 
   return <Link href="/checkout">{content}</Link>;
 }
-

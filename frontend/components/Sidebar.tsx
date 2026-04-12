@@ -11,6 +11,7 @@ interface Category {
 
 export default async function Sidebar() {
   let categories: Category[] = [];
+  let settings: any = {};
   let isManualOpen = true;
 
   try {
@@ -19,7 +20,8 @@ export default async function Sidebar() {
       api.getSettings(),
     ]);
     categories = menuData;
-    isManualOpen = (settingsData as any).is_open !== 'false';
+    settings = settingsData;
+    isManualOpen = settings.is_open !== 'false';
   } catch (error) {
     console.error('Failed to fetch sidebar data:', error);
   }
@@ -45,12 +47,19 @@ export default async function Sidebar() {
 
       <div className="font-body text-text-muted mt-auto pt-8 text-sm">
         <p className="mb-2 flex items-center gap-2">
-          <span>📍</span> Gamle Hellviksvei 3
+          <span>📍</span> {settings.address || 'Gamle Hellviksvei 3'}
         </p>
-        <p className="mb-4 flex items-center gap-2">
-          <span>📞</span> 90 89 77 77
+        <p className="mb-2 flex items-center gap-2">
+          <span>📞</span> {settings.phone || '90 89 77 77'}
         </p>
-        <ShopStatusBadge isManualClosed={!isManualOpen} />
+        <p className="mb-4 flex items-center gap-2 italic">
+          <span>⏱️</span> Levering: {settings.delivery_time || '30-60 min'}
+        </p>
+        <ShopStatusBadge 
+          isManualClosed={!isManualOpen} 
+          openTime={settings.open_time}
+          closeTime={settings.close_time}
+        />
       </div>
     </aside>
   );
