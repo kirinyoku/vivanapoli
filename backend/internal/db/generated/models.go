@@ -21,7 +21,7 @@ const (
 	OrderStatusDelivered OrderStatus = "delivered"
 )
 
-func (e *OrderStatus) Scan(src any) error {
+func (e *OrderStatus) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
 		*e = OrderStatus(s)
@@ -39,7 +39,7 @@ type NullOrderStatus struct {
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullOrderStatus) Scan(value any) error {
+func (ns *NullOrderStatus) Scan(value interface{}) error {
 	if value == nil {
 		ns.OrderStatus, ns.Valid = "", false
 		return nil
@@ -63,7 +63,7 @@ const (
 	OrderTypePickup   OrderType = "pickup"
 )
 
-func (e *OrderType) Scan(src any) error {
+func (e *OrderType) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
 		*e = OrderType(s)
@@ -81,7 +81,7 @@ type NullOrderType struct {
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullOrderType) Scan(value any) error {
+func (ns *NullOrderType) Scan(value interface{}) error {
 	if value == nil {
 		ns.OrderType, ns.Valid = "", false
 		return nil
@@ -114,16 +114,18 @@ type Category struct {
 }
 
 type MenuItem struct {
-	ID          int32            `json:"id"`
-	CategoryID  int32            `json:"category_id"`
-	Name        string           `json:"name"`
-	Description *string          `json:"description"`
-	PriceSmall  pgtype.Numeric   `json:"price_small"`
-	PriceLarge  pgtype.Numeric   `json:"price_large"`
-	Allergens   []string         `json:"allergens"`
-	IsAvailable bool             `json:"is_available"`
-	SortOrder   int32            `json:"sort_order"`
-	CreatedAt   pgtype.Timestamp `json:"created_at"`
+	ID                 int32            `json:"id"`
+	CategoryID         int32            `json:"category_id"`
+	Name               string           `json:"name"`
+	Description        *string          `json:"description"`
+	PriceSmall         pgtype.Numeric   `json:"price_small"`
+	PriceLarge         pgtype.Numeric   `json:"price_large"`
+	Allergens          []string         `json:"allergens"`
+	IsAvailable        bool             `json:"is_available"`
+	SortOrder          int32            `json:"sort_order"`
+	CreatedAt          pgtype.Timestamp `json:"created_at"`
+	DiscountPriceSmall pgtype.Numeric   `json:"discount_price_small"`
+	DiscountPriceLarge pgtype.Numeric   `json:"discount_price_large"`
 }
 
 type Order struct {

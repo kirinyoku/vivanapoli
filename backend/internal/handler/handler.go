@@ -79,6 +79,8 @@ func (h *Handler) SetupRoutes() *chi.Mux {
 				r.Put("/{id}/status", h.AdminUpdateOrderStatus)
 			})
 
+			r.Get("/admin/stats", h.AdminGetStats)
+
 			// Global settings management
 			r.Route("/admin/settings", func(r chi.Router) {
 				r.Put("/", h.AdminUpdateSettings)

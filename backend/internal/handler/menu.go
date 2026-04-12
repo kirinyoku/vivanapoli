@@ -13,13 +13,16 @@ import (
 // menuItemResponse is the public DTO for a menu item.
 // Prices are pointers to float64 to correctly represent NULL values from the DB.
 type menuItemResponse struct {
-	ID          int32    `json:"id"`
-	Name        string   `json:"name"`
-	Description *string  `json:"description"`
-	PriceSmall  *float64 `json:"price_small"`
-	PriceLarge  *float64 `json:"price_large"`
-	Allergens   []string `json:"allergens"`
-	IsAvailable bool     `json:"is_available"`
+	ID                 int32    `json:"id"`
+	CategoryID         int32    `json:"category_id"`
+	Name               string   `json:"name"`
+	Description        *string  `json:"description"`
+	PriceSmall         *float64 `json:"price_small"`
+	PriceLarge         *float64 `json:"price_large"`
+	DiscountPriceSmall *float64 `json:"discount_price_small"`
+	DiscountPriceLarge *float64 `json:"discount_price_large"`
+	Allergens          []string `json:"allergens"`
+	IsAvailable        bool     `json:"is_available"`
 }
 
 type categoryResponse struct {
@@ -32,13 +35,16 @@ type categoryResponse struct {
 // toMenuItemResponse converts a DB model to a JSON-friendly response struct.
 func toMenuItemResponse(item generated.MenuItem) menuItemResponse {
 	return menuItemResponse{
-		ID:          item.ID,
-		Name:        item.Name,
-		Description: item.Description,
-		PriceSmall:  pgNumericToPtr(item.PriceSmall),
-		PriceLarge:  pgNumericToPtr(item.PriceLarge),
-		Allergens:   item.Allergens,
-		IsAvailable: item.IsAvailable,
+		ID:                 item.ID,
+		CategoryID:         item.CategoryID,
+		Name:               item.Name,
+		Description:        item.Description,
+		PriceSmall:         pgNumericToPtr(item.PriceSmall),
+		PriceLarge:         pgNumericToPtr(item.PriceLarge),
+		DiscountPriceSmall: pgNumericToPtr(item.DiscountPriceSmall),
+		DiscountPriceLarge: pgNumericToPtr(item.DiscountPriceLarge),
+		Allergens:          item.Allergens,
+		IsAvailable:        item.IsAvailable,
 	}
 }
 
@@ -166,14 +172,16 @@ func (h *Handler) AdminDeleteCategory(w http.ResponseWriter, r *http.Request) {
 // adminMenuItemRequest handles the input for creating/updating items.
 // We use *float64 for prices to differentiate between 0 and "not provided" (null).
 type adminMenuItemRequest struct {
-	CategoryID  int32    `json:"category_id"`
-	Name        string   `json:"name"`
-	Description *string  `json:"description"`
-	PriceSmall  *float64 `json:"price_small"`
-	PriceLarge  *float64 `json:"price_large"`
-	Allergens   []string `json:"allergens"`
-	IsAvailable bool     `json:"is_available"`
-	SortOrder   int32    `json:"sort_order"`
+	CategoryID         int32    `json:"category_id"`
+	Name               string   `json:"name"`
+	Description        *string  `json:"description"`
+	PriceSmall         *float64 `json:"price_small"`
+	PriceLarge         *float64 `json:"price_large"`
+	DiscountPriceSmall *float64 `json:"discount_price_small"`
+	DiscountPriceLarge *float64 `json:"discount_price_large"`
+	Allergens          []string `json:"allergens"`
+	IsAvailable        bool     `json:"is_available"`
+	SortOrder          int32    `json:"sort_order"`
 }
 
 func (h *Handler) AdminGetMenuItems(w http.ResponseWriter, r *http.Request) {
@@ -198,26 +206,33 @@ func (h *Handler) AdminCreateMenuItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.Name == "" || req.CategoryID == 0 {
-		respondBadRequest(w, "name and category_id are required")
+	if req.Name == "" {
+		respondBadRequest(w, "Navn er obligatorisk")
+		return
+	}
+	if req.CategoryID == 0 {
+		log.Printf("DEBUG: Received request with CategoryID=0. Full req: %+v", req)
+		respondBadRequest(w, "Kategori er obligatorisk (received 0)")
 		return
 	}
 
 	params := generated.CreateMenuItemParams{
-		CategoryID:  req.CategoryID,
-		Name:        req.Name,
-		Description: req.Description,
-		PriceSmall:  ptrToPgNumeric(req.PriceSmall),
-		PriceLarge:  ptrToPgNumeric(req.PriceLarge),
-		Allergens:   req.Allergens,
-		IsAvailable: req.IsAvailable,
-		SortOrder:   req.SortOrder,
+		CategoryID:         req.CategoryID,
+		Name:               req.Name,
+		Description:        req.Description,
+		PriceSmall:         ptrToPgNumeric(req.PriceSmall),
+		PriceLarge:         ptrToPgNumeric(req.PriceLarge),
+		DiscountPriceSmall: ptrToPgNumeric(req.DiscountPriceSmall),
+		DiscountPriceLarge: ptrToPgNumeric(req.DiscountPriceLarge),
+		Allergens:          req.Allergens,
+		IsAvailable:        req.IsAvailable,
+		SortOrder:          req.SortOrder,
 	}
 
 	item, err := h.queries.CreateMenuItem(r.Context(), params)
 	if err != nil {
-		log.Printf("AdminCreateMenuItem: %v", err)
-		respondInternalError(w)
+		log.Printf("ERROR AdminCreateMenuItem: %v", err)
+		respondError(w, http.StatusInternalServerError, "Kunne ikke opprette produkt: " + err.Error())
 		return
 	}
 
@@ -237,27 +252,34 @@ func (h *Handler) AdminUpdateMenuItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.Name == "" || req.CategoryID == 0 {
-		respondBadRequest(w, "name and category_id are required")
+	if req.Name == "" {
+		respondBadRequest(w, "Navn er obligatorisk")
+		return
+	}
+	if req.CategoryID == 0 {
+		log.Printf("DEBUG: Received request with CategoryID=0. Full req: %+v", req)
+		respondBadRequest(w, "Kategori er obligatorisk (received 0)")
 		return
 	}
 
 	params := generated.UpdateMenuItemParams{
-		ID:          int32(id),
-		CategoryID:  req.CategoryID,
-		Name:        req.Name,
-		Description: req.Description,
-		PriceSmall:  ptrToPgNumeric(req.PriceSmall),
-		PriceLarge:  ptrToPgNumeric(req.PriceLarge),
-		Allergens:   req.Allergens,
-		IsAvailable: req.IsAvailable,
-		SortOrder:   req.SortOrder,
+		ID:                 int32(id),
+		CategoryID:         req.CategoryID,
+		Name:               req.Name,
+		Description:        req.Description,
+		PriceSmall:         ptrToPgNumeric(req.PriceSmall),
+		PriceLarge:         ptrToPgNumeric(req.PriceLarge),
+		DiscountPriceSmall: ptrToPgNumeric(req.DiscountPriceSmall),
+		DiscountPriceLarge: ptrToPgNumeric(req.DiscountPriceLarge),
+		Allergens:          req.Allergens,
+		IsAvailable:        req.IsAvailable,
+		SortOrder:          req.SortOrder,
 	}
 
 	item, err := h.queries.UpdateMenuItem(r.Context(), params)
 	if err != nil {
-		log.Printf("AdminUpdateMenuItem: %v", err)
-		respondInternalError(w)
+		log.Printf("ERROR AdminUpdateMenuItem: %v", err)
+		respondError(w, http.StatusInternalServerError, "Kunne ikke oppdatere produkt: " + err.Error())
 		return
 	}
 
@@ -289,8 +311,9 @@ func ptrToPgNumeric(f *float64) pgtype.Numeric {
 		return pgtype.Numeric{Valid: false}
 	}
 	n := pgtype.Numeric{}
-	// Scan handles the string conversion to numeric internally.
-	_ = n.Scan(strconv.FormatFloat(*f, 'f', 2, 64))
+	// Use -1 precision to let strconv decide the best string representation.
+	// This avoids rounding issues before sending to Postgres.
+	_ = n.Scan(strconv.FormatFloat(*f, 'f', -1, 64))
 	return n
 }
 

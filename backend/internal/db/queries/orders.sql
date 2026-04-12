@@ -19,3 +19,10 @@ UPDATE orders
 SET order_status = $2
 WHERE id = $1
 RETURNING *;
+
+-- name: GetTodayStats :one
+SELECT 
+    COUNT(*)::int as total_orders,
+    COALESCE(SUM(total_price), 0)::numeric as total_revenue
+FROM orders
+WHERE created_at >= CURRENT_DATE;

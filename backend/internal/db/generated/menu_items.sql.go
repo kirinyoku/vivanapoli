@@ -15,21 +15,24 @@ const createMenuItem = `-- name: CreateMenuItem :one
 INSERT INTO menu_items (
     category_id, name, description,
     price_small, price_large,
+    discount_price_small, discount_price_large,
     allergens, is_available, sort_order
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING id, category_id, name, description, price_small, price_large, allergens, is_available, sort_order, created_at
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+RETURNING id, category_id, name, description, price_small, price_large, discount_price_small, discount_price_large, allergens, is_available, sort_order, created_at
 `
 
 type CreateMenuItemParams struct {
-	CategoryID  int32          `json:"category_id"`
-	Name        string         `json:"name"`
-	Description *string        `json:"description"`
-	PriceSmall  pgtype.Numeric `json:"price_small"`
-	PriceLarge  pgtype.Numeric `json:"price_large"`
-	Allergens   []string       `json:"allergens"`
-	IsAvailable bool           `json:"is_available"`
-	SortOrder   int32          `json:"sort_order"`
+	CategoryID         int32          `json:"category_id"`
+	Name               string         `json:"name"`
+	Description        *string        `json:"description"`
+	PriceSmall         pgtype.Numeric `json:"price_small"`
+	PriceLarge         pgtype.Numeric `json:"price_large"`
+	DiscountPriceSmall pgtype.Numeric `json:"discount_price_small"`
+	DiscountPriceLarge pgtype.Numeric `json:"discount_price_large"`
+	Allergens          []string       `json:"allergens"`
+	IsAvailable        bool           `json:"is_available"`
+	SortOrder          int32          `json:"sort_order"`
 }
 
 func (q *Queries) CreateMenuItem(ctx context.Context, arg CreateMenuItemParams) (MenuItem, error) {
@@ -39,6 +42,8 @@ func (q *Queries) CreateMenuItem(ctx context.Context, arg CreateMenuItemParams) 
 		arg.Description,
 		arg.PriceSmall,
 		arg.PriceLarge,
+		arg.DiscountPriceSmall,
+		arg.DiscountPriceLarge,
 		arg.Allergens,
 		arg.IsAvailable,
 		arg.SortOrder,
@@ -51,6 +56,8 @@ func (q *Queries) CreateMenuItem(ctx context.Context, arg CreateMenuItemParams) 
 		&i.Description,
 		&i.PriceSmall,
 		&i.PriceLarge,
+		&i.DiscountPriceSmall,
+		&i.DiscountPriceLarge,
 		&i.Allergens,
 		&i.IsAvailable,
 		&i.SortOrder,
@@ -70,7 +77,7 @@ func (q *Queries) DeleteMenuItem(ctx context.Context, id int32) error {
 }
 
 const getAvailableMenuItemsByCategory = `-- name: GetAvailableMenuItemsByCategory :many
-SELECT id, category_id, name, description, price_small, price_large, allergens, is_available, sort_order, created_at FROM menu_items
+SELECT id, category_id, name, description, price_small, price_large, discount_price_small, discount_price_large, allergens, is_available, sort_order, created_at FROM menu_items
 WHERE category_id = $1 AND is_available = TRUE
 ORDER BY sort_order ASC
 `
@@ -91,6 +98,8 @@ func (q *Queries) GetAvailableMenuItemsByCategory(ctx context.Context, categoryI
 			&i.Description,
 			&i.PriceSmall,
 			&i.PriceLarge,
+			&i.DiscountPriceSmall,
+			&i.DiscountPriceLarge,
 			&i.Allergens,
 			&i.IsAvailable,
 			&i.SortOrder,
@@ -107,7 +116,7 @@ func (q *Queries) GetAvailableMenuItemsByCategory(ctx context.Context, categoryI
 }
 
 const getMenuItemByID = `-- name: GetMenuItemByID :one
-SELECT id, category_id, name, description, price_small, price_large, allergens, is_available, sort_order, created_at FROM menu_items
+SELECT id, category_id, name, description, price_small, price_large, discount_price_small, discount_price_large, allergens, is_available, sort_order, created_at FROM menu_items
 WHERE id = $1
 `
 
@@ -121,6 +130,8 @@ func (q *Queries) GetMenuItemByID(ctx context.Context, id int32) (MenuItem, erro
 		&i.Description,
 		&i.PriceSmall,
 		&i.PriceLarge,
+		&i.DiscountPriceSmall,
+		&i.DiscountPriceLarge,
 		&i.Allergens,
 		&i.IsAvailable,
 		&i.SortOrder,
@@ -130,7 +141,7 @@ func (q *Queries) GetMenuItemByID(ctx context.Context, id int32) (MenuItem, erro
 }
 
 const getMenuItems = `-- name: GetMenuItems :many
-SELECT id, category_id, name, description, price_small, price_large, allergens, is_available, sort_order, created_at FROM menu_items
+SELECT id, category_id, name, description, price_small, price_large, discount_price_small, discount_price_large, allergens, is_available, sort_order, created_at FROM menu_items
 ORDER BY sort_order ASC
 `
 
@@ -150,6 +161,8 @@ func (q *Queries) GetMenuItems(ctx context.Context) ([]MenuItem, error) {
 			&i.Description,
 			&i.PriceSmall,
 			&i.PriceLarge,
+			&i.DiscountPriceSmall,
+			&i.DiscountPriceLarge,
 			&i.Allergens,
 			&i.IsAvailable,
 			&i.SortOrder,
@@ -166,7 +179,7 @@ func (q *Queries) GetMenuItems(ctx context.Context) ([]MenuItem, error) {
 }
 
 const getMenuItemsByCategory = `-- name: GetMenuItemsByCategory :many
-SELECT id, category_id, name, description, price_small, price_large, allergens, is_available, sort_order, created_at FROM menu_items
+SELECT id, category_id, name, description, price_small, price_large, discount_price_small, discount_price_large, allergens, is_available, sort_order, created_at FROM menu_items
 WHERE category_id = $1
 ORDER BY sort_order ASC
 `
@@ -187,6 +200,8 @@ func (q *Queries) GetMenuItemsByCategory(ctx context.Context, categoryID int32) 
 			&i.Description,
 			&i.PriceSmall,
 			&i.PriceLarge,
+			&i.DiscountPriceSmall,
+			&i.DiscountPriceLarge,
 			&i.Allergens,
 			&i.IsAvailable,
 			&i.SortOrder,
@@ -205,28 +220,32 @@ func (q *Queries) GetMenuItemsByCategory(ctx context.Context, categoryID int32) 
 const updateMenuItem = `-- name: UpdateMenuItem :one
 UPDATE menu_items
 SET
-    category_id  = $2,
-    name         = $3,
-    description  = $4,
-    price_small  = $5,
-    price_large  = $6,
-    allergens    = $7,
-    is_available = $8,
-    sort_order   = $9
+    category_id          = $2,
+    name                 = $3,
+    description          = $4,
+    price_small          = $5,
+    price_large          = $6,
+    discount_price_small = $7,
+    discount_price_large = $8,
+    allergens            = $9,
+    is_available         = $10,
+    sort_order           = $11
 WHERE id = $1
-RETURNING id, category_id, name, description, price_small, price_large, allergens, is_available, sort_order, created_at
+RETURNING id, category_id, name, description, price_small, price_large, discount_price_small, discount_price_large, allergens, is_available, sort_order, created_at
 `
 
 type UpdateMenuItemParams struct {
-	ID          int32          `json:"id"`
-	CategoryID  int32          `json:"category_id"`
-	Name        string         `json:"name"`
-	Description *string        `json:"description"`
-	PriceSmall  pgtype.Numeric `json:"price_small"`
-	PriceLarge  pgtype.Numeric `json:"price_large"`
-	Allergens   []string       `json:"allergens"`
-	IsAvailable bool           `json:"is_available"`
-	SortOrder   int32          `json:"sort_order"`
+	ID                 int32          `json:"id"`
+	CategoryID         int32          `json:"category_id"`
+	Name               string         `json:"name"`
+	Description        *string        `json:"description"`
+	PriceSmall         pgtype.Numeric `json:"price_small"`
+	PriceLarge         pgtype.Numeric `json:"price_large"`
+	DiscountPriceSmall pgtype.Numeric `json:"discount_price_small"`
+	DiscountPriceLarge pgtype.Numeric `json:"discount_price_large"`
+	Allergens          []string       `json:"allergens"`
+	IsAvailable        bool           `json:"is_available"`
+	SortOrder          int32          `json:"sort_order"`
 }
 
 func (q *Queries) UpdateMenuItem(ctx context.Context, arg UpdateMenuItemParams) (MenuItem, error) {
@@ -237,6 +256,8 @@ func (q *Queries) UpdateMenuItem(ctx context.Context, arg UpdateMenuItemParams) 
 		arg.Description,
 		arg.PriceSmall,
 		arg.PriceLarge,
+		arg.DiscountPriceSmall,
+		arg.DiscountPriceLarge,
 		arg.Allergens,
 		arg.IsAvailable,
 		arg.SortOrder,
@@ -249,6 +270,8 @@ func (q *Queries) UpdateMenuItem(ctx context.Context, arg UpdateMenuItemParams) 
 		&i.Description,
 		&i.PriceSmall,
 		&i.PriceLarge,
+		&i.DiscountPriceSmall,
+		&i.DiscountPriceLarge,
 		&i.Allergens,
 		&i.IsAvailable,
 		&i.SortOrder,

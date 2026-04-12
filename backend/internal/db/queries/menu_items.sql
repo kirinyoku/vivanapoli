@@ -20,22 +20,25 @@ ORDER BY sort_order ASC;
 INSERT INTO menu_items (
     category_id, name, description,
     price_small, price_large,
+    discount_price_small, discount_price_large,
     allergens, is_available, sort_order
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 RETURNING *;
 
 -- name: UpdateMenuItem :one
 UPDATE menu_items
 SET
-    category_id  = $2,
-    name         = $3,
-    description  = $4,
-    price_small  = $5,
-    price_large  = $6,
-    allergens    = $7,
-    is_available = $8,
-    sort_order   = $9
+    category_id          = $2,
+    name                 = $3,
+    description          = $4,
+    price_small          = $5,
+    price_large          = $6,
+    discount_price_small = $7,
+    discount_price_large = $8,
+    allergens            = $9,
+    is_available         = $10,
+    sort_order           = $11
 WHERE id = $1
 RETURNING *;
 

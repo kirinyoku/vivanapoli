@@ -115,6 +115,26 @@ func (q *Queries) GetOrders(ctx context.Context) ([]Order, error) {
 	return items, nil
 }
 
+const getTodayStats = `-- name: GetTodayStats :one
+SELECT 
+    COUNT(*)::int as total_orders,
+    COALESCE(SUM(total_price), 0)::numeric as total_revenue
+FROM orders
+WHERE created_at >= CURRENT_DATE
+`
+
+type GetTodayStatsRow struct {
+	TotalOrders  int32          `json:"total_orders"`
+	TotalRevenue pgtype.Numeric `json:"total_revenue"`
+}
+
+func (q *Queries) GetTodayStats(ctx context.Context) (GetTodayStatsRow, error) {
+	row := q.db.QueryRow(ctx, getTodayStats)
+	var i GetTodayStatsRow
+	err := row.Scan(&i.TotalOrders, &i.TotalRevenue)
+	return i, err
+}
+
 const updateOrderStatus = `-- name: UpdateOrderStatus :one
 UPDATE orders
 SET order_status = $2

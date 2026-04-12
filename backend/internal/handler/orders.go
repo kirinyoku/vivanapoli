@@ -367,3 +367,24 @@ func (h *Handler) AdminUpdateOrderStatus(w http.ResponseWriter, r *http.Request)
 
 	respondData(w, http.StatusOK, toOrderResponse(order))
 }
+
+func (h *Handler) AdminGetStats(w http.ResponseWriter, r *http.Request) {
+	stats, err := h.queries.GetTodayStats(r.Context())
+	if err != nil {
+		log.Printf("AdminGetStats: database query failed: %v", err)
+		respondError(w, http.StatusInternalServerError, "failed to fetch stats")
+		return
+	}
+
+	revenue, err := stats.TotalRevenue.Float64Value()
+	if err != nil {
+		log.Printf("AdminGetStats: numeric conversion failed: %v", err)
+		respondError(w, http.StatusInternalServerError, "failed to process revenue data")
+		return
+	}
+
+	respondData(w, http.StatusOK, map[string]any{
+		"total_orders":  stats.TotalOrders,
+		"total_revenue": revenue.Float64,
+	})
+}
