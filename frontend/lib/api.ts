@@ -74,15 +74,30 @@ async function request<T>(
       throw new ApiError(errorMessage, response.status);
     }
 
+    // Handle 204 No Content and other empty responses
+    if (
+      response.status === 204 ||
+      response.headers.get('content-length') === '0'
+    ) {
+      return undefined as unknown as T;
+    }
+
     const result: ApiResponse<T> = await response.json();
     return result.data;
   } catch (err) {
     if (err instanceof ApiError) throw err;
-    // Generic network error (e.g., backend is down)
-    throw new ApiError(
-      'Kunne ikke koble til serveren. Vennligst sjekk internettforbindelsen din.',
-      503
-    );
+
+    // Log the actual error for debugging
+    console.error('API request failed:', err);
+
+    // Provide more specific error message
+    let errorMessage =
+      'Kunne ikke koble til serveren. Vennligst sjekk internettforbindelsen din.';
+    if (err instanceof Error) {
+      errorMessage = err.message;
+    }
+
+    throw new ApiError(errorMessage, 503);
   }
 }
 
