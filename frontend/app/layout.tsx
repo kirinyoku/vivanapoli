@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Cormorant_Garamond, Inter } from 'next/font/google';
 import './globals.css';
+import CartPanel from '@/components/CartPanel';
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
@@ -13,10 +14,37 @@ const inter = Inter({
   variable: '--font-body',
 });
 
+const title = 'Viva Napoli — Ekte italiensk pizza på Nesoddtangen';
+const description =
+  'Bestill din favorittpizza, burger eller kebab fra Viva Napoli på Nesoddtangen. Rask levering og ferske ingredienser.';
+const siteUrl = 'https://vivanapolinotodden.no';
+
 export const metadata: Metadata = {
-  title: 'Viva Napoli — Ekte italiensk pizza på Nesoddtangen',
-  description:
-    'Bestill din favorittpizza, burger eller kebab fra Viva Napoli på Nesoddtangen. Rask levering og ferske ingredienser.',
+  title: {
+    default: title,
+    template: `%s | Viva Napoli`,
+  },
+  description,
+  keywords: ['pizza', 'nesoddtangen', 'takeaway', 'restaurant', 'burger', 'kebab', 'italiensk'],
+  authors: [{ name: 'Viva Napoli' }],
+  creator: 'Viva Napoli',
+  metadataBase: new URL(siteUrl),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title,
+    description,
+    url: siteUrl,
+    siteName: 'Viva Napoli',
+    locale: 'no_NO',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title,
+    description,
+  },
 };
 
 export default function RootLayout({
@@ -31,6 +59,7 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col font-body">
         {children}
+        <CartPanel />
       </body>
     </html>
   );

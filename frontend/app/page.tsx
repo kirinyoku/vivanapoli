@@ -1,6 +1,5 @@
 import Sidebar from '@/components/Sidebar';
 import MenuContent from '@/components/MenuContent';
-import CartPanel from '@/components/CartPanel';
 
 export default function Home() {
   return (
@@ -9,7 +8,6 @@ export default function Home() {
       <main className="h-full overflow-hidden bg-bg-page">
         <MenuContent />
       </main>
-      <CartPanel />
     </div>
   );
 }

@@ -56,29 +56,34 @@ async function request<T>(
     }
   }
 
-  const response = await fetch(url, {
-    ...init,
-    headers,
-  });
+  try {
+    const response = await fetch(url, {
+      ...init,
+      headers,
+    });
 
-  if (!response.ok) {
-    let errorMessage = 'An error occurred';
-    try {
-      const errorData = await response.json();
-      // Handle both {"error": "message"} and {"data": {"error": "message"}} formats
-      errorMessage = errorData.error || errorData.data?.error || errorMessage;
-    } catch {
-      // ignore json parse error
+    if (!response.ok) {
+      let errorMessage = 'An error occurred';
+      try {
+        const errorData = await response.json();
+        // Handle both {"error": "message"} and {"data": {"error": "message"}} formats
+        errorMessage = errorData.error || errorData.data?.error || errorMessage;
+      } catch {
+        // ignore json parse error
+      }
+      throw new ApiError(errorMessage, response.status);
     }
-    throw new ApiError(errorMessage, response.status);
-  }
 
-  if (response.status === 204) {
-    return {} as T;
+    const result: ApiResponse<T> = await response.json();
+    return result.data;
+  } catch (err) {
+    if (err instanceof ApiError) throw err;
+    // Generic network error (e.g., backend is down)
+    throw new ApiError(
+      'Kunne ikke koble til serveren. Vennligst sjekk internettforbindelsen din.',
+      503
+    );
   }
-
-  const result: ApiResponse<T> = await response.json();
-  return result.data;
 }
 
 export const api = {
