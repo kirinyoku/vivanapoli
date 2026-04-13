@@ -5,6 +5,8 @@ import { api } from '@/lib/api';
 import { useAdminAuth } from '@/lib/useAdminAuth';
 import { RestaurantSettings } from '@/types';
 import Button from '@/components/ui/Button';
+import { cn } from '@/lib/utils';
+import { Power } from 'lucide-react';
 
 export default function SettingsPage() {
   const { handleApiError } = useAdminAuth();
@@ -142,78 +144,112 @@ export default function SettingsPage() {
     );
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Restaurantinnstillinger
+    <div className="mx-auto max-w-4xl space-y-10">
+      <div>
+        <h1 className="font-heading text-text-dark text-4xl font-bold tracking-tight">
+          Innstillinger
         </h1>
+        <p className="text-text-muted italic opacity-70">
+          Administrer restaurantens profil og driftsparametere.
+        </p>
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-white shadow">
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-6 p-6">
-            {error && (
-              <div className="rounded-md bg-red-50 p-4 text-sm text-red-700">
-                {error}
-              </div>
-            )}
-            {success && (
-              <div className="rounded-md bg-green-50 p-4 text-sm text-green-700">
-                Innstillingene ble lagret!
-              </div>
-            )}
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {error && (
+          <div className="animate-in fade-in slide-in-from-top-2 flex items-center gap-4 rounded-2xl border border-red-100 bg-red-50 p-5 duration-300">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-xl font-bold text-red-600 shadow-sm">
+              !
+            </div>
+            <p className="text-sm font-bold tracking-wider text-red-900 uppercase">
+              {error}
+            </p>
+          </div>
+        )}
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="md:col-span-2">
-                <label className="block cursor-default text-sm font-medium text-gray-700">
+        {success && (
+          <div className="animate-in fade-in slide-in-from-top-2 flex items-center gap-4 rounded-2xl border border-green-100 bg-green-50 p-5 duration-300">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white text-xl font-bold text-green-600 shadow-sm">
+              ✓
+            </div>
+            <p className="text-sm font-bold tracking-wider text-green-900 uppercase">
+              Innstillingene ble lagret!
+            </p>
+          </div>
+        )}
+
+        <div className="ring-border-light/60 space-y-10 rounded-3xl bg-white p-8 shadow-xl ring-1 shadow-black/[0.02] md:p-10">
+          {/* Section: Kontaktinfo */}
+          <section className="space-y-6">
+            <div className="mb-8 flex items-center gap-3">
+              <div className="bg-accent-gold h-1 w-10 rounded-full" />
+              <h2 className="text-text-dark text-xl font-bold tracking-tight">
+                Kontaktinformasjon
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+              <div className="space-y-3 sm:col-span-2">
+                <label className="text-text-muted px-1 text-[10px] font-black tracking-[0.15em] uppercase opacity-60">
                   Adresse
                 </label>
                 <input
                   type="text"
                   name="address"
-                  className="mt-1 block w-full cursor-text rounded-md border border-gray-300 px-3 py-2 shadow-sm transition-all duration-200 hover:border-gray-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/50 focus:outline-none sm:text-sm"
+                  className="border-border-light/60 bg-bg-page/50 focus:ring-primary/5 focus:border-primary w-full rounded-2xl border p-4 shadow-inner transition-all outline-none focus:ring-4"
                   value={settings.address || ''}
                   onChange={handleChange}
                 />
               </div>
 
-              <div>
-                <label className="block cursor-default text-sm font-medium text-gray-700">
+              <div className="space-y-3">
+                <label className="text-text-muted px-1 text-[10px] font-black tracking-[0.15em] uppercase opacity-60">
                   Telefon
                 </label>
                 <input
                   type="text"
                   name="phone"
-                  className="mt-1 block w-full cursor-text rounded-md border border-gray-300 px-3 py-2 shadow-sm transition-all duration-200 hover:border-gray-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/50 focus:outline-none sm:text-sm"
+                  className="border-border-light/60 bg-bg-page/50 focus:ring-primary/5 focus:border-primary w-full rounded-2xl border p-4 shadow-inner transition-all outline-none focus:ring-4"
                   value={settings.phone || ''}
                   onChange={handleChange}
                 />
               </div>
 
-              <div>
-                <label className="block cursor-default text-sm font-medium text-gray-700">
+              <div className="space-y-3">
+                <label className="text-text-muted px-1 text-[10px] font-black tracking-[0.15em] uppercase opacity-60">
                   Leveringstid (estimert)
                 </label>
                 <input
                   type="text"
                   name="delivery_time"
                   placeholder="f.eks. 30-60 min"
-                  className="mt-1 block w-full cursor-text rounded-md border border-gray-300 px-3 py-2 shadow-sm transition-all duration-200 hover:border-gray-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/50 focus:outline-none sm:text-sm"
+                  className="border-border-light/60 bg-bg-page/50 focus:ring-primary/5 focus:border-primary w-full rounded-2xl border p-4 shadow-inner transition-all outline-none focus:ring-4"
                   value={settings.delivery_time || ''}
                   onChange={handleChange}
                 />
-                <p className="mt-1 text-xs text-gray-500">
-                  Vises på forsiden, f.eks: "30-45 min" или "ca. 1 time"
+                <p className="text-text-muted px-1 text-[9px] font-bold tracking-widest uppercase italic opacity-40">
+                  Vises på forsiden og kvittering
                 </p>
               </div>
+            </div>
+          </section>
 
-              <div>
-                <label className="block cursor-default text-sm font-medium text-gray-700">
+          {/* Section: Drift */}
+          <section className="border-border-light/40 space-y-6 border-t pt-10">
+            <div className="mb-8 flex items-center gap-3">
+              <div className="bg-accent-gold h-1 w-10 rounded-full" />
+              <h2 className="text-text-dark text-xl font-bold tracking-tight">
+                Drift & Åpningstider
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="space-y-3">
+                <label className="text-text-muted px-1 text-[10px] font-black tracking-[0.15em] uppercase opacity-60">
                   Åpningstid
                 </label>
                 <select
                   name="open_time"
-                  className="mt-1 block w-full cursor-pointer rounded-md border border-gray-300 px-3 py-2 shadow-sm transition-all duration-200 hover:border-gray-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/50 focus:outline-none sm:text-sm"
+                  className="border-border-light/60 bg-bg-page/50 focus:ring-primary/5 focus:border-primary w-full cursor-pointer appearance-none rounded-2xl border p-4 shadow-inner transition-all outline-none focus:ring-4"
                   value={settings.open_time || '14:00'}
                   onChange={handleChange}
                 >
@@ -225,13 +261,13 @@ export default function SettingsPage() {
                 </select>
               </div>
 
-              <div>
-                <label className="block cursor-default text-sm font-medium text-gray-700">
+              <div className="space-y-3">
+                <label className="text-text-muted px-1 text-[10px] font-black tracking-[0.15em] uppercase opacity-60">
                   Stengetid
                 </label>
                 <select
                   name="close_time"
-                  className="mt-1 block w-full cursor-pointer rounded-md border border-gray-300 px-3 py-2 shadow-sm transition-all duration-200 hover:border-gray-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/50 focus:outline-none sm:text-sm"
+                  className="border-border-light/60 bg-bg-page/50 focus:ring-primary/5 focus:border-primary w-full cursor-pointer appearance-none rounded-2xl border p-4 shadow-inner transition-all outline-none focus:ring-4"
                   value={settings.close_time || '22:00'}
                   onChange={handleChange}
                 >
@@ -243,75 +279,101 @@ export default function SettingsPage() {
                 </select>
               </div>
 
-              <div>
-                <label className="block cursor-default text-sm font-medium text-gray-700">
+              <div className="space-y-3">
+                <label className="text-text-muted px-1 text-[10px] font-black tracking-[0.15em] uppercase opacity-60">
                   Minste bestilling (NOK)
                 </label>
                 <input
                   type="number"
                   name="min_order_price"
                   min="0"
-                  className="mt-1 block w-full cursor-text rounded-md border border-gray-300 px-3 py-2 shadow-sm transition-all duration-200 hover:border-gray-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/50 focus:outline-none sm:text-sm"
+                  className="border-border-light/60 bg-bg-page/50 focus:ring-primary/5 focus:border-primary w-full rounded-2xl border p-4 shadow-inner transition-all outline-none focus:ring-4"
                   value={settings.min_order_price || ''}
                   onChange={handleChange}
                 />
-                <p className="mt-1 text-xs text-gray-500">
-                  Knappen "Gå til kassen" blir deaktivert under denne summen
-                </p>
-              </div>
-
-              <div className="rounded-lg border border-red-100 bg-red-50 p-4 md:col-span-2">
-                <h3 className="mb-2 text-sm font-bold tracking-wider text-red-800 uppercase">
-                  Hastesituasjon
-                </h3>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-red-900">
-                      Manuell stenging
-                    </p>
-                    <p className="text-xs text-red-700">
-                      Steng butikken umiddelbart for alle bestillinger,
-                      uavhengig av åpningstider.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSettings((prev) =>
-                        prev
-                          ? {
-                              ...prev,
-                              is_open:
-                                prev.is_open === 'false' ? 'true' : 'false',
-                            }
-                          : null
-                      )
-                    }
-                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-all duration-200 ease-in-out focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none ${
-                      settings.is_open === 'false'
-                        ? 'bg-red-600'
-                        : 'bg-gray-200'
-                    }`}
-                  >
-                    <span
-                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                        settings.is_open === 'false'
-                          ? 'translate-x-5'
-                          : 'translate-x-0'
-                      }`}
-                    />
-                  </button>
-                </div>
               </div>
             </div>
-          </div>
-          <div className="flex justify-end border-t border-gray-200 bg-gray-50 p-6">
-            <Button type="submit" disabled={saving}>
-              {saving ? 'Lagrer...' : 'Lagre endringer'}
-            </Button>
-          </div>
-        </form>
-      </div>
+          </section>
+
+          {/* Section: Status */}
+          <section className="border-border-light/40 border-t pt-10">
+            <div
+              className={cn(
+                'flex flex-col items-center justify-between gap-6 rounded-[2rem] p-8 transition-all duration-500 sm:flex-row',
+                settings.is_open === 'false'
+                  ? 'bg-red-50 ring-1 ring-red-100'
+                  : 'bg-bg-page ring-border-light/40 ring-1'
+              )}
+            >
+              <div className="flex items-center gap-5">
+                <div
+                  className={cn(
+                    'flex h-14 w-14 items-center justify-center rounded-2xl shadow-lg transition-colors',
+                    settings.is_open === 'false'
+                      ? 'bg-white text-red-600 shadow-red-200/50'
+                      : 'bg-white text-gray-400 shadow-black/[0.02]'
+                  )}
+                >
+                  <Power size={28} />
+                </div>
+                <div>
+                  <h3
+                    className={cn(
+                      'mb-1 text-xs font-black tracking-widest uppercase',
+                      settings.is_open === 'false'
+                        ? 'text-red-700'
+                        : 'text-text-dark'
+                    )}
+                  >
+                    Manuell stenging
+                  </h3>
+                  <p className="max-w-xs text-[11px] leading-snug font-medium italic opacity-60">
+                    Overstyr åpningstidene og steng butikken umiddelbart for
+                    alle bestillinger.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() =>
+                  setSettings((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          is_open: prev.is_open === 'false' ? 'true' : 'false',
+                        }
+                      : null
+                  )
+                }
+                className={cn(
+                  'relative inline-flex h-10 w-20 flex-shrink-0 cursor-pointer rounded-full border-4 border-transparent transition-all duration-300 ease-in-out outline-none',
+                  settings.is_open === 'false' ? 'bg-red-600' : 'bg-gray-200'
+                )}
+              >
+                <span
+                  className={cn(
+                    'pointer-events-none inline-block h-8 w-8 transform rounded-full bg-white shadow-lg ring-0 transition duration-300 ease-in-out',
+                    settings.is_open === 'false'
+                      ? 'translate-x-10'
+                      : 'translate-x-0'
+                  )}
+                />
+              </button>
+            </div>
+          </section>
+        </div>
+
+        <div className="flex justify-end pt-4">
+          <Button
+            type="submit"
+            disabled={saving}
+            className="shadow-primary/20 rounded-2xl px-12 py-6 text-lg font-bold tracking-widest uppercase shadow-xl transition-all active:scale-95"
+          >
+            {saving ? 'Lagrer...' : 'Lagre innstillinger'}
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }

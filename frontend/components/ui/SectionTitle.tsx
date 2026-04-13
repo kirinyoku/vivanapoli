@@ -14,17 +14,23 @@ export default function SectionTitle({
   return (
     <div
       className={cn(
-        'mb-10 border-b border-border-light pb-4 text-left',
+        'mb-12 border-b border-border-light/60 pb-6 text-left relative',
         className
       )}
     >
-      <h2 className="mb-2 font-heading text-4xl font-semibold text-text-dark">
-        {title}
-      </h2>
-      {description && (
-        <p className="font-heading text-[1.2rem] italic text-text-muted">
+      <div className="flex items-center gap-4 mb-3">
+        <h2 className="font-heading text-5xl font-semibold text-text-dark tracking-tight">
+          {title}
+        </h2>
+        <div className="flex-grow h-[1px] bg-border-light/60" />
+      </div>
+      
+      {description ? (
+        <p className="font-body text-[1.1rem] italic text-text-muted opacity-80 max-w-2xl leading-relaxed">
           {description}
         </p>
+      ) : (
+        <div className="h-1 w-16 bg-accent-gold rounded-full" />
       )}
     </div>
   );

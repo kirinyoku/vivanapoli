@@ -5,7 +5,9 @@ import { api } from '@/lib/api';
 import { useAdminAuth } from '@/lib/useAdminAuth';
 import { Order, OrderStatus } from '@/types';
 import Badge from '@/components/ui/Badge';
-import { formatDate } from '@/lib/utils';
+import Price from '@/components/ui/Price';
+import { cn, formatDate } from '@/lib/utils';
+import { Clock } from 'lucide-react';
 
 export default function OrdersManagementPage() {
   const { handleApiError } = useAdminAuth();
@@ -106,39 +108,69 @@ export default function OrdersManagementPage() {
   if (error) return <div className="p-8 text-center text-red-600">{error}</div>;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <h1 className="text-2xl font-semibold text-gray-900">Bestillinger</h1>
+    <div className="space-y-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="font-heading text-text-dark text-4xl font-bold tracking-tight">
+            Bestillinger
+          </h1>
+          <p className="text-text-muted italic opacity-70">
+            Håndter inngående bestillinger i sanntid.
+          </p>
+        </div>
         <button
           onClick={fetchOrders}
-          className="text-primary hover:text-primary-dark cursor-pointer self-end text-sm transition-colors duration-200 hover:underline sm:self-auto"
+          className="border-border-light/60 group flex cursor-pointer items-center gap-2 rounded-xl border bg-white p-3 transition-all hover:shadow-md active:scale-95"
         >
-          Oppdater nå
+          <Clock
+            className={cn('text-primary h-4 w-4', loading && 'animate-spin')}
+          />
+          <span className="text-text-muted group-hover:text-primary text-[10px] font-black tracking-widest uppercase transition-colors">
+            Oppdater
+          </span>
         </button>
       </div>
 
       {/* Filters and Search */}
-      <div className="space-y-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-        <div className="flex flex-col gap-4 md:flex-row">
-          <div className="flex-1">
+      <div className="ring-border-light/60 rounded-3xl bg-white p-6 shadow-xl ring-1 shadow-black/[0.02]">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end">
+          <div className="flex-1 space-y-2">
             <label
               htmlFor="search"
-              className="mb-1 block cursor-default text-xs font-medium text-gray-500 uppercase"
+              className="text-text-muted px-1 text-[10px] font-black tracking-[0.2em] uppercase opacity-60"
             >
-              Søk
+              Søk etter kunde eller ID
             </label>
-            <input
-              id="search"
-              type="text"
-              placeholder="Søk på ID, navn или telefon..."
-              className="w-full cursor-text rounded-md border border-gray-300 px-3 py-2 transition-all duration-200 hover:border-gray-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/50"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+            <div className="group relative">
+              <input
+                id="search"
+                type="text"
+                placeholder="F.eks. Ola Nordmann..."
+                className="border-border-light/60 bg-bg-page/50 focus:ring-primary/5 focus:border-primary w-full rounded-2xl border p-4 pl-12 shadow-inner transition-all outline-none focus:ring-4"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <div className="text-text-muted group-focus-within:text-primary absolute top-1/2 left-4 -translate-y-1/2 opacity-40 transition-all group-focus-within:opacity-100">
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+            </div>
           </div>
-          <div className="flex-none">
-            <label className="mb-1 block cursor-default text-xs font-medium text-gray-500 uppercase">
-              Status
+
+          <div className="flex-none space-y-2">
+            <label className="text-text-muted px-1 text-[10px] font-black tracking-[0.2em] uppercase opacity-60">
+              Filter status
             </label>
             <div className="flex flex-wrap gap-2">
               {(
@@ -154,11 +186,12 @@ export default function OrdersManagementPage() {
                 <button
                   key={status}
                   onClick={() => setStatusFilter(status)}
-                  className={`cursor-pointer rounded-md border px-3 py-2 text-sm transition-all duration-200 ${
+                  className={cn(
+                    'h-10 cursor-pointer rounded-xl border px-4 text-[10px] font-black tracking-widest uppercase transition-all active:scale-95',
                     statusFilter === status
-                      ? 'border-red-600 bg-red-600 text-white shadow-md'
-                      : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50 hover:shadow-sm'
-                  }`}
+                      ? 'bg-primary border-primary shadow-primary/20 text-white shadow-lg'
+                      : 'text-text-muted border-border-light/60 hover:bg-bg-page bg-white'
+                  )}
                 >
                   {getStatusLabel(status)}
                 </button>
@@ -168,104 +201,225 @@ export default function OrdersManagementPage() {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         {filteredOrders.length === 0 ? (
-          <div className="rounded-lg border border-gray-200 bg-white p-8 text-center text-gray-500 shadow">
-            {searchTerm || statusFilter !== 'all'
-              ? 'Ingen bestillinger samsvarer med filteret'
-              : 'Ingen bestillinger funnet'}
+          <div className="ring-border-light/60 rounded-[2.5rem] bg-white p-20 text-center shadow-xl ring-1 shadow-black/[0.02]">
+            <div className="bg-bg-page text-text-muted font-heading mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full text-3xl italic opacity-20">
+              ?
+            </div>
+            <p className="text-text-muted font-medium italic opacity-60">
+              {searchTerm || statusFilter !== 'all'
+                ? 'Ingen bestillinger samsvarer med valgt filter'
+                : 'Ingen bestillinger i listen ennå'}
+            </p>
           </div>
         ) : (
           filteredOrders.map((order) => (
             <div
               key={order.id}
-              className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow"
+              className={cn(
+                'overflow-hidden rounded-[2.5rem] bg-white shadow-xl ring-1 shadow-black/[0.02] transition-all duration-500',
+                order.order_status === 'new'
+                  ? 'ring-primary/20 shadow-primary/[0.03] scale-[1.01]'
+                  : 'ring-border-light/60'
+              )}
             >
-              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 bg-gray-50 px-6 py-4">
-                <div className="flex items-center space-x-4">
-                  <span className="text-lg font-bold text-gray-900">
+              {/* Header */}
+              <div
+                className={cn(
+                  'flex flex-wrap items-center justify-between gap-6 border-b px-8 py-6',
+                  order.order_status === 'new'
+                    ? 'bg-primary/[0.02] border-primary/10'
+                    : 'bg-bg-page/20 border-border-light/40'
+                )}
+              >
+                <div className="flex items-center gap-6">
+                  <div
+                    className={cn(
+                      'flex h-14 w-14 items-center justify-center rounded-2xl text-lg font-bold shadow-sm transition-transform group-hover:scale-110',
+                      order.order_status === 'new'
+                        ? 'bg-primary animate-pulse text-white'
+                        : 'text-text-dark border-border-light/60 border bg-white'
+                    )}
+                  >
                     #{order.id}
-                  </span>
-                  <Badge variant={getStatusVariant(order.order_status)}>
-                    {getStatusLabel(order.order_status)}
-                  </Badge>
-                  <span className="text-sm text-gray-500">
-                    {formatDate(order.created_at)}
-                  </span>
+                  </div>
+                  <div>
+                    <div className="mb-1 flex items-center gap-3">
+                      <Badge
+                        variant={getStatusVariant(order.order_status)}
+                        className="px-3 py-0.5 text-[9px] font-black tracking-[0.2em] uppercase"
+                      >
+                        {getStatusLabel(order.order_status)}
+                      </Badge>
+                      <span className="text-text-muted text-[10px] font-bold tracking-tighter uppercase opacity-60">
+                        {formatDate(order.created_at)}
+                      </span>
+                    </div>
+                    <p className="text-text-dark text-xl font-black tracking-tight">
+                      {order.customer_name}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <label className="cursor-default text-xs font-medium text-gray-500 uppercase">
-                    Endre status:
-                  </label>
+
+                <div className="ring-border-light/40 flex items-center gap-4 rounded-2xl bg-white/50 p-2 ring-1">
+                  <span className="text-text-muted pl-2 text-[9px] font-black tracking-widest uppercase">
+                    Oppdater status:
+                  </span>
                   <select
-                    className="cursor-pointer rounded-md border border-gray-300 text-sm transition-all duration-200 hover:border-gray-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/50"
+                    className="text-text-dark focus:ring-primary/20 cursor-pointer rounded-xl border-none bg-white px-4 py-2 text-xs font-bold shadow-sm outline-none focus:ring-2"
                     value={order.order_status}
                     onChange={(e) =>
                       handleStatusChange(order.id, e.target.value)
                     }
                   >
-                    <option value="new">Ny</option>
-                    <option value="confirmed">Bekreftet</option>
-                    <option value="preparing">Lages</option>
-                    <option value="ready">Klar</option>
-                    <option value="delivered">Levert</option>
+                    <option value="new">🆕 Ny bestilling</option>
+                    <option value="confirmed">✅ Bekreftet</option>
+                    <option value="preparing">🍳 Lages nå</option>
+                    <option value="ready">🥡 Klar til henting</option>
+                    <option value="delivered">🚚 Levert</option>
                   </select>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-8 p-6 md:grid-cols-2">
-                <div>
-                  <h3 className="mb-3 text-sm font-medium tracking-wider text-gray-500 uppercase">
-                    Kundeinformasjon
-                  </h3>
-                  <p className="font-semibold text-gray-900">
-                    {order.customer_name}
-                  </p>
-                  <p className="text-gray-600">{order.customer_phone}</p>
-                  <p className="text-gray-600">{order.customer_address}</p>
-                  <div className="mt-2">
-                    <Badge variant="outline">
-                      {order.order_type === 'delivery' ? 'Kjøring' : 'Henting'}
-                    </Badge>
+              {/* Body */}
+              <div className="grid grid-cols-1 gap-0 lg:grid-cols-12">
+                {/* Left: Customer Info */}
+                <div className="border-border-light/40 space-y-8 border-b p-8 lg:col-span-5 lg:border-r lg:border-b-0">
+                  <div>
+                    <h3 className="text-text-muted mb-4 px-1 text-[10px] font-black tracking-[0.2em] uppercase opacity-40">
+                      Kunde & Levering
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-bg-page text-text-muted flex h-10 w-10 items-center justify-center rounded-xl">
+                          <svg
+                            className="h-5 w-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M3 5a2 2 0 012-2h3.28a1 1 0 011.94.86l-.85 5.02a1 1 0 01-.92.83H7.89a11.05 11.05 0 006.22 6.22v-1.61a1 1 0 01.83-.92l5.02-.85a1 1 0 011.13.67L22 18.11a1 1 0 01-1.1 1.24H9.31a19 19 0 01-8.68-8.68A1 1 0 011.24 3h.2a1 1 0 01.95.6l.33.72z"
+                            />
+                          </svg>
+                        </div>
+                        <span className="text-text-dark text-sm font-bold">
+                          {order.customer_phone}
+                        </span>
+                      </div>
+
+                      <div className="flex items-start gap-4">
+                        <div className="bg-bg-page text-text-muted mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
+                          <svg
+                            className="h-5 w-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                          </svg>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-text-dark text-sm leading-snug font-bold">
+                            {order.order_type === 'delivery'
+                              ? order.customer_address
+                              : 'Hentes i restaurant'}
+                          </span>
+                          <Badge
+                            variant="outline"
+                            className="mt-1 w-fit px-2 py-0 text-[8px] font-black tracking-widest uppercase"
+                          >
+                            {order.order_type === 'delivery'
+                              ? 'UTKJØRING'
+                              : 'HENTING'}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
                   </div>
+
                   {order.comment && (
-                    <div className="mt-4 rounded border border-yellow-100 bg-yellow-50 p-3 text-sm italic">
-                      "{order.comment}"
+                    <div className="relative overflow-hidden rounded-2xl border border-amber-100 bg-amber-50/50 p-5">
+                      <div className="font-heading absolute -right-2 -bottom-2 text-4xl font-black text-amber-600/10 italic">
+                        "
+                      </div>
+                      <h4 className="mb-2 text-[9px] font-black tracking-widest text-amber-700 uppercase">
+                        Beskjed:
+                      </h4>
+                      <p className="text-sm leading-relaxed text-amber-900 italic">
+                        {order.comment}
+                      </p>
                     </div>
                   )}
                 </div>
 
-                <div>
-                  <h3 className="mb-3 text-sm font-medium tracking-wider text-gray-500 uppercase">
-                    Bestilte varer
+                {/* Right: Items */}
+                <div className="bg-bg-page/10 flex h-full flex-col p-8 lg:col-span-7">
+                  <h3 className="text-text-muted mb-6 px-1 text-[10px] font-black tracking-[0.2em] uppercase opacity-40">
+                    Bestillingsinnhold
                   </h3>
-                  <ul className="divide-y divide-gray-100">
+                  <div className="flex-grow space-y-4">
                     {order.items.map((item, idx) => (
-                      <li key={idx} className="flex justify-between py-2">
-                        <div className="flex items-start space-x-2">
-                          <span className="font-bold text-gray-900">
-                            {item.quantity}x
-                          </span>
-                          <div>
-                            <p className="font-medium text-gray-900">
+                      <div
+                        key={idx}
+                        className="group/item flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="text-primary ring-border-light/40 flex h-8 w-8 items-center justify-center rounded-lg bg-white text-xs font-black italic shadow-sm ring-1 transition-transform group-hover/item:scale-110">
+                            x{item.quantity}
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-text-dark text-sm font-bold">
                               {item.name}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              {item.size === 'large' ? 'Stor' : 'Liten'}
-                            </p>
+                            </span>
+                            {item.size && (
+                              <span className="text-text-muted text-[9px] font-black tracking-widest uppercase opacity-60">
+                                {item.size === 'large' ? 'Stor' : 'Liten'}
+                              </span>
+                            )}
                           </div>
                         </div>
-                        <span className="text-gray-600">
-                          {item.total_price},-
-                        </span>
-                      </li>
+                        <Price
+                          amount={item.total_price}
+                          className="text-text-dark text-sm font-bold"
+                        />
+                      </div>
                     ))}
-                  </ul>
-                  <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4 text-lg font-bold">
-                    <span>Total</span>
-                    <span className="text-red-600">
-                      {order.total_price},- NOK
-                    </span>
+                  </div>
+
+                  <div className="border-border-light/60 mt-8 flex items-center justify-between border-t pt-6">
+                    <div>
+                      <span className="text-text-muted block text-[9px] font-black tracking-[0.3em] uppercase opacity-40">
+                        Totalsum inkl. mva
+                      </span>
+                      <span className="text-text-dark text-2xl leading-none font-black">
+                        Sum
+                      </span>
+                    </div>
+                    <div className="flex items-baseline gap-1">
+                      <Price
+                        amount={order.total_price}
+                        className="text-primary text-3xl font-black"
+                      />
+                      <span className="text-text-muted text-xs font-bold opacity-40">
+                        ,-
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

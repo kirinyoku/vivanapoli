@@ -7,7 +7,7 @@ import { useAdminAuth } from '@/lib/useAdminAuth';
 import { getShopStatus, ShopStatus } from '@/lib/opening-hours';
 import { Order, OrderStatus, RestaurantSettings } from '@/types';
 import Badge from '@/components/ui/Badge';
-import { formatDate } from '@/lib/utils';
+import { cn, formatDate } from '@/lib/utils';
 import {
   ShoppingBag,
   TrendingUp,
@@ -16,6 +16,7 @@ import {
   Power,
   ChevronRight,
   AlertCircle,
+  Settings,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -34,7 +35,7 @@ export default function AdminDashboard() {
     try {
       setError(null);
       setLoading(true);
-      
+
       // Use Promise.allSettled to handle partial failures gracefully
       const results = await Promise.allSettled([
         api.getStats(),
@@ -140,98 +141,115 @@ export default function AdminDashboard() {
       : 0;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Oversikt</h1>
-          <p className="text-sm text-gray-500">
-            Sanntidsoppdatering av dagens aktivitet.
+          <h1 className="font-heading text-text-dark text-4xl font-bold tracking-tight">
+            Oversikt
+          </h1>
+          <p className="text-text-muted italic opacity-70">
+            Sanntidsoppdatering av restaurantens aktivitet.
           </p>
         </div>
         <button
           onClick={fetchData}
-          className="text-primary hover:text-primary-dark cursor-pointer text-xs font-medium transition-colors duration-200 hover:underline"
+          className="border-border-light/60 cursor-pointer rounded-xl border bg-white p-3 transition-all hover:shadow-md active:scale-95"
+          title="Oppdater data"
         >
-          Oppdater data
+          <Clock
+            className={cn('text-primary h-5 w-5', loading && 'animate-spin')}
+          />
         </button>
       </div>
 
       {error && (
-        <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
-          <AlertCircle
-            size={20}
-            className="mt-0.5 flex-shrink-0 text-red-600"
-          />
-          <div>
-            <p className="text-sm font-semibold text-red-900">
-              Kunne ikke hente data
-            </p>
-            <p className="mt-1 text-sm text-red-700">{error}</p>
-          </div>
+        <div className="animate-in fade-in slide-in-from-top-2 flex items-center gap-4 rounded-2xl border border-red-100 bg-red-50 p-5 duration-300">
+          <AlertCircle className="h-6 w-6 shrink-0 text-red-600" />
+          <p className="text-sm font-bold tracking-wider text-red-900 uppercase">
+            {error}
+          </p>
         </div>
       )}
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-          <div className="rounded-xl bg-blue-50 p-3 text-blue-600">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="ring-border-light/60 flex flex-col gap-4 rounded-3xl bg-white p-8 shadow-xl ring-1 shadow-black/[0.02]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 shadow-inner">
             <ShoppingBag size={24} />
           </div>
           <div>
-            <p className="text-xs font-bold tracking-wider text-gray-500 uppercase">
+            <p className="text-text-muted mb-1 text-[10px] font-bold tracking-[0.2em] uppercase opacity-60">
               Ordrer i dag
             </p>
-            <p className="text-2xl font-black text-gray-900">
-              {stats.total_orders}
-            </p>
+            <div className="flex items-baseline gap-2">
+              <span className="text-text-dark text-4xl font-black">
+                {stats.total_orders}
+              </span>
+              <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-bold text-green-500">
+                +12%
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-          <div className="rounded-xl bg-green-50 p-3 text-green-600">
+        <div className="ring-border-light/60 flex flex-col gap-4 rounded-3xl bg-white p-8 shadow-xl ring-1 shadow-black/[0.02]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-green-50 text-green-600 shadow-inner">
             <TrendingUp size={24} />
           </div>
           <div>
-            <p className="text-xs font-bold tracking-wider text-gray-500 uppercase">
+            <p className="text-text-muted mb-1 text-[10px] font-bold tracking-[0.2em] uppercase opacity-60">
               Omsetning i dag
             </p>
-            <p className="text-2xl font-black text-gray-900">
-              {stats.total_revenue},-
-            </p>
+            <div className="flex items-baseline gap-1">
+              <span className="text-text-dark text-4xl font-black">
+                {stats.total_revenue}
+              </span>
+              <span className="text-text-muted text-xl font-bold opacity-40">
+                ,-
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-          <div className="rounded-xl bg-purple-50 p-3 text-purple-600">
+        <div className="ring-border-light/60 flex flex-col gap-4 rounded-3xl bg-white p-8 shadow-xl ring-1 shadow-black/[0.02]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-50 text-purple-600 shadow-inner">
             <Clock size={24} />
           </div>
           <div>
-            <p className="text-xs font-bold tracking-wider text-gray-500 uppercase">
+            <p className="text-text-muted mb-1 text-[10px] font-bold tracking-[0.2em] uppercase opacity-60">
               Gjennomsnitt
             </p>
-            <p className="text-2xl font-black text-gray-900">{avgOrder},-</p>
+            <div className="flex items-baseline gap-1">
+              <span className="text-text-dark text-4xl font-black">
+                {avgOrder}
+              </span>
+              <span className="text-text-muted text-xl font-bold opacity-40">
+                ,-
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
         {/* Recent Orders */}
-        <div className="space-y-4 lg:col-span-2">
+        <div className="space-y-6 lg:col-span-8">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-gray-900">
+            <h2 className="text-text-dark text-xl font-bold tracking-tight">
               Siste bestillinger
             </h2>
             <Link
               href="/admin/orders"
-              className="text-primary hover:text-primary-dark flex cursor-pointer items-center gap-1 text-sm font-bold transition-colors duration-200 hover:underline"
+              className="text-primary flex items-center gap-1 text-[10px] font-bold tracking-widest uppercase hover:underline"
             >
-              Se alle ordrer <ChevronRight size={14} />
+              Se alle <ChevronRight size={12} />
             </Link>
           </div>
-          <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-            <div className="divide-y divide-gray-50">
+
+          <div className="ring-border-light/60 overflow-hidden rounded-3xl bg-white shadow-xl ring-1 shadow-black/[0.02]">
+            <div className="divide-border-light/40 divide-y">
               {recentOrders.length === 0 ? (
-                <div className="p-12 text-center text-gray-400 italic">
+                <div className="text-text-muted p-20 text-center italic opacity-40">
                   Ingen bestillinger registrert ennå
                 </div>
               ) : (
@@ -239,23 +257,38 @@ export default function AdminDashboard() {
                   <Link
                     key={order.id}
                     href="/admin/orders"
-                    className="group flex cursor-pointer items-center justify-between p-4 transition-all duration-200 hover:bg-gray-50"
+                    className="group hover:bg-bg-page/50 flex items-center justify-between p-6 transition-all"
                   >
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-5">
                       <div
-                        className={`h-2 w-2 rounded-full ${order.order_status === 'new' ? 'animate-pulse bg-red-500' : 'bg-gray-300'}`}
-                      ></div>
+                        className={cn(
+                          'flex h-12 w-12 items-center justify-center rounded-2xl text-sm font-bold shadow-sm transition-transform group-hover:scale-110 group-hover:rotate-3',
+                          order.order_status === 'new'
+                            ? 'bg-primary text-white'
+                            : 'bg-bg-page text-text-muted'
+                        )}
+                      >
+                        #{order.id}
+                      </div>
                       <div>
-                        <p className="group-hover:text-primary font-bold text-gray-900 transition-colors">
-                          #{order.id} - {order.customer_name}
+                        <p className="text-text-dark group-hover:text-primary mb-1.5 leading-none font-bold transition-colors">
+                          {order.customer_name}
                         </p>
-                        <p className="text-[10px] font-bold tracking-tighter text-gray-400 uppercase">
-                          {formatDate(order.created_at)}
-                        </p>
+                        <div className="flex items-center gap-3">
+                          <span className="text-text-muted text-[10px] font-bold tracking-tighter uppercase opacity-60">
+                            {formatDate(order.created_at)}
+                          </span>
+                          <div className="bg-border-light h-1 w-1 rounded-full" />
+                          <span className="text-text-muted text-[10px] font-bold tracking-tighter uppercase italic opacity-60">
+                            {order.order_type === 'delivery'
+                              ? 'Kjøring'
+                              : 'Henting'}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-6">
-                      <p className="font-black text-gray-900">
+                    <div className="flex items-center gap-10">
+                      <p className="text-text-dark text-lg font-black">
                         {order.total_price},-
                       </p>
                       <div className="flex w-24 justify-end">
@@ -263,10 +296,14 @@ export default function AdminDashboard() {
                           variant={
                             order.order_status === 'new' ? 'hot' : 'outline'
                           }
+                          className={cn(
+                            'px-3 py-1',
+                            order.order_status === 'new' && 'animate-pulse'
+                          )}
                         >
                           {order.order_status === 'new'
-                            ? 'Ny'
-                            : order.order_status}
+                            ? 'NY'
+                            : order.order_status.toUpperCase()}
                         </Badge>
                       </div>
                     </div>
@@ -277,90 +314,115 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Quick Actions & Status */}
-        <div className="space-y-6">
-          <div>
-            <h2 className="mb-4 text-lg font-bold text-gray-900">
+        {/* Sidebar Widgets */}
+        <div className="space-y-8 lg:col-span-4">
+          {/* Shop Status Widget */}
+          <div className="ring-border-light/60 rounded-3xl bg-white p-8 shadow-xl ring-1 shadow-black/[0.02]">
+            <h2 className="text-text-dark mb-6 text-sm font-bold tracking-widest uppercase opacity-40">
               Butikkstatus
             </h2>
 
             {toggleError && (
-              <div className="mb-4 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-3">
-                <AlertCircle size={18} className="flex-shrink-0 text-red-600" />
-                <div>
-                  <p className="text-sm font-semibold text-red-900">
-                    Feil ved statusoppdatering
-                  </p>
-                  <p className="text-xs text-red-700">{toggleError}</p>
-                </div>
+              <div className="mb-4 rounded-lg bg-red-50 p-3 text-[10px] font-bold tracking-wider text-red-600 uppercase">
+                Feil: {toggleError}
               </div>
             )}
 
             <div
-              className={`flex w-full items-center justify-between rounded-2xl border-2 p-5 transition-all duration-200 ${
+              className={cn(
+                'flex flex-col gap-6 rounded-2xl p-6 transition-all duration-500',
                 shopStatus?.status === 'open'
-                  ? 'border-green-200 bg-green-50 text-green-700'
-                  : 'border-red-200 bg-red-50 text-red-700'
-              }`}
+                  ? 'bg-green-50 ring-1 ring-green-100'
+                  : 'bg-red-50 ring-1 ring-red-100'
+              )}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
                 <div
-                  className={`rounded-lg p-2 ${shopStatus?.status === 'open' ? 'bg-green-200' : 'bg-red-200'}`}
+                  className={cn(
+                    'flex h-12 w-12 items-center justify-center rounded-2xl shadow-lg',
+                    shopStatus?.status === 'open'
+                      ? 'bg-white text-green-600 shadow-green-200/50'
+                      : 'bg-white text-red-600 shadow-red-200/50'
+                  )}
                 >
-                  <Power size={20} />
+                  <Power
+                    size={24}
+                    className={cn(toggleLoading && 'animate-pulse')}
+                  />
                 </div>
-                <div className="text-left">
-                  <p className="text-sm font-black tracking-tight uppercase">
-                    {shopStatus?.status === 'open'
-                      ? 'Butikken er ÅPEN'
-                      : 'Butikken er STENGT'}
+                <div>
+                  <p
+                    className={cn(
+                      'text-xs font-black tracking-widest uppercase',
+                      shopStatus?.status === 'open'
+                        ? 'text-green-700'
+                        : 'text-red-700'
+                    )}
+                  >
+                    {shopStatus?.status === 'open' ? 'ÅPEN' : 'STENGT'}
                   </p>
-                  <p className="text-[10px] font-bold italic opacity-70">
-                    {shopStatus?.message || 'Laster status...'}
+                  <p className="text-[10px] leading-tight font-medium italic opacity-60">
+                    {shopStatus?.message}
                   </p>
                 </div>
               </div>
+
               <button
                 onClick={handleToggleShop}
                 disabled={toggleLoading}
-                className="rounded-lg px-4 py-2 text-sm font-bold transition-all disabled:opacity-50 hover:cursor-pointer hover:opacity-80 active:scale-95"
+                className={cn(
+                  'w-full cursor-pointer rounded-xl py-3 text-xs font-bold tracking-widest uppercase shadow-md transition-all active:scale-95',
+                  settings?.is_open === 'false'
+                    ? 'bg-green-600 text-white shadow-green-200 hover:bg-green-700'
+                    : 'bg-red-600 text-white shadow-red-200 hover:bg-red-700'
+                )}
               >
-                {toggleLoading ? 'Oppdaterer...' : `Skru ${settings?.is_open === 'false' ? 'på' : 'av'}`}
+                {toggleLoading
+                  ? 'Vennligst vent...'
+                  : `Skru ${settings?.is_open === 'false' ? 'PÅ' : 'AV'}`}
               </button>
             </div>
           </div>
 
-          <div>
-            <h2 className="mb-4 text-lg font-bold text-gray-900">Snarveier</h2>
-            <div className="grid grid-cols-1 gap-3">
+          {/* Quick Shortcuts */}
+          <div className="ring-border-light/60 rounded-3xl bg-white p-8 shadow-xl ring-1 shadow-black/[0.02]">
+            <h2 className="text-text-dark mb-6 text-sm font-bold tracking-widest uppercase opacity-40">
+              Snarveier
+            </h2>
+            <div className="grid grid-cols-1 gap-4">
               <Link
                 href="/admin/menu"
-                className="hover:border-primary/50 hover:bg-primary/5 group flex cursor-pointer items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 transition-all duration-200 hover:shadow-md"
+                className="group bg-bg-page/50 hover:bg-primary flex items-center gap-4 rounded-2xl p-4 transition-all duration-300"
               >
-                <div className="group-hover:bg-primary/10 group-hover:text-primary rounded-lg bg-gray-50 p-2 transition-all duration-200">
-                  <PlusCircle size={20} />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm transition-transform group-hover:scale-110">
+                  <PlusCircle size={20} className="text-primary" />
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-bold">Legg til produkt</p>
-                  <p className="text-[10px] font-bold text-gray-400 uppercase">
-                    Oppdater menyen
+                  <p className="text-xs font-bold transition-colors group-hover:text-white">
+                    Legg til produkt
+                  </p>
+                  <p className="text-text-muted text-[9px] font-bold tracking-wider uppercase transition-colors group-hover:text-white/60">
+                    Menystyring
                   </p>
                 </div>
               </Link>
 
-              {recentOrders.some((o) => o.order_status === 'new') && (
-                <div className="animate-in fade-in slide-in-from-right-4 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 duration-500">
-                  <AlertCircle className="shrink-0 text-amber-600" size={20} />
-                  <div>
-                    <p className="text-sm font-black tracking-tight text-amber-800 uppercase">
-                      Nye bestillinger!
-                    </p>
-                    <p className="text-xs font-medium text-amber-700">
-                      Sjekk ordrelisten for å bekrefte nye henvendelser.
-                    </p>
-                  </div>
+              <Link
+                href="/admin/settings"
+                className="group bg-bg-page/50 flex items-center gap-4 rounded-2xl p-4 transition-all duration-300 hover:bg-[#1a1a1a]"
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-sm transition-transform group-hover:scale-110">
+                  <Settings size={20} className="text-gray-600" />
                 </div>
-              )}
+                <div className="text-left">
+                  <p className="text-xs font-bold transition-colors group-hover:text-white">
+                    Endre priser
+                  </p>
+                  <p className="text-text-muted text-[9px] font-bold tracking-wider uppercase transition-colors group-hover:text-white/60">
+                    Instillinger
+                  </p>
+                </div>
+              </Link>
             </div>
           </div>
         </div>

@@ -12,24 +12,23 @@ export default function ScrollSpy({ categories }: ScrollSpyProps) {
   const observer = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
-    // Find the scrollable container
-    const root = document.querySelector('main');
+    const container = document.getElementById('menu-scroll-container') || document.querySelector('main');
+    
+    const observerCallback: IntersectionObserverCallback = (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.1) {
+          setActiveCategory(entry.target.id);
+        }
+      });
+    };
 
-    observer.current = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveCategory(entry.target.id);
-          }
-        });
-      },
-      {
-        root: root,
-        // Trigger when the element is in the top 30% of the viewport
-        rootMargin: '-20% 0px -70% 0px',
-        threshold: 0,
-      }
-    );
+    const options: IntersectionObserverInit = {
+      root: container,
+      rootMargin: '-80px 0px -60% 0px',
+      threshold: [0, 0.1, 0.5],
+    };
+
+    observer.current = new IntersectionObserver(observerCallback, options);
 
     categories.forEach((id) => {
       const el = document.getElementById(id);

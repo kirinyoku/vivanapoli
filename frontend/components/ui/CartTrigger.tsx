@@ -4,21 +4,20 @@ import { useState, useEffect } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCartStore } from '@/store/useCartStore';
-import Link from 'next/link';
+import { useNavStore } from '@/store/useNavStore';
 
 interface CartTriggerProps {
   count?: number;
   className?: string;
-  onClick?: () => void;
 }
 
 export default function CartTrigger({
   count: propCount,
   className,
-  onClick,
 }: CartTriggerProps) {
   const [mounted, setMounted] = useState(false);
   const { getTotalItems } = useCartStore();
+  const { toggleCart } = useNavStore();
 
   useEffect(() => {
     setMounted(true);
@@ -27,10 +26,11 @@ export default function CartTrigger({
   const storeCount = mounted ? getTotalItems() : 0;
   const count = propCount !== undefined ? propCount : storeCount;
 
-  const content = (
-    <div
+  return (
+    <button
+      onClick={toggleCart}
       className={cn(
-        'relative inline-flex cursor-pointer items-center justify-center rounded-full p-2 transition-all duration-200 hover:bg-black/5 hover:shadow-md',
+        'relative inline-flex cursor-pointer items-center justify-center rounded-full p-2 transition-all duration-200 hover:bg-black/5 hover:shadow-md border-none bg-transparent',
         className
       )}
     >
@@ -40,19 +40,6 @@ export default function CartTrigger({
           {count}
         </span>
       )}
-    </div>
+    </button>
   );
-
-  if (onClick) {
-    return (
-      <button
-        onClick={onClick}
-        className="cursor-pointer border-none bg-transparent p-0"
-      >
-        {content}
-      </button>
-    );
-  }
-
-  return <Link href="/checkout">{content}</Link>;
 }

@@ -10,7 +10,6 @@ import Button from '@/components/ui/Button';
 import Price from '@/components/ui/Price';
 import { cn } from '@/lib/utils';
 import { CreateOrderRequest, OrderType } from '@/types';
-
 import { getShopStatus } from '@/lib/opening-hours';
 
 export default function CheckoutPage() {
@@ -57,27 +56,27 @@ export default function CheckoutPage() {
   if (!mounted) {
     return (
       <div className="bg-bg-page flex min-h-screen items-center justify-center">
-        <div className="text-text-muted animate-pulse">Laster...</div>
+        <div className="text-primary animate-pulse font-heading text-2xl">Laster checkout...</div>
       </div>
     );
   }
 
   if (items.length === 0 && !isSubmitting) {
     return (
-      <div className="bg-bg-page flex min-h-screen flex-col items-center justify-center p-4 text-center">
-        <div className="mb-6 rounded-full bg-white p-8 shadow-sm">
-          <ShoppingBag className="text-text-muted h-16 w-16 opacity-20" />
+      <div className="bg-bg-page flex min-h-screen flex-col items-center justify-center p-6 text-center">
+        <div className="mb-8 rounded-full bg-white p-12 shadow-2xl shadow-black/5 ring-1 ring-border-light">
+          <ShoppingBag className="text-primary h-20 w-20 opacity-20" />
         </div>
-        <h1 className="font-heading text-text-dark mb-2 text-3xl font-semibold">
-          Kurven er tom
+        <h1 className="font-heading text-text-dark mb-4 text-4xl font-semibold italic">
+          Kurven din er tom
         </h1>
-        <p className="text-text-muted mb-8 max-w-md italic">
-          Du har ingen varer i kurven. Gå tilbake til menyen for å legge til noe
-          godt.
+        <p className="text-text-muted mb-10 max-w-md text-lg leading-relaxed italic opacity-80">
+          Det ser ut som du ikke har lagt til noe smakfullt ennå. 
+          Våре pizzaer venter på deg!
         </p>
         <Link href="/">
-          <Button size="lg" className="rounded-2xl px-12">
-            Se menyen
+          <Button size="lg" className="rounded-2xl px-16 py-7 shadow-xl shadow-primary/20 active:scale-95">
+            Gå til menyen
           </Button>
         </Link>
       </div>
@@ -133,7 +132,7 @@ export default function CheckoutPage() {
 
       await api.placeOrder(orderRequest);
       clearCart();
-      router.push('/order/success');
+      router.push(`/order/success?type=${formData.order_type}`);
     } catch (err: any) {
       setGeneralError(err.message || 'Noe gikk galt. Vennligst prøv igjen.');
       setIsSubmitting(false);
@@ -145,7 +144,6 @@ export default function CheckoutPage() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Clear error when user starts typing
     if (fieldErrors[name]) {
       setFieldErrors((prev) => {
         const newErrors = { ...prev };
@@ -157,56 +155,65 @@ export default function CheckoutPage() {
 
   return (
     <div className="bg-bg-page flex min-h-screen flex-col">
-      <header className="border-border-light sticky top-0 z-10 border-b bg-white px-4 py-4 shadow-sm md:px-6">
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
+      <header className="border-border-light/60 sticky top-0 z-40 border-b bg-white/80 backdrop-blur-md px-4 py-4 md:px-8">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
           <Link
             href="/"
-            className="text-text-muted hover:text-text-dark group flex cursor-pointer items-center gap-2 transition-colors duration-200"
+            className="text-text-muted hover:text-primary group flex items-center gap-3 transition-all"
           >
-            <div className="border-border-light group-hover:border-text-muted flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border bg-white transition-all duration-200 group-hover:shadow-sm">
+            <div className="border-border-light flex h-10 w-10 items-center justify-center rounded-full border bg-white shadow-sm transition-all group-hover:border-primary group-hover:shadow-md">
               <ArrowLeft className="h-5 w-5" />
             </div>
-            <span className="hidden text-xs font-bold tracking-wider uppercase sm:inline">
-              Meny
+            <span className="hidden text-[10px] font-bold tracking-[0.2em] uppercase sm:inline">
+              Tilbake til meny
             </span>
           </Link>
-          <div className="font-heading text-text-dark text-3xl font-semibold">
-            Viva<span className="text-primary">Napoli</span>
+          <div className="font-heading text-text-dark text-3xl font-semibold tracking-tighter">
+            Viva<span className="text-primary italic">Napoli</span>
           </div>
-          <div className="w-10 sm:w-24" /> {/* Spacer */}
+          <div className="hidden items-center gap-2 sm:flex">
+             <div className="h-1.5 w-1.5 rounded-full bg-accent-gold" />
+             <span className="text-[10px] font-bold tracking-widest uppercase opacity-40">Checkout</span>
+          </div>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl flex-grow px-4 py-8 md:px-6 md:py-12">
-        <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-5">
-          {/* Form Section */}
-          <div className="space-y-12 lg:col-span-3">
+      <main className="mx-auto w-full max-w-7xl flex-grow px-4 py-10 md:px-8 lg:py-16">
+        <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-12">
+          
+          {/* Main Form Area */}
+          <div className="space-y-10 lg:col-span-7">
             <div>
-              <h1 className="font-heading text-text-dark mb-4 text-5xl font-semibold">
-                Din Bestilling
-              </h1>
-              <p className="text-text-muted italic">
-                Vennligst oppgi informasjon for å fullføре bestillingen.
+              <div className="flex items-center gap-3 mb-4">
+                <div className="h-1 w-12 bg-accent-gold rounded-full" />
+                <h1 className="font-heading text-text-dark text-5xl font-semibold leading-tight">
+                  Checkout
+                </h1>
+              </div>
+              <p className="text-text-muted text-lg italic opacity-80">
+                Fullfør bestillingen din ved å fylle ut detaljene nedenfor.
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-10">
-              <section className="space-y-6">
-                <div className="flex items-center gap-4">
-                  <div className="bg-primary/10 text-primary flex h-8 w-8 items-center justify-center rounded-full font-bold">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {/* Step 1: Kontakt */}
+              <div className="bg-white rounded-3xl p-6 md:p-10 shadow-xl shadow-black/[0.02] ring-1 ring-border-light/60 transition-all hover:shadow-black/[0.04]">
+                <div className="flex items-center gap-4 mb-10">
+                  <div className="bg-primary text-white flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl font-bold shadow-lg shadow-primary/20 rotate-3">
                     1
                   </div>
-                  <h2 className="text-text-dark text-2xl font-bold">
-                    Kontaktinfo
-                  </h2>
+                  <div>
+                    <h2 className="text-text-dark text-2xl font-bold tracking-tight">
+                      Hvem bestiller?
+                    </h2>
+                    <p className="text-text-muted text-xs font-medium italic opacity-60">Din kontaktinformasjon</p>
+                  </div>
                 </div>
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+
+                <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
                   <div className="space-y-3">
-                    <label
-                      htmlFor="customer_name"
-                      className="text-text-muted cursor-default text-xs font-bold tracking-[0.15em] uppercase"
-                    >
-                      Navn
+                    <label htmlFor="customer_name" className="text-text-muted text-[10px] font-bold tracking-[0.15em] uppercase px-1">
+                      Fullt navn
                     </label>
                     <input
                       type="text"
@@ -214,26 +221,23 @@ export default function CheckoutPage() {
                       name="customer_name"
                       value={formData.customer_name}
                       onChange={handleInputChange}
-                      placeholder="Ditt navn"
+                      placeholder="Ola Nordmann"
                       className={cn(
-                        'hover:border-text-muted/30 w-full cursor-text rounded-2xl border bg-white p-4 shadow-sm transition-all outline-none focus:ring-4',
+                        'w-full rounded-2xl border bg-bg-page/50 p-4 shadow-inner transition-all outline-none focus:ring-4',
                         fieldErrors.customer_name
                           ? 'border-red-500 focus:border-red-500 focus:ring-red-500/5'
-                          : 'border-border-light focus:ring-primary/5 focus:border-primary'
+                          : 'border-border-light/60 focus:ring-primary/5 focus:border-primary'
                       )}
                     />
                     {fieldErrors.customer_name && (
-                      <p className="mt-1 text-xs font-bold text-red-500">
+                      <p className="mt-1 text-[10px] font-bold text-red-500 px-1 uppercase tracking-wider">
                         {fieldErrors.customer_name}
                       </p>
                     )}
                   </div>
                   <div className="space-y-3">
-                    <label
-                      htmlFor="customer_phone"
-                      className="text-text-muted cursor-default text-xs font-bold tracking-[0.15em] uppercase"
-                    >
-                      Telefon
+                    <label htmlFor="customer_phone" className="text-text-muted text-[10px] font-bold tracking-[0.15em] uppercase px-1">
+                      Mobilnummer
                     </label>
                     <input
                       type="tel"
@@ -241,174 +245,140 @@ export default function CheckoutPage() {
                       name="customer_phone"
                       value={formData.customer_phone}
                       onChange={handleInputChange}
-                      placeholder="8 siffer"
+                      placeholder="90 00 00 00"
                       className={cn(
-                        'hover:border-text-muted/30 w-full cursor-text rounded-2xl border bg-white p-4 shadow-sm transition-all outline-none focus:ring-4',
+                        'w-full rounded-2xl border bg-bg-page/50 p-4 shadow-inner transition-all outline-none focus:ring-4',
                         fieldErrors.customer_phone
                           ? 'border-red-500 focus:border-red-500 focus:ring-red-500/5'
-                          : 'border-border-light focus:ring-primary/5 focus:border-primary'
+                          : 'border-border-light/60 focus:ring-primary/5 focus:border-primary'
                       )}
                     />
                     {fieldErrors.customer_phone && (
-                      <p className="mt-1 text-xs font-bold text-red-500">
+                      <p className="mt-1 text-[10px] font-bold text-red-500 px-1 uppercase tracking-wider">
                         {fieldErrors.customer_phone}
                       </p>
                     )}
                   </div>
                 </div>
-              </section>
+              </div>
 
-              <section className="space-y-6">
-                <div className="flex items-center gap-4">
-                  <div className="bg-primary/10 text-primary flex h-8 w-8 items-center justify-center rounded-full font-bold">
+              {/* Step 2: Levering */}
+              <div className="bg-white rounded-3xl p-6 md:p-10 shadow-xl shadow-black/[0.02] ring-1 ring-border-light/60 transition-all hover:shadow-black/[0.04]">
+                <div className="flex items-center gap-4 mb-10">
+                  <div className="bg-primary text-white flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl font-bold shadow-lg shadow-primary/20 -rotate-3">
                     2
                   </div>
-                  <h2 className="text-text-dark text-2xl font-bold">
-                    Levering eller henting?
-                  </h2>
+                  <div>
+                    <h2 className="text-text-dark text-2xl font-bold tracking-tight">
+                      Hvordan vil du få maten?
+                    </h2>
+                    <p className="text-text-muted text-xs font-medium italic opacity-60">Velg leveringsmetode</p>
+                  </div>
                 </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <button
                     type="button"
-                    onClick={() => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        order_type: 'delivery',
-                      }));
-                      if (fieldErrors.customer_address) {
-                        setFieldErrors((prev) => {
-                          const newErrors = { ...prev };
-                          delete newErrors.customer_address;
-                          return newErrors;
-                        });
-                      }
-                    }}
+                    onClick={() => setFormData((prev) => ({ ...prev, order_type: 'delivery' }))}
                     className={cn(
-                      'group relative flex cursor-pointer flex-col items-center gap-4 overflow-hidden rounded-3xl border-2 p-8 transition-all duration-200',
+                      'group relative flex flex-col items-center gap-5 rounded-[2.5rem] border-2 p-8 transition-all duration-300',
                       formData.order_type === 'delivery'
-                        ? 'border-primary shadow-primary/10 bg-white shadow-xl'
-                        : 'border-border-light text-text-muted hover:border-text-muted/30 bg-white/50 hover:bg-white hover:shadow-md'
+                        ? 'border-primary bg-primary/[0.02] shadow-xl shadow-primary/5 scale-[1.02]'
+                        : 'border-border-light/40 text-text-muted bg-white/50 hover:border-primary/20 hover:bg-white'
                     )}
                   >
-                    <div
-                      className={cn(
-                        'rounded-2xl p-4 transition-all duration-200',
-                        formData.order_type === 'delivery'
-                          ? 'bg-primary text-white'
-                          : 'text-text-muted group-hover:text-primary/80 bg-black/5 group-hover:bg-black/10'
-                      )}
-                    >
+                    <div className={cn(
+                      'rounded-2xl p-4 transition-all duration-300',
+                      formData.order_type === 'delivery' ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'bg-bg-page text-text-muted'
+                    )}>
                       <Truck className="h-8 w-8" />
                     </div>
                     <div className="text-center">
-                      <span
-                        className={cn(
-                          'mb-1 block text-sm font-bold tracking-widest uppercase',
-                          formData.order_type === 'delivery'
-                            ? 'text-primary'
-                            : ''
-                        )}
-                      >
-                        Levering
-                      </span>
-                      <span className="text-xs opacity-60">
-                        Vi leverer hjem til deg
-                      </span>
+                      <span className={cn('block text-sm font-bold tracking-[0.2em] uppercase mb-1', formData.order_type === 'delivery' ? 'text-primary' : '')}>Levering</span>
+                      <span className="text-[11px] font-medium opacity-60 italic leading-tight block">Kjøres hjem til deg</span>
                     </div>
+                    {formData.order_type === 'delivery' && (
+                      <div className="absolute top-4 right-4 h-2 w-2 rounded-full bg-primary animate-pulse" />
+                    )}
                   </button>
+
                   <button
                     type="button"
                     onClick={() => {
-                      setFormData((prev) => ({
-                        ...prev,
-                        order_type: 'pickup',
-                      }));
-                      setFieldErrors((prev) => {
-                        const newErrors = { ...prev };
-                        delete newErrors.customer_address;
-                        return newErrors;
-                      });
+                      setFormData((prev) => ({ ...prev, order_type: 'pickup' }));
+                      setFieldErrors(prev => { const n = {...prev}; delete n.customer_address; return n; });
                     }}
                     className={cn(
-                      'group relative flex cursor-pointer flex-col items-center gap-4 overflow-hidden rounded-3xl border-2 p-8 transition-all duration-200',
+                      'group relative flex flex-col items-center gap-5 rounded-[2.5rem] border-2 p-8 transition-all duration-300',
                       formData.order_type === 'pickup'
-                        ? 'border-primary shadow-primary/10 bg-white shadow-xl'
-                        : 'border-border-light text-text-muted hover:border-text-muted/30 bg-white/50 hover:bg-white hover:shadow-md'
+                        ? 'border-primary bg-primary/[0.02] shadow-xl shadow-primary/5 scale-[1.02]'
+                        : 'border-border-light/40 text-text-muted bg-white/50 hover:border-primary/20 hover:bg-white'
                     )}
                   >
-                    <div
-                      className={cn(
-                        'rounded-2xl p-4 transition-all duration-200',
-                        formData.order_type === 'pickup'
-                          ? 'bg-primary text-white'
-                          : 'text-text-muted group-hover:text-primary/80 bg-black/5 group-hover:bg-black/10'
-                      )}
-                    >
+                    <div className={cn(
+                      'rounded-2xl p-4 transition-all duration-300',
+                      formData.order_type === 'pickup' ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'bg-bg-page text-text-muted'
+                    )}>
                       <ShoppingBag className="h-8 w-8" />
                     </div>
                     <div className="text-center">
-                      <span
-                        className={cn(
-                          'mb-1 block text-sm font-bold tracking-widest uppercase',
-                          formData.order_type === 'pickup' ? 'text-primary' : ''
-                        )}
-                      >
-                        Henting
-                      </span>
-                      <span className="text-xs opacity-60">
-                        Hentes hos oss i restauranten
-                      </span>
+                      <span className={cn('block text-sm font-bold tracking-[0.2em] uppercase mb-1', formData.order_type === 'pickup' ? 'text-primary' : '')}>Henting</span>
+                      <span className="text-[11px] font-medium opacity-60 italic leading-tight block">Du henter selv</span>
                     </div>
+                    {formData.order_type === 'pickup' && (
+                      <div className="absolute top-4 right-4 h-2 w-2 rounded-full bg-primary animate-pulse" />
+                    )}
                   </button>
                 </div>
 
                 {formData.order_type === 'delivery' && (
-                  <div className="animate-in fade-in slide-in-from-top-4 space-y-3 pt-4 duration-300">
-                    <label
-                      htmlFor="customer_address"
-                      className="text-text-muted cursor-default text-xs font-bold tracking-[0.15em] uppercase"
-                    >
-                      Adresse (Gateadresse, postnummer, sted)
-                    </label>
-                    <input
-                      type="text"
-                      id="customer_address"
-                      name="customer_address"
-                      value={formData.customer_address}
-                      onChange={handleInputChange}
-                      placeholder="F.eks. Gamle Hellviksvei 3, 1459 Nesoddtangen"
-                      className={cn(
-                        'hover:border-text-muted/30 w-full cursor-text rounded-2xl border bg-white p-4 shadow-sm transition-all outline-none focus:ring-4',
-                        fieldErrors.customer_address
-                          ? 'border-red-500 focus:border-red-500 focus:ring-red-500/5'
-                          : 'border-border-light focus:ring-primary/5 focus:border-primary'
+                  <div className="mt-10 animate-in fade-in slide-in-from-top-4 duration-500">
+                    <div className="space-y-3">
+                      <label htmlFor="customer_address" className="text-text-muted text-[10px] font-bold tracking-[0.15em] uppercase px-1">
+                        Leveringsadresse
+                      </label>
+                      <input
+                        type="text"
+                        id="customer_address"
+                        name="customer_address"
+                        value={formData.customer_address}
+                        onChange={handleInputChange}
+                        placeholder="Gateadresse, postnummer og sted"
+                        className={cn(
+                          'w-full rounded-2xl border bg-bg-page/50 p-4 shadow-inner transition-all outline-none focus:ring-4',
+                          fieldErrors.customer_address
+                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500/5'
+                            : 'border-border-light/60 focus:ring-primary/5 focus:border-primary'
+                        )}
+                      />
+                      {fieldErrors.customer_address && (
+                        <p className="mt-1 text-[10px] font-bold text-red-500 px-1 uppercase tracking-wider">
+                          {fieldErrors.customer_address}
+                        </p>
                       )}
-                    />
-                    {fieldErrors.customer_address && (
-                      <p className="mt-1 text-xs font-bold text-red-500">
-                        {fieldErrors.customer_address}
-                      </p>
-                    )}
+                    </div>
                   </div>
                 )}
-              </section>
+              </div>
 
-              <section className="space-y-6">
-                <div className="flex items-center gap-4">
-                  <div className="bg-primary/10 text-primary flex h-8 w-8 items-center justify-center rounded-full font-bold">
+              {/* Step 3: Beskjed */}
+              <div className="bg-white rounded-3xl p-6 md:p-10 shadow-xl shadow-black/[0.02] ring-1 ring-border-light/60 transition-all hover:shadow-black/[0.04]">
+                <div className="flex items-center gap-4 mb-10">
+                  <div className="bg-primary text-white flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl font-bold shadow-lg shadow-primary/20 rotate-12">
                     3
                   </div>
-                  <h2 className="text-text-dark text-2xl font-bold">
-                    Merknad & Betaling
-                  </h2>
+                  <div>
+                    <h2 className="text-text-dark text-2xl font-bold tracking-tight">
+                      Siste detaljer
+                    </h2>
+                    <p className="text-text-muted text-xs font-medium italic opacity-60">Merknad og betaling</p>
+                  </div>
                 </div>
-                <div className="space-y-6">
+
+                <div className="space-y-8">
                   <div className="space-y-3">
-                    <label
-                      htmlFor="comment"
-                      className="text-text-muted cursor-default text-xs font-bold tracking-[0.15em] uppercase"
-                    >
-                      Beskjed til restauranten (valgfri)
+                    <label htmlFor="comment" className="text-text-muted text-[10px] font-bold tracking-[0.15em] uppercase px-1">
+                      Beskjed (valgfri)
                     </label>
                     <textarea
                       id="comment"
@@ -416,159 +386,155 @@ export default function CheckoutPage() {
                       rows={3}
                       value={formData.comment}
                       onChange={handleInputChange}
-                      placeholder="Allergier, dørkode eller andre detaljer..."
-                      className="border-border-light focus:ring-primary/5 focus:border-primary hover:border-text-muted/30 w-full cursor-text resize-none rounded-2xl border bg-white p-4 shadow-sm transition-all outline-none focus:ring-4"
+                      placeholder="Dørkode, allergier eller andre ønsker..."
+                      className="w-full rounded-2xl border border-border-light/60 bg-bg-page/50 p-4 shadow-inner transition-all outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary resize-none"
                     />
                   </div>
 
-                  <div className="border-border-light group hover:border-primary/30 rounded-2xl border-2 border-dashed bg-white/30 p-8 text-center transition-colors">
-                    <div className="text-text-muted group-hover:bg-primary/10 group-hover:text-primary mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-black/5 transition-colors">
-                      <CreditCard className="h-6 w-6" />
+                  <div className="relative overflow-hidden rounded-2xl bg-primary/5 p-8 ring-1 ring-primary/10">
+                    <div className="absolute -right-4 -top-4 text-primary opacity-5">
+                      <CreditCard className="h-24 w-24 rotate-12" />
                     </div>
-                    <h3 className="text-text-dark mb-1 font-bold">Betaling</h3>
-                    <p className="text-text-muted text-sm italic">
-                      Varene betales direkte til oss ved levering eller henting.
-                      Vi tar Kort, Kontant og Vipps.
-                    </p>
+                    <div className="relative flex items-start gap-5">
+                      <div className="bg-white p-3 rounded-xl shadow-sm">
+                        <CreditCard className="text-primary h-6 w-6" />
+                      </div>
+                      <div className="space-y-1">
+                        <h3 className="text-text-dark font-bold leading-none">Betalingsinformasjon</h3>
+                        <p className="text-text-muted text-sm leading-relaxed italic opacity-80">
+                          Bestillingen betales direkte ved levering/henting. 
+                          Vi aksepterer <span className="text-primary font-bold">Kort, Kontant и Vipps.</span>
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </section>
+              </div>
 
               {isClosed && (
-                <div className="animate-in fade-in slide-in-from-bottom-2 flex items-center gap-3 rounded-2xl border border-amber-100 bg-amber-50 p-6 text-sm font-bold text-amber-700 duration-500">
-                  <span className="text-xl">🌙</span>
-                  <div>
-                    <p>{shopStatus?.message}</p>
-                    <p className="mt-1 font-normal opacity-80">
-                      Vi tar dessverre ikke imot bestillinger akkurat nå.
-                      Velkommen tilbake ved åpning!
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 flex items-start gap-4 ring-1 ring-amber-100">
+                  <span className="text-2xl">🌙</span>
+                  <div className="space-y-1">
+                    <p className="text-amber-900 font-bold">Vi har dessverre stengt nå</p>
+                    <p className="text-amber-800/80 text-sm font-medium italic">
+                      {shopStatus?.message}. Velkommen tilbake ved åpning!
                     </p>
                   </div>
                 </div>
               )}
 
               {generalError && (
-                <div className="animate-pulse rounded-2xl border border-red-100 bg-red-50 p-6 text-sm font-bold text-red-600">
-                  ⚠️ {generalError}
+                <div className="rounded-2xl border border-red-200 bg-red-50 p-6 flex items-start gap-4 ring-1 ring-red-100">
+                  <span className="text-xl">⚠️</span>
+                  <p className="text-red-900 font-bold">{generalError}</p>
                 </div>
               )}
-
-              <div className="pt-4 lg:hidden">
-                <Button
-                  type="submit"
-                  size="lg"
-                  disabled={isSubmitting || isClosed}
-                  className={cn(
-                    'w-full rounded-2xl py-6 shadow-2xl transition-all active:scale-95',
-                    isClosed
-                      ? 'bg-text-muted/20 text-text-muted cursor-not-allowed shadow-none'
-                      : 'shadow-primary/30'
-                  )}
-                >
-                  {isClosed
-                    ? 'Vi har stengt'
-                    : isSubmitting
-                      ? 'Behandler...'
-                      : `Bekreft Bestilling — ${totalPrice},-`}
-                </Button>
-              </div>
             </form>
           </div>
 
-          {/* Order Summary Section */}
-          <div className="lg:col-span-2">
+          {/* Sidebar: Order Summary */}
+          <div className="lg:col-span-5">
             <div className="sticky top-32">
-              <div className="border-border-light rounded-[40px] border bg-white p-10 shadow-xl shadow-black/[0.03]">
-                <h2 className="font-heading text-text-dark mb-8 text-3xl font-semibold">
-                  Din Bestilling
-                </h2>
+              <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-2xl shadow-black/[0.04] ring-1 ring-border-light/60">
+                <div className="flex items-center justify-between mb-8">
+                  <h2 className="font-heading text-text-dark text-4xl font-semibold">Din Bestilling</h2>
+                  <div className="bg-bg-page h-10 w-10 rounded-full flex items-center justify-center">
+                    <ShoppingBag className="text-primary h-5 w-5" />
+                  </div>
+                </div>
 
-                <div className="custom-scrollbar mb-10 max-h-[40vh] space-y-6 overflow-y-auto pr-4">
+                <div className="custom-scrollbar mb-10 max-h-[45vh] space-y-6 overflow-y-auto pr-2">
                   {items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="group flex justify-between gap-4"
-                    >
-                      <div className="flex flex-col">
-                        <span className="text-text-dark group-hover:text-primary leading-tight font-bold transition-colors">
-                          {item.quantity}x {item.name}
-                        </span>
+                    <div key={item.id} className="group flex justify-between gap-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-primary text-sm font-black italic">x{item.quantity}</span>
+                          <span className="text-text-dark group-hover:text-primary leading-tight font-bold transition-colors">
+                            {item.name}
+                          </span>
+                        </div>
                         {item.size && (
-                          <span className="text-text-muted mt-1 text-[10px] font-bold tracking-[0.2em] uppercase">
+                          <span className="text-text-muted ml-6 block text-[10px] font-bold tracking-[0.2em] uppercase opacity-60">
                             {item.size === 'large' ? 'Stor' : 'Liten'}
                           </span>
                         )}
                       </div>
-                      <Price
-                        amount={item.price * item.quantity}
-                        className="text-text-dark text-base font-bold whitespace-nowrap"
-                      />
+                      <Price amount={item.price * item.quantity} className="text-text-dark font-bold whitespace-nowrap" />
                     </div>
                   ))}
                 </div>
 
-                <div className="border-border-light space-y-4 border-t-2 pt-8">
-                  <div className="text-text-muted flex items-center justify-between">
-                    <span className="text-xs font-bold tracking-widest uppercase">
-                      Subtotal
-                    </span>
+                <div className="space-y-4 border-t-2 border-dashed border-border-light/60 pt-8">
+                  <div className="flex items-center justify-between opacity-60">
+                    <span className="text-[10px] font-bold tracking-widest uppercase">Subtotal</span>
                     <Price amount={totalPrice} className="text-sm font-bold" />
                   </div>
-                  <div className="text-text-muted flex items-center justify-between">
-                    <span className="text-xs font-bold tracking-widest uppercase">
-                      Levering
-                    </span>
-                    {formData.order_type === 'delivery' ? (
-                      <span className="text-primary text-xs font-bold tracking-widest uppercase">
-                        Gratis
-                      </span>
-                    ) : (
-                      <span className="text-xs font-bold tracking-widest uppercase">
-                        —
-                      </span>
-                    )}
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold tracking-widest uppercase opacity-60">Levering</span>
+                    <span className="text-primary text-[10px] font-bold tracking-widest uppercase">Gratis</span>
                   </div>
-                  <div className="flex items-end justify-between pt-4">
-                    <span className="font-heading text-text-dark text-2xl font-semibold">
-                      Totalt
-                    </span>
-                    <Price
-                      amount={totalPrice}
-                      className="text-primary text-3xl"
-                    />
+                  
+                  <div className="flex items-end justify-between pt-6">
+                    <div>
+                      <span className="text-text-muted text-[10px] font-bold tracking-widest uppercase opacity-40 block mb-1">Total å betale</span>
+                      <span className="font-heading text-text-dark text-4xl font-semibold leading-none">Total</span>
+                    </div>
+                    <Price amount={totalPrice} className="text-primary text-4xl leading-none" />
                   </div>
                 </div>
 
-                <div className="hidden pt-10 lg:block">
+                <div className="hidden pt-12 lg:block">
                   <Button
                     onClick={handleSubmit}
                     size="lg"
                     disabled={isSubmitting || isClosed}
                     className={cn(
-                      'w-full rounded-2xl py-6 shadow-2xl transition-all active:scale-95',
+                      'w-full rounded-2xl py-7 shadow-2xl text-lg font-bold tracking-[0.1em] transition-all active:scale-95',
                       isClosed
                         ? 'bg-text-muted/20 text-text-muted cursor-not-allowed shadow-none'
                         : 'shadow-primary/30'
                     )}
                   >
-                    {isClosed
-                      ? 'Vi har stengt'
-                      : isSubmitting
-                        ? 'Behandler...'
-                        : 'Send Bestilling'}
+                    {isClosed ? 'Vi har stengt' : isSubmitting ? 'Sender bestilling...' : 'Bekreft Bestilling'}
                   </Button>
                 </div>
 
-                <div className="text-text-muted mt-8 flex items-center justify-center gap-2 opacity-40">
-                  <div className="h-px flex-grow bg-current"></div>
-                  <ShoppingBag className="h-4 w-4" />
-                  <div className="h-px flex-grow bg-current"></div>
+                {/* Mobile CTA - Now moved here after summary */}
+                <div className="pt-8 lg:hidden">
+                  <Button
+                    onClick={handleSubmit}
+                    size="lg"
+                    disabled={isSubmitting || isClosed}
+                    className={cn(
+                      'w-full rounded-2xl py-7 shadow-2xl text-lg tracking-widest transition-all active:scale-95',
+                      isClosed
+                        ? 'bg-text-muted/20 text-text-muted cursor-not-allowed shadow-none'
+                        : 'shadow-primary/30'
+                    )}
+                  >
+                    {isClosed ? 'Vi har stengt' : isSubmitting ? 'Behandler...' : `Fullfør Bestilling — ${totalPrice},-`}
+                  </Button>
                 </div>
 
-                <p className="text-text-muted mt-6 text-center text-[10px] leading-relaxed font-bold tracking-wider uppercase italic opacity-60">
-                  Ring oss på {settings?.phone || '90 89 77 77'} om du har
-                  spørsmål
-                </p>
+                <div className="mt-10 pt-10 border-t border-border-light/40">
+                  <div className="flex items-center justify-center gap-6">
+                    <div className="flex flex-col items-center">
+                       <span className="text-[10px] font-bold tracking-widest uppercase opacity-30 mb-2">Vipps</span>
+                       <div className="h-8 w-12 bg-bg-page rounded flex items-center justify-center opacity-40 grayscale group-hover:grayscale-0 transition-all">
+                          <span className="text-xs font-black">V</span>
+                       </div>
+                    </div>
+                    <div className="flex flex-col items-center">
+                       <span className="text-[10px] font-bold tracking-widest uppercase opacity-30 mb-2">Kort</span>
+                       <div className="h-8 w-12 bg-bg-page rounded flex items-center justify-center opacity-40 grayscale transition-all">
+                          <CreditCard className="h-4 w-4" />
+                       </div>
+                    </div>
+                  </div>
+                  <p className="mt-8 text-center text-text-muted text-[10px] leading-relaxed font-bold tracking-wider uppercase italic opacity-40">
+                    Spørsmål? Ring oss: {settings?.phone || '90 89 77 77'}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
