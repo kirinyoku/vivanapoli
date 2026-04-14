@@ -20,7 +20,18 @@ export default async function Sidebar() {
       api.getMenu(),
       api.getSettings(),
     ]);
-    categories = menuData;
+
+    // Collect all items with discounts
+    const discountItemsCount = menuData.flatMap(cat => 
+      cat.items.filter(item => item.discount_price_small !== null || item.discount_price_large !== null)
+    ).length;
+
+    let finalCategories = menuData.map(cat => ({ id: cat.id, name: cat.name, slug: cat.slug }));
+    if (discountItemsCount > 0) {
+      finalCategories = [{ id: -1, name: 'Tilbud', slug: 'tilbud' }, ...finalCategories];
+    }
+
+    categories = finalCategories;
     settings = settingsData;
     isManualOpen = settings.is_open !== 'false';
   } catch (error) {
