@@ -41,7 +41,7 @@ export default async function Sidebar() {
   return (
     <aside className="border-border-light bg-bg-sidebar hidden flex-col border-r px-8 py-12 lg:flex">
       <div className="mb-16">
-        <Logo className="mb-2 text-4xl" />
+        <Logo className="mb-2 text-4xl" asH1 />
         <div className="flex items-center gap-2">
           <div className="h-[1px] w-4 bg-accent-gold" />
           <p className="font-body text-text-muted text-[0.7rem] font-bold tracking-[0.2em] uppercase italic">

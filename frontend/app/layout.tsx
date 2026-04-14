@@ -52,11 +52,59 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Restaurant',
+    name: 'Viva Napoli',
+    image: 'https://vivanapolinotodden.no/next.svg', // Replace with real logo/hero image
+    '@id': 'https://vivanapolinotodden.no',
+    url: 'https://vivanapolinotodden.no',
+    telephone: '90897777',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Gamle Hellviksvei 3',
+      addressLocality: 'Nesoddtangen',
+      postalCode: '1450',
+      addressCountry: 'NO',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 59.8631, // Replace with real coordinates if available
+      longitude: 10.6558,
+    },
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: [
+          'Monday',
+          'Tuesday',
+          'Wednesday',
+          'Thursday',
+          'Friday',
+          'Saturday',
+          'Sunday',
+        ],
+        opens: '11:00',
+        closes: '22:00',
+      },
+    ],
+    priceRange: '$$',
+    servesCuisine: ['Pizza', 'Italian', 'Burger', 'Kebab'],
+    menu: 'https://vivanapolinotodden.no/#menu',
+    acceptsReservations: 'false',
+  };
+
   return (
     <html
       lang="no"
       className={`${cormorant.variable} ${inter.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className="flex min-h-full flex-col font-body">
         {children}
         <CartPanel />

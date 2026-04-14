@@ -32,7 +32,7 @@ export default function MenuItem({
   const hasDiscount = !!(discount_price_small || discount_price_large);
 
   return (
-    <div className="group hover:border-border-light/40 relative flex flex-col gap-3 rounded-2xl border border-transparent p-4 transition-all duration-300 hover:bg-white hover:shadow-2xl hover:shadow-black/5 lg:p-5">
+    <article className="group hover:border-border-light/40 relative flex flex-col gap-3 rounded-2xl border border-transparent p-4 transition-all duration-300 hover:bg-white hover:shadow-2xl hover:shadow-black/5 lg:p-5">
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between gap-2">
@@ -165,6 +165,6 @@ export default function MenuItem({
           )}
         </div>
       </div>
-    </div>
+    </article>
   );
 }

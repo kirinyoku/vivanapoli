@@ -65,7 +65,7 @@ export default function MenuContent() {
       <div className="bg-bg-page/95 sticky top-0 z-30 -mx-4 mb-6 px-4 pt-4 shadow-sm backdrop-blur-md lg:hidden">
         <header className="mb-4 flex items-center justify-between">
           <div className="flex flex-col gap-1">
-            <Logo className="text-xl" />
+            <Logo className="text-xl" asH1 />
             {!loading && settings && (
               <div className="flex h-6 origin-left scale-75 items-center">
                 <ShopStatusBadge
@@ -80,28 +80,31 @@ export default function MenuContent() {
         </header>
 
         {/* Mobile Category Nav */}
-        <nav className="no-scrollbar border-border-light/40 -mx-4 flex min-h-[44px] items-center gap-0 overflow-x-auto border-b px-2 pb-1">
-          {loading ? (
-            <div className="flex gap-4 px-4 py-2">
-              {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className="h-4 w-16 animate-pulse rounded bg-gray-200"
-                />
-              ))}
-            </div>
-          ) : !error && categories.length > 0 ? (
-            categories.map((cat) => (
-              <CategoryLink
-                key={cat.id}
-                href={`#${cat.slug}`}
-                variant="horizontal"
-                className="px-3"
-              >
-                {cat.name}
-              </CategoryLink>
-            ))
-          ) : null}
+        <nav className="no-scrollbar border-border-light/40 -mx-4 overflow-x-auto border-b">
+          <ul className="flex min-h-[44px] items-center gap-0 px-2 pb-1">
+            {loading ? (
+              <div className="flex gap-4 px-4 py-2">
+                {[1, 2, 3, 4].map((i) => (
+                  <li
+                    key={i}
+                    className="h-4 w-16 animate-pulse rounded bg-gray-200"
+                  />
+                ))}
+              </div>
+            ) : !error && categories.length > 0 ? (
+              categories.map((cat) => (
+                <li key={cat.id}>
+                  <CategoryLink
+                    href={`#${cat.slug}`}
+                    variant="horizontal"
+                    className="px-3"
+                  >
+                    {cat.name}
+                  </CategoryLink>
+                </li>
+              ))
+            ) : null}
+          </ul>
         </nav>
       </div>
 

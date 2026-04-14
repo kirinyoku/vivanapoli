@@ -189,7 +189,7 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-12">
           {/* Main Form Area */}
           <div className="space-y-10 lg:col-span-7">
-            <div>
+            <header>
               <div className="mb-4 flex items-center gap-3">
                 <div className="bg-accent-gold h-1 w-12 rounded-full" />
                 <h1 className="font-heading text-text-dark text-5xl leading-tight font-semibold">
@@ -199,11 +199,11 @@ export default function CheckoutPage() {
               <p className="text-text-muted text-lg italic opacity-80">
                 Fullfør bestillingen din ved å fylle ut detaljene nedenfor.
               </p>
-            </div>
+            </header>
 
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* Step 1: Kontakt */}
-              <div className="ring-border-light/60 rounded-3xl bg-white p-6 shadow-xl ring-1 shadow-black/[0.02] transition-all hover:shadow-black/[0.04] md:p-10">
+              <section className="ring-border-light/60 rounded-3xl bg-white p-6 shadow-xl ring-1 shadow-black/[0.02] transition-all hover:shadow-black/[0.04] md:p-10">
                 <div className="mb-10 flex items-center gap-4">
                   <div className="bg-primary shadow-primary/20 flex h-10 w-10 shrink-0 rotate-3 items-center justify-center rounded-2xl font-bold text-white shadow-lg">
                     1
@@ -230,6 +230,7 @@ export default function CheckoutPage() {
                       type="text"
                       id="customer_name"
                       name="customer_name"
+                      autoComplete="name"
                       value={formData.customer_name}
                       onChange={handleInputChange}
                       placeholder="Ola Nordmann"
@@ -257,6 +258,7 @@ export default function CheckoutPage() {
                       type="tel"
                       id="customer_phone"
                       name="customer_phone"
+                      autoComplete="tel"
                       value={formData.customer_phone}
                       onChange={handleInputChange}
                       placeholder="90 00 00 00"
@@ -274,10 +276,10 @@ export default function CheckoutPage() {
                     )}
                   </div>
                 </div>
-              </div>
+              </section>
 
               {/* Step 2: Levering */}
-              <div className="ring-border-light/60 rounded-3xl bg-white p-6 shadow-xl ring-1 shadow-black/[0.02] transition-all hover:shadow-black/[0.04] md:p-10">
+              <section className="ring-border-light/60 rounded-3xl bg-white p-6 shadow-xl ring-1 shadow-black/[0.02] transition-all hover:shadow-black/[0.04] md:p-10">
                 <div className="mb-10 flex items-center gap-4">
                   <div className="bg-primary shadow-primary/20 flex h-10 w-10 shrink-0 -rotate-3 items-center justify-center rounded-2xl font-bold text-white shadow-lg">
                     2
@@ -400,6 +402,7 @@ export default function CheckoutPage() {
                         type="text"
                         id="customer_address"
                         name="customer_address"
+                        autoComplete="street-address"
                         value={formData.customer_address}
                         onChange={handleInputChange}
                         placeholder="Gateadresse, postnummer og sted"
@@ -418,10 +421,10 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                 )}
-              </div>
+              </section>
 
               {/* Step 3: Beskjed */}
-              <div className="ring-border-light/60 rounded-3xl bg-white p-6 shadow-xl ring-1 shadow-black/[0.02] transition-all hover:shadow-black/[0.04] md:p-10">
+              <section className="ring-border-light/60 rounded-3xl bg-white p-6 shadow-xl ring-1 shadow-black/[0.02] transition-all hover:shadow-black/[0.04] md:p-10">
                 <div className="mb-10 flex items-center gap-4">
                   <div className="bg-primary shadow-primary/20 flex h-10 w-10 shrink-0 rotate-12 items-center justify-center rounded-2xl font-bold text-white shadow-lg">
                     3
@@ -478,7 +481,7 @@ export default function CheckoutPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </section>
 
               {isClosed && (
                 <div className="flex items-start gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-6 ring-1 ring-amber-100">
@@ -504,7 +507,7 @@ export default function CheckoutPage() {
           </div>
 
           {/* Sidebar: Order Summary */}
-          <div className="lg:col-span-5">
+          <aside className="lg:col-span-5">
             <div className="sticky top-32">
               <div className="ring-border-light/60 rounded-[2.5rem] bg-white p-8 shadow-2xl ring-1 shadow-black/[0.04] md:p-10">
                 <div className="mb-8 flex items-center justify-between">
@@ -516,9 +519,9 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <div className="custom-scrollbar mb-10 max-h-[45vh] space-y-6 overflow-y-auto pr-2">
+                <ul className="custom-scrollbar mb-10 max-h-[45vh] space-y-6 overflow-y-auto pr-2">
                   {items.map((item) => (
-                    <div
+                    <li
                       key={item.id}
                       className="group flex justify-between gap-4"
                     >
@@ -541,9 +544,9 @@ export default function CheckoutPage() {
                         amount={item.price * item.quantity}
                         className="text-text-dark font-bold whitespace-nowrap"
                       />
-                    </div>
+                    </li>
                   ))}
-                </div>
+                </ul>
 
                 <div className="border-border-light/60 space-y-4 border-t-2 border-dashed pt-8">
                   <div className="flex items-center justify-between opacity-60">
@@ -643,7 +646,7 @@ export default function CheckoutPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </aside>
         </div>
       </main>
     </div>

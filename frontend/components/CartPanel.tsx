@@ -82,9 +82,9 @@ export default function CartPanel() {
         </div>
       ) : (
         <>
-          <div className="custom-scrollbar flex-grow space-y-6 overflow-y-auto pr-2">
+          <ul className="custom-scrollbar flex-grow space-y-6 overflow-y-auto pr-2">
             {items.map((item) => (
-              <div key={item.id} className="group flex flex-col gap-2">
+              <li key={item.id} className="group flex flex-col gap-2">
                 <div className="flex items-start justify-between">
                   <div className="flex flex-col">
                     <span className="font-heading text-text-dark group-hover:text-primary text-lg leading-tight font-semibold transition-colors">
@@ -128,9 +128,9 @@ export default function CartPanel() {
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
 
           <div className="border-border-light mt-auto border-t-2 pt-8">
             {isBelowMinOrder && (
