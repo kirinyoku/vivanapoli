@@ -32,21 +32,29 @@ export default function MenuItem({
   const hasDiscount = !!(discount_price_small || discount_price_large);
 
   return (
-    <div className="group relative flex flex-col gap-3 rounded-2xl p-4 lg:p-5 transition-all duration-300 hover:bg-white hover:shadow-2xl hover:shadow-black/5 border border-transparent hover:border-border-light/40">
+    <div className="group hover:border-border-light/40 relative flex flex-col gap-3 rounded-2xl border border-transparent p-4 transition-all duration-300 hover:bg-white hover:shadow-2xl hover:shadow-black/5 lg:p-5">
       <div className="flex flex-col gap-2">
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="font-heading text-text-dark text-xl lg:text-2xl font-semibold leading-tight transition-colors group-hover:text-primary">
+            <h3 className="font-heading text-text-dark group-hover:text-primary text-xl leading-tight font-semibold transition-colors lg:text-2xl">
               {name}
             </h3>
-            <div className="flex gap-2 shrink-0">
-              {hasDiscount && <Badge variant="hot" className="scale-90 lg:scale-100">Tilbud</Badge>}
-              {isHot && <Badge variant="hot" className="scale-90 lg:scale-100">Hot</Badge>}
+            <div className="flex shrink-0 gap-2">
+              {hasDiscount && (
+                <Badge variant="hot" className="scale-90 lg:scale-100">
+                  Tilbud
+                </Badge>
+              )}
+              {isHot && (
+                <Badge variant="hot" className="scale-90 lg:scale-100">
+                  Hot
+                </Badge>
+              )}
             </div>
           </div>
 
           {description && (
-            <p className="font-body text-text-muted max-w-[95%] text-[13px] lg:text-sm leading-relaxed italic opacity-80">
+            <p className="font-body text-text-muted max-w-[95%] text-[13px] leading-relaxed italic opacity-80 lg:text-sm">
               {description}
             </p>
           )}
@@ -56,7 +64,7 @@ export default function MenuItem({
               {allergens.map((a) => (
                 <span
                   key={a}
-                  className="bg-primary/5 text-primary/60 border border-primary/10 rounded px-1.5 py-0.5 text-[8px] lg:text-[9px] font-bold tracking-widest uppercase"
+                  className="bg-primary/5 text-primary/60 border-primary/10 rounded border px-1.5 py-0.5 text-[8px] font-bold tracking-widest uppercase lg:text-[9px]"
                 >
                   {a}
                 </span>
@@ -65,27 +73,30 @@ export default function MenuItem({
           )}
         </div>
 
-        <div className="mt-3 flex flex-wrap gap-4 items-end justify-between lg:justify-end border-t border-border-light/40 pt-3">
+        <div className="border-border-light/40 mt-3 flex flex-wrap items-end justify-between gap-4 border-t pt-3 lg:justify-end">
           {price_small && (
-            <div className="flex flex-1 lg:flex-none flex-col items-center gap-1.5 lg:gap-2 group/action">
+            <div className="group/action flex flex-1 flex-col items-center gap-1.5 lg:flex-none lg:gap-2">
               <div className="flex flex-col items-center">
                 {hasMultiplePrices && (
-                  <span className="text-text-muted text-[9px] lg:text-[10px] font-bold tracking-[0.15em] uppercase opacity-60">
+                  <span className="text-text-muted text-[9px] font-bold tracking-[0.15em] uppercase opacity-60 lg:text-[10px]">
                     Liten
                   </span>
                 )}
                 {discount_price_small ? (
                   <div className="flex flex-col items-center">
-                    <span className="text-text-muted text-[9px] lg:text-[10px] line-through decoration-red-500/50">
+                    <span className="text-text-muted text-[9px] line-through decoration-red-500/50 lg:text-[10px]">
                       {price_small},-
                     </span>
                     <Price
                       amount={discount_price_small}
-                      className="text-primary text-lg lg:text-xl font-bold"
+                      className="text-primary text-lg font-bold lg:text-xl"
                     />
                   </div>
                 ) : (
-                  <Price amount={price_small} className="text-text-dark text-lg lg:text-xl font-bold group-hover/action:text-primary transition-colors" />
+                  <Price
+                    amount={price_small}
+                    className="text-text-dark group-hover/action:text-primary text-lg font-bold transition-colors lg:text-xl"
+                  />
                 )}
               </div>
               <AddToCartButton
@@ -94,32 +105,35 @@ export default function MenuItem({
                 price={discount_price_small || price_small}
                 size="small"
                 variant="outline"
-                label="Liten +"
+                label="Liten"
                 className="w-full lg:w-28"
               />
             </div>
           )}
 
           {price_large && (
-            <div className="flex flex-1 lg:flex-none flex-col items-center gap-1.5 lg:gap-2 group/action">
+            <div className="group/action flex flex-1 flex-col items-center gap-1.5 lg:flex-none lg:gap-2">
               <div className="flex flex-col items-center">
                 {hasMultiplePrices && (
-                  <span className="text-text-muted text-[9px] lg:text-[10px] font-bold tracking-[0.15em] uppercase opacity-60">
+                  <span className="text-text-muted text-[9px] font-bold tracking-[0.15em] uppercase opacity-60 lg:text-[10px]">
                     Stor
                   </span>
                 )}
                 {discount_price_large ? (
                   <div className="flex flex-col items-center">
-                    <span className="text-text-muted text-[9px] lg:text-[10px] line-through decoration-red-500/50">
+                    <span className="text-text-muted text-[9px] line-through decoration-red-500/50 lg:text-[10px]">
                       {price_large},-
                     </span>
                     <Price
                       amount={discount_price_large}
-                      className="text-primary text-lg lg:text-xl font-bold"
+                      className="text-primary text-lg font-bold lg:text-xl"
                     />
                   </div>
                 ) : (
-                  <Price amount={price_large} className="text-text-dark text-lg lg:text-xl font-bold group-hover/action:text-primary transition-colors" />
+                  <Price
+                    amount={price_large}
+                    className="text-text-dark group-hover/action:text-primary text-lg font-bold transition-colors lg:text-xl"
+                  />
                 )}
               </div>
               <AddToCartButton
@@ -128,21 +142,24 @@ export default function MenuItem({
                 price={discount_price_large || price_large}
                 size="large"
                 variant="primary"
-                label={price_small ? "Stor +" : "Bestill +"}
+                label={price_small ? 'Stor' : 'Bestill'}
                 className="w-full lg:w-32"
               />
             </div>
           )}
 
           {!price_small && !price_large && price && (
-            <div className="flex w-full lg:w-auto items-center justify-between lg:flex-col lg:items-center gap-2 group/action">
-              <Price amount={price} className="text-text-dark text-xl font-bold group-hover/action:text-primary transition-colors" />
-              <AddToCartButton 
-                itemId={id} 
-                name={name} 
-                price={price} 
+            <div className="group/action flex w-full items-center justify-between gap-2 lg:w-auto lg:flex-col lg:items-center">
+              <Price
+                amount={price}
+                className="text-text-dark group-hover/action:text-primary text-xl font-bold transition-colors"
+              />
+              <AddToCartButton
+                itemId={id}
+                name={name}
+                price={price}
                 className="w-32"
-                label="Bestill +"
+                label="Bestill"
               />
             </div>
           )}
@@ -150,5 +167,4 @@ export default function MenuItem({
       </div>
     </div>
   );
-
 }

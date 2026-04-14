@@ -361,13 +361,6 @@ export default function MenuManagementPage() {
                               </span>
                             </div>
                           )}
-                          {!item.price_small &&
-                            !item.price_large &&
-                            item.price && (
-                              <span className="text-text-dark text-xs font-bold">
-                                {item.price},-
-                              </span>
-                            )}
                         </div>
                       </td>
                       <td className="px-8 py-5">

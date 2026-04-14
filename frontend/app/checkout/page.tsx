@@ -56,7 +56,9 @@ export default function CheckoutPage() {
   if (!mounted) {
     return (
       <div className="bg-bg-page flex min-h-screen items-center justify-center">
-        <div className="text-primary animate-pulse font-heading text-2xl">Laster checkout...</div>
+        <div className="text-primary font-heading animate-pulse text-2xl">
+          Laster checkout...
+        </div>
       </div>
     );
   }
@@ -64,18 +66,21 @@ export default function CheckoutPage() {
   if (items.length === 0 && !isSubmitting) {
     return (
       <div className="bg-bg-page flex min-h-screen flex-col items-center justify-center p-6 text-center">
-        <div className="mb-8 rounded-full bg-white p-12 shadow-2xl shadow-black/5 ring-1 ring-border-light">
+        <div className="ring-border-light mb-8 rounded-full bg-white p-12 shadow-2xl ring-1 shadow-black/5">
           <ShoppingBag className="text-primary h-20 w-20 opacity-20" />
         </div>
         <h1 className="font-heading text-text-dark mb-4 text-4xl font-semibold italic">
           Kurven din er tom
         </h1>
         <p className="text-text-muted mb-10 max-w-md text-lg leading-relaxed italic opacity-80">
-          Det ser ut som du ikke har lagt til noe smakfullt ennå. 
-          Våре pizzaer venter på deg!
+          Det ser ut som du ikke har lagt til noe smakfullt ennå. Våре pizzaer
+          venter på deg!
         </p>
         <Link href="/">
-          <Button size="lg" className="rounded-2xl px-16 py-7 shadow-xl shadow-primary/20 active:scale-95">
+          <Button
+            size="lg"
+            className="shadow-primary/20 rounded-2xl px-16 py-7 shadow-xl active:scale-95"
+          >
             Gå til menyen
           </Button>
         </Link>
@@ -155,13 +160,13 @@ export default function CheckoutPage() {
 
   return (
     <div className="bg-bg-page flex min-h-screen flex-col">
-      <header className="border-border-light/60 sticky top-0 z-40 border-b bg-white/80 backdrop-blur-md px-4 py-4 md:px-8">
+      <header className="border-border-light/60 sticky top-0 z-40 border-b bg-white/80 px-4 py-4 backdrop-blur-md md:px-8">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <Link
             href="/"
             className="text-text-muted hover:text-primary group flex items-center gap-3 transition-all"
           >
-            <div className="border-border-light flex h-10 w-10 items-center justify-center rounded-full border bg-white shadow-sm transition-all group-hover:border-primary group-hover:shadow-md">
+            <div className="border-border-light group-hover:border-primary flex h-10 w-10 items-center justify-center rounded-full border bg-white shadow-sm transition-all group-hover:shadow-md">
               <ArrowLeft className="h-5 w-5" />
             </div>
             <span className="hidden text-[10px] font-bold tracking-[0.2em] uppercase sm:inline">
@@ -172,21 +177,22 @@ export default function CheckoutPage() {
             Viva<span className="text-primary italic">Napoli</span>
           </div>
           <div className="hidden items-center gap-2 sm:flex">
-             <div className="h-1.5 w-1.5 rounded-full bg-accent-gold" />
-             <span className="text-[10px] font-bold tracking-widest uppercase opacity-40">Checkout</span>
+            <div className="bg-accent-gold h-1.5 w-1.5 rounded-full" />
+            <span className="text-[10px] font-bold tracking-widest uppercase opacity-40">
+              Checkout
+            </span>
           </div>
         </div>
       </header>
 
       <main className="mx-auto w-full max-w-7xl flex-grow px-4 py-10 md:px-8 lg:py-16">
         <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-12">
-          
           {/* Main Form Area */}
           <div className="space-y-10 lg:col-span-7">
             <div>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="h-1 w-12 bg-accent-gold rounded-full" />
-                <h1 className="font-heading text-text-dark text-5xl font-semibold leading-tight">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="bg-accent-gold h-1 w-12 rounded-full" />
+                <h1 className="font-heading text-text-dark text-5xl leading-tight font-semibold">
                   Checkout
                 </h1>
               </div>
@@ -197,22 +203,27 @@ export default function CheckoutPage() {
 
             <form onSubmit={handleSubmit} className="space-y-8">
               {/* Step 1: Kontakt */}
-              <div className="bg-white rounded-3xl p-6 md:p-10 shadow-xl shadow-black/[0.02] ring-1 ring-border-light/60 transition-all hover:shadow-black/[0.04]">
-                <div className="flex items-center gap-4 mb-10">
-                  <div className="bg-primary text-white flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl font-bold shadow-lg shadow-primary/20 rotate-3">
+              <div className="ring-border-light/60 rounded-3xl bg-white p-6 shadow-xl ring-1 shadow-black/[0.02] transition-all hover:shadow-black/[0.04] md:p-10">
+                <div className="mb-10 flex items-center gap-4">
+                  <div className="bg-primary shadow-primary/20 flex h-10 w-10 shrink-0 rotate-3 items-center justify-center rounded-2xl font-bold text-white shadow-lg">
                     1
                   </div>
                   <div>
                     <h2 className="text-text-dark text-2xl font-bold tracking-tight">
                       Hvem bestiller?
                     </h2>
-                    <p className="text-text-muted text-xs font-medium italic opacity-60">Din kontaktinformasjon</p>
+                    <p className="text-text-muted text-xs font-medium italic opacity-60">
+                      Din kontaktinformasjon
+                    </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
                   <div className="space-y-3">
-                    <label htmlFor="customer_name" className="text-text-muted text-[10px] font-bold tracking-[0.15em] uppercase px-1">
+                    <label
+                      htmlFor="customer_name"
+                      className="text-text-muted px-1 text-[10px] font-bold tracking-[0.15em] uppercase"
+                    >
                       Fullt navn
                     </label>
                     <input
@@ -223,20 +234,23 @@ export default function CheckoutPage() {
                       onChange={handleInputChange}
                       placeholder="Ola Nordmann"
                       className={cn(
-                        'w-full rounded-2xl border bg-bg-page/50 p-4 shadow-inner transition-all outline-none focus:ring-4',
+                        'bg-bg-page/50 w-full rounded-2xl border p-4 shadow-inner transition-all outline-none focus:ring-4',
                         fieldErrors.customer_name
                           ? 'border-red-500 focus:border-red-500 focus:ring-red-500/5'
                           : 'border-border-light/60 focus:ring-primary/5 focus:border-primary'
                       )}
                     />
                     {fieldErrors.customer_name && (
-                      <p className="mt-1 text-[10px] font-bold text-red-500 px-1 uppercase tracking-wider">
+                      <p className="mt-1 px-1 text-[10px] font-bold tracking-wider text-red-500 uppercase">
                         {fieldErrors.customer_name}
                       </p>
                     )}
                   </div>
                   <div className="space-y-3">
-                    <label htmlFor="customer_phone" className="text-text-muted text-[10px] font-bold tracking-[0.15em] uppercase px-1">
+                    <label
+                      htmlFor="customer_phone"
+                      className="text-text-muted px-1 text-[10px] font-bold tracking-[0.15em] uppercase"
+                    >
                       Mobilnummer
                     </label>
                     <input
@@ -247,14 +261,14 @@ export default function CheckoutPage() {
                       onChange={handleInputChange}
                       placeholder="90 00 00 00"
                       className={cn(
-                        'w-full rounded-2xl border bg-bg-page/50 p-4 shadow-inner transition-all outline-none focus:ring-4',
+                        'bg-bg-page/50 w-full rounded-2xl border p-4 shadow-inner transition-all outline-none focus:ring-4',
                         fieldErrors.customer_phone
                           ? 'border-red-500 focus:border-red-500 focus:ring-red-500/5'
                           : 'border-border-light/60 focus:ring-primary/5 focus:border-primary'
                       )}
                     />
                     {fieldErrors.customer_phone && (
-                      <p className="mt-1 text-[10px] font-bold text-red-500 px-1 uppercase tracking-wider">
+                      <p className="mt-1 px-1 text-[10px] font-bold tracking-wider text-red-500 uppercase">
                         {fieldErrors.customer_phone}
                       </p>
                     )}
@@ -263,78 +277,123 @@ export default function CheckoutPage() {
               </div>
 
               {/* Step 2: Levering */}
-              <div className="bg-white rounded-3xl p-6 md:p-10 shadow-xl shadow-black/[0.02] ring-1 ring-border-light/60 transition-all hover:shadow-black/[0.04]">
-                <div className="flex items-center gap-4 mb-10">
-                  <div className="bg-primary text-white flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl font-bold shadow-lg shadow-primary/20 -rotate-3">
+              <div className="ring-border-light/60 rounded-3xl bg-white p-6 shadow-xl ring-1 shadow-black/[0.02] transition-all hover:shadow-black/[0.04] md:p-10">
+                <div className="mb-10 flex items-center gap-4">
+                  <div className="bg-primary shadow-primary/20 flex h-10 w-10 shrink-0 -rotate-3 items-center justify-center rounded-2xl font-bold text-white shadow-lg">
                     2
                   </div>
                   <div>
                     <h2 className="text-text-dark text-2xl font-bold tracking-tight">
                       Hvordan vil du få maten?
                     </h2>
-                    <p className="text-text-muted text-xs font-medium italic opacity-60">Velg leveringsmetode</p>
+                    <p className="text-text-muted text-xs font-medium italic opacity-60">
+                      Velg leveringsmetode
+                    </p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <button
                     type="button"
-                    onClick={() => setFormData((prev) => ({ ...prev, order_type: 'delivery' }))}
+                    onClick={() =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        order_type: 'delivery',
+                      }))
+                    }
                     className={cn(
-                      'group relative flex flex-col items-center gap-5 rounded-[2.5rem] border-2 p-8 transition-all duration-300',
+                      'group relative flex cursor-pointer flex-col items-center gap-5 rounded-[2.5rem] border-2 p-8 transition-all duration-300',
                       formData.order_type === 'delivery'
-                        ? 'border-primary bg-primary/[0.02] shadow-xl shadow-primary/5 scale-[1.02]'
-                        : 'border-border-light/40 text-text-muted bg-white/50 hover:border-primary/20 hover:bg-white'
+                        ? 'border-primary bg-primary/[0.02] shadow-primary/5 scale-[1.02] shadow-xl'
+                        : 'border-border-light/40 text-text-muted hover:border-primary/20 bg-white/50 hover:bg-white'
                     )}
                   >
-                    <div className={cn(
-                      'rounded-2xl p-4 transition-all duration-300',
-                      formData.order_type === 'delivery' ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'bg-bg-page text-text-muted'
-                    )}>
+                    <div
+                      className={cn(
+                        'rounded-2xl p-4 transition-all duration-300',
+                        formData.order_type === 'delivery'
+                          ? 'bg-primary shadow-primary/30 text-white shadow-lg'
+                          : 'bg-bg-page text-text-muted'
+                      )}
+                    >
                       <Truck className="h-8 w-8" />
                     </div>
                     <div className="text-center">
-                      <span className={cn('block text-sm font-bold tracking-[0.2em] uppercase mb-1', formData.order_type === 'delivery' ? 'text-primary' : '')}>Levering</span>
-                      <span className="text-[11px] font-medium opacity-60 italic leading-tight block">Kjøres hjem til deg</span>
+                      <span
+                        className={cn(
+                          'mb-1 block text-sm font-bold tracking-[0.2em] uppercase',
+                          formData.order_type === 'delivery'
+                            ? 'text-primary'
+                            : ''
+                        )}
+                      >
+                        Levering
+                      </span>
+                      <span className="block text-[11px] leading-tight font-medium italic opacity-60">
+                        Kjøres hjem til deg
+                      </span>
                     </div>
                     {formData.order_type === 'delivery' && (
-                      <div className="absolute top-4 right-4 h-2 w-2 rounded-full bg-primary animate-pulse" />
+                      <div className="bg-primary absolute top-4 right-4 h-2 w-2 animate-pulse rounded-full" />
                     )}
                   </button>
 
                   <button
                     type="button"
                     onClick={() => {
-                      setFormData((prev) => ({ ...prev, order_type: 'pickup' }));
-                      setFieldErrors(prev => { const n = {...prev}; delete n.customer_address; return n; });
+                      setFormData((prev) => ({
+                        ...prev,
+                        order_type: 'pickup',
+                      }));
+                      setFieldErrors((prev) => {
+                        const n = { ...prev };
+                        delete n.customer_address;
+                        return n;
+                      });
                     }}
                     className={cn(
-                      'group relative flex flex-col items-center gap-5 rounded-[2.5rem] border-2 p-8 transition-all duration-300',
+                      'group relative flex cursor-pointer flex-col items-center gap-5 rounded-[2.5rem] border-2 p-8 transition-all duration-300',
                       formData.order_type === 'pickup'
-                        ? 'border-primary bg-primary/[0.02] shadow-xl shadow-primary/5 scale-[1.02]'
-                        : 'border-border-light/40 text-text-muted bg-white/50 hover:border-primary/20 hover:bg-white'
+                        ? 'border-primary bg-primary/[0.02] shadow-primary/5 scale-[1.02] shadow-xl'
+                        : 'border-border-light/40 text-text-muted hover:border-primary/20 bg-white/50 hover:bg-white'
                     )}
                   >
-                    <div className={cn(
-                      'rounded-2xl p-4 transition-all duration-300',
-                      formData.order_type === 'pickup' ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'bg-bg-page text-text-muted'
-                    )}>
+                    <div
+                      className={cn(
+                        'rounded-2xl p-4 transition-all duration-300',
+                        formData.order_type === 'pickup'
+                          ? 'bg-primary shadow-primary/30 text-white shadow-lg'
+                          : 'bg-bg-page text-text-muted'
+                      )}
+                    >
                       <ShoppingBag className="h-8 w-8" />
                     </div>
                     <div className="text-center">
-                      <span className={cn('block text-sm font-bold tracking-[0.2em] uppercase mb-1', formData.order_type === 'pickup' ? 'text-primary' : '')}>Henting</span>
-                      <span className="text-[11px] font-medium opacity-60 italic leading-tight block">Du henter selv</span>
+                      <span
+                        className={cn(
+                          'mb-1 block text-sm font-bold tracking-[0.2em] uppercase',
+                          formData.order_type === 'pickup' ? 'text-primary' : ''
+                        )}
+                      >
+                        Henting
+                      </span>
+                      <span className="block text-[11px] leading-tight font-medium italic opacity-60">
+                        Du henter selv
+                      </span>
                     </div>
                     {formData.order_type === 'pickup' && (
-                      <div className="absolute top-4 right-4 h-2 w-2 rounded-full bg-primary animate-pulse" />
+                      <div className="bg-primary absolute top-4 right-4 h-2 w-2 animate-pulse rounded-full" />
                     )}
                   </button>
                 </div>
 
                 {formData.order_type === 'delivery' && (
-                  <div className="mt-10 animate-in fade-in slide-in-from-top-4 duration-500">
+                  <div className="animate-in fade-in slide-in-from-top-4 mt-10 duration-500">
                     <div className="space-y-3">
-                      <label htmlFor="customer_address" className="text-text-muted text-[10px] font-bold tracking-[0.15em] uppercase px-1">
+                      <label
+                        htmlFor="customer_address"
+                        className="text-text-muted px-1 text-[10px] font-bold tracking-[0.15em] uppercase"
+                      >
                         Leveringsadresse
                       </label>
                       <input
@@ -345,14 +404,14 @@ export default function CheckoutPage() {
                         onChange={handleInputChange}
                         placeholder="Gateadresse, postnummer og sted"
                         className={cn(
-                          'w-full rounded-2xl border bg-bg-page/50 p-4 shadow-inner transition-all outline-none focus:ring-4',
+                          'bg-bg-page/50 w-full rounded-2xl border p-4 shadow-inner transition-all outline-none focus:ring-4',
                           fieldErrors.customer_address
                             ? 'border-red-500 focus:border-red-500 focus:ring-red-500/5'
                             : 'border-border-light/60 focus:ring-primary/5 focus:border-primary'
                         )}
                       />
                       {fieldErrors.customer_address && (
-                        <p className="mt-1 text-[10px] font-bold text-red-500 px-1 uppercase tracking-wider">
+                        <p className="mt-1 px-1 text-[10px] font-bold tracking-wider text-red-500 uppercase">
                           {fieldErrors.customer_address}
                         </p>
                       )}
@@ -362,22 +421,27 @@ export default function CheckoutPage() {
               </div>
 
               {/* Step 3: Beskjed */}
-              <div className="bg-white rounded-3xl p-6 md:p-10 shadow-xl shadow-black/[0.02] ring-1 ring-border-light/60 transition-all hover:shadow-black/[0.04]">
-                <div className="flex items-center gap-4 mb-10">
-                  <div className="bg-primary text-white flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl font-bold shadow-lg shadow-primary/20 rotate-12">
+              <div className="ring-border-light/60 rounded-3xl bg-white p-6 shadow-xl ring-1 shadow-black/[0.02] transition-all hover:shadow-black/[0.04] md:p-10">
+                <div className="mb-10 flex items-center gap-4">
+                  <div className="bg-primary shadow-primary/20 flex h-10 w-10 shrink-0 rotate-12 items-center justify-center rounded-2xl font-bold text-white shadow-lg">
                     3
                   </div>
                   <div>
                     <h2 className="text-text-dark text-2xl font-bold tracking-tight">
                       Siste detaljer
                     </h2>
-                    <p className="text-text-muted text-xs font-medium italic opacity-60">Merknad og betaling</p>
+                    <p className="text-text-muted text-xs font-medium italic opacity-60">
+                      Merknad og betaling
+                    </p>
                   </div>
                 </div>
 
                 <div className="space-y-8">
                   <div className="space-y-3">
-                    <label htmlFor="comment" className="text-text-muted text-[10px] font-bold tracking-[0.15em] uppercase px-1">
+                    <label
+                      htmlFor="comment"
+                      className="text-text-muted px-1 text-[10px] font-bold tracking-[0.15em] uppercase"
+                    >
                       Beskjed (valgfri)
                     </label>
                     <textarea
@@ -387,23 +451,28 @@ export default function CheckoutPage() {
                       value={formData.comment}
                       onChange={handleInputChange}
                       placeholder="Dørkode, allergier eller andre ønsker..."
-                      className="w-full rounded-2xl border border-border-light/60 bg-bg-page/50 p-4 shadow-inner transition-all outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary resize-none"
+                      className="border-border-light/60 bg-bg-page/50 focus:ring-primary/5 focus:border-primary w-full resize-none rounded-2xl border p-4 shadow-inner transition-all outline-none focus:ring-4"
                     />
                   </div>
 
-                  <div className="relative overflow-hidden rounded-2xl bg-primary/5 p-8 ring-1 ring-primary/10">
-                    <div className="absolute -right-4 -top-4 text-primary opacity-5">
+                  <div className="bg-primary/5 ring-primary/10 relative overflow-hidden rounded-2xl p-8 ring-1">
+                    <div className="text-primary absolute -top-4 -right-4 opacity-5">
                       <CreditCard className="h-24 w-24 rotate-12" />
                     </div>
                     <div className="relative flex items-start gap-5">
-                      <div className="bg-white p-3 rounded-xl shadow-sm">
+                      <div className="rounded-xl bg-white p-3 shadow-sm">
                         <CreditCard className="text-primary h-6 w-6" />
                       </div>
                       <div className="space-y-1">
-                        <h3 className="text-text-dark font-bold leading-none">Betalingsinformasjon</h3>
+                        <h3 className="text-text-dark leading-none font-bold">
+                          Betalingsinformasjon
+                        </h3>
                         <p className="text-text-muted text-sm leading-relaxed italic opacity-80">
-                          Bestillingen betales direkte ved levering/henting. 
-                          Vi aksepterer <span className="text-primary font-bold">Kort, Kontant и Vipps.</span>
+                          Bestillingen betales direkte ved levering/henting. Vi
+                          aksepterer{' '}
+                          <span className="text-primary font-bold">
+                            Kort, Kontant и Vipps.
+                          </span>
                         </p>
                       </div>
                     </div>
@@ -412,11 +481,13 @@ export default function CheckoutPage() {
               </div>
 
               {isClosed && (
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 flex items-start gap-4 ring-1 ring-amber-100">
+                <div className="flex items-start gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-6 ring-1 ring-amber-100">
                   <span className="text-2xl">🌙</span>
                   <div className="space-y-1">
-                    <p className="text-amber-900 font-bold">Vi har dessverre stengt nå</p>
-                    <p className="text-amber-800/80 text-sm font-medium italic">
+                    <p className="font-bold text-amber-900">
+                      Vi har dessverre stengt nå
+                    </p>
+                    <p className="text-sm font-medium text-amber-800/80 italic">
                       {shopStatus?.message}. Velkommen tilbake ved åpning!
                     </p>
                   </div>
@@ -424,9 +495,9 @@ export default function CheckoutPage() {
               )}
 
               {generalError && (
-                <div className="rounded-2xl border border-red-200 bg-red-50 p-6 flex items-start gap-4 ring-1 ring-red-100">
+                <div className="flex items-start gap-4 rounded-2xl border border-red-200 bg-red-50 p-6 ring-1 ring-red-100">
                   <span className="text-xl">⚠️</span>
-                  <p className="text-red-900 font-bold">{generalError}</p>
+                  <p className="font-bold text-red-900">{generalError}</p>
                 </div>
               )}
             </form>
@@ -435,20 +506,27 @@ export default function CheckoutPage() {
           {/* Sidebar: Order Summary */}
           <div className="lg:col-span-5">
             <div className="sticky top-32">
-              <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-2xl shadow-black/[0.04] ring-1 ring-border-light/60">
-                <div className="flex items-center justify-between mb-8">
-                  <h2 className="font-heading text-text-dark text-4xl font-semibold">Din Bestilling</h2>
-                  <div className="bg-bg-page h-10 w-10 rounded-full flex items-center justify-center">
+              <div className="ring-border-light/60 rounded-[2.5rem] bg-white p-8 shadow-2xl ring-1 shadow-black/[0.04] md:p-10">
+                <div className="mb-8 flex items-center justify-between">
+                  <h2 className="font-heading text-text-dark text-4xl font-semibold">
+                    Din Bestilling
+                  </h2>
+                  <div className="bg-bg-page flex h-10 w-10 items-center justify-center rounded-full">
                     <ShoppingBag className="text-primary h-5 w-5" />
                   </div>
                 </div>
 
                 <div className="custom-scrollbar mb-10 max-h-[45vh] space-y-6 overflow-y-auto pr-2">
                   {items.map((item) => (
-                    <div key={item.id} className="group flex justify-between gap-4">
+                    <div
+                      key={item.id}
+                      className="group flex justify-between gap-4"
+                    >
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-primary text-sm font-black italic">x{item.quantity}</span>
+                          <span className="text-primary text-sm font-black italic">
+                            x{item.quantity}
+                          </span>
                           <span className="text-text-dark group-hover:text-primary leading-tight font-bold transition-colors">
                             {item.name}
                           </span>
@@ -459,27 +537,43 @@ export default function CheckoutPage() {
                           </span>
                         )}
                       </div>
-                      <Price amount={item.price * item.quantity} className="text-text-dark font-bold whitespace-nowrap" />
+                      <Price
+                        amount={item.price * item.quantity}
+                        className="text-text-dark font-bold whitespace-nowrap"
+                      />
                     </div>
                   ))}
                 </div>
 
-                <div className="space-y-4 border-t-2 border-dashed border-border-light/60 pt-8">
+                <div className="border-border-light/60 space-y-4 border-t-2 border-dashed pt-8">
                   <div className="flex items-center justify-between opacity-60">
-                    <span className="text-[10px] font-bold tracking-widest uppercase">Subtotal</span>
+                    <span className="text-[10px] font-bold tracking-widest uppercase">
+                      Subtotal
+                    </span>
                     <Price amount={totalPrice} className="text-sm font-bold" />
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold tracking-widest uppercase opacity-60">Levering</span>
-                    <span className="text-primary text-[10px] font-bold tracking-widest uppercase">Gratis</span>
+                    <span className="text-[10px] font-bold tracking-widest uppercase opacity-60">
+                      Levering
+                    </span>
+                    <span className="text-primary text-[10px] font-bold tracking-widest uppercase">
+                      Gratis
+                    </span>
                   </div>
-                  
+
                   <div className="flex items-end justify-between pt-6">
                     <div>
-                      <span className="text-text-muted text-[10px] font-bold tracking-widest uppercase opacity-40 block mb-1">Total å betale</span>
-                      <span className="font-heading text-text-dark text-4xl font-semibold leading-none">Total</span>
+                      <span className="text-text-muted mb-1 block text-[10px] font-bold tracking-widest uppercase opacity-40">
+                        Total å betale
+                      </span>
+                      <span className="font-heading text-text-dark text-4xl leading-none font-semibold">
+                        Total
+                      </span>
                     </div>
-                    <Price amount={totalPrice} className="text-primary text-4xl leading-none" />
+                    <Price
+                      amount={totalPrice}
+                      className="text-primary text-4xl leading-none"
+                    />
                   </div>
                 </div>
 
@@ -489,13 +583,17 @@ export default function CheckoutPage() {
                     size="lg"
                     disabled={isSubmitting || isClosed}
                     className={cn(
-                      'w-full rounded-2xl py-7 shadow-2xl text-lg font-bold tracking-[0.1em] transition-all active:scale-95',
+                      'w-full rounded-2xl py-7 text-lg font-bold tracking-[0.1em] shadow-2xl transition-all active:scale-95',
                       isClosed
                         ? 'bg-text-muted/20 text-text-muted cursor-not-allowed shadow-none'
                         : 'shadow-primary/30'
                     )}
                   >
-                    {isClosed ? 'Vi har stengt' : isSubmitting ? 'Sender bestilling...' : 'Bekreft Bestilling'}
+                    {isClosed
+                      ? 'Vi har stengt'
+                      : isSubmitting
+                        ? 'Sender bestilling...'
+                        : 'Bekreft Bestilling'}
                   </Button>
                 </div>
 
@@ -506,32 +604,40 @@ export default function CheckoutPage() {
                     size="lg"
                     disabled={isSubmitting || isClosed}
                     className={cn(
-                      'w-full rounded-2xl py-7 shadow-2xl text-lg tracking-widest transition-all active:scale-95',
+                      'w-full rounded-2xl py-7 text-lg tracking-widest shadow-2xl transition-all active:scale-95',
                       isClosed
                         ? 'bg-text-muted/20 text-text-muted cursor-not-allowed shadow-none'
                         : 'shadow-primary/30'
                     )}
                   >
-                    {isClosed ? 'Vi har stengt' : isSubmitting ? 'Behandler...' : `Fullfør Bestilling — ${totalPrice},-`}
+                    {isClosed
+                      ? 'Vi har stengt'
+                      : isSubmitting
+                        ? 'Behandler...'
+                        : `Fullfør Bestilling — ${totalPrice},-`}
                   </Button>
                 </div>
 
-                <div className="mt-10 pt-10 border-t border-border-light/40">
+                <div className="border-border-light/40 mt-10 border-t pt-10">
                   <div className="flex items-center justify-center gap-6">
                     <div className="flex flex-col items-center">
-                       <span className="text-[10px] font-bold tracking-widest uppercase opacity-30 mb-2">Vipps</span>
-                       <div className="h-8 w-12 bg-bg-page rounded flex items-center justify-center opacity-40 grayscale group-hover:grayscale-0 transition-all">
-                          <span className="text-xs font-black">V</span>
-                       </div>
+                      <span className="mb-2 text-[10px] font-bold tracking-widest uppercase opacity-30">
+                        Vipps
+                      </span>
+                      <div className="bg-bg-page flex h-8 w-12 items-center justify-center rounded opacity-40 grayscale transition-all group-hover:grayscale-0">
+                        <span className="text-xs font-black">V</span>
+                      </div>
                     </div>
                     <div className="flex flex-col items-center">
-                       <span className="text-[10px] font-bold tracking-widest uppercase opacity-30 mb-2">Kort</span>
-                       <div className="h-8 w-12 bg-bg-page rounded flex items-center justify-center opacity-40 grayscale transition-all">
-                          <CreditCard className="h-4 w-4" />
-                       </div>
+                      <span className="mb-2 text-[10px] font-bold tracking-widest uppercase opacity-30">
+                        Kort
+                      </span>
+                      <div className="bg-bg-page flex h-8 w-12 items-center justify-center rounded opacity-40 grayscale transition-all">
+                        <CreditCard className="h-4 w-4" />
+                      </div>
                     </div>
                   </div>
-                  <p className="mt-8 text-center text-text-muted text-[10px] leading-relaxed font-bold tracking-wider uppercase italic opacity-40">
+                  <p className="text-text-muted mt-8 text-center text-[10px] leading-relaxed font-bold tracking-wider uppercase italic opacity-40">
                     Spørsmål? Ring oss: {settings?.phone || '90 89 77 77'}
                   </p>
                 </div>

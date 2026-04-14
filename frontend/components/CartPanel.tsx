@@ -5,7 +5,7 @@ import Price from '@/components/ui/Price';
 import Button from '@/components/ui/Button';
 import { useCartStore } from '@/store/useCartStore';
 import { useNavStore } from '@/store/useNavStore';
-import { Minus, Plus, Trash2, AlertCircle, X } from 'lucide-react';
+import { Minus, Plus, Trash2, AlertCircle, X, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { api } from '@/lib/api';
@@ -54,7 +54,7 @@ export default function CartPanel() {
 
   const panelContent = (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between mb-8">
+      <div className="mb-8 flex items-center justify-between">
         <h2 className="font-heading text-text-dark text-3xl font-semibold">
           Din Bestilling
         </h2>
@@ -68,7 +68,17 @@ export default function CartPanel() {
 
       {!mounted || items.length === 0 ? (
         <div className="flex flex-grow items-center justify-center text-center">
-          <p className="text-text-muted italic">Kurven er tom</p>
+          <div className="flex flex-col items-center gap-3 rounded-lg px-6 py-12">
+            <div className="relative">
+              <ShoppingBag className="text-text-muted h-12 w-12" />
+            </div>
+            <p className="text-text-dark text-lg font-semibold">
+              Kurven er tom
+            </p>
+            <p className="text-text-muted text-xs tracking-wider uppercase">
+              Utforsk vår meny og lag din perfekte bestilling
+            </p>
+          </div>
         </div>
       ) : (
         <>

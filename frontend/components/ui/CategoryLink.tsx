@@ -31,20 +31,21 @@ export default function CategoryLink({
       const offset = variant === 'horizontal' ? 120 : 60;
 
       if (container === window) {
-        const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+        const elementPosition =
+          element.getBoundingClientRect().top + window.pageYOffset;
         window.scrollTo({
           top: elementPosition - offset,
-          behavior: 'smooth'
+          behavior: 'smooth',
         });
       } else {
         const containerEl = container as HTMLElement;
         const elementTop = element.offsetTop;
         containerEl.scrollTo({
           top: elementTop - offset,
-          behavior: 'smooth'
+          behavior: 'smooth',
         });
       }
-      
+
       useNavStore.getState().setActiveCategory(id);
       window.history.pushState(null, '', href);
     }
@@ -62,16 +63,14 @@ export default function CategoryLink({
       >
         <span
           className={cn(
-            'whitespace-nowrap text-sm font-bold tracking-wide transition-colors duration-300',
-            isActive 
-              ? 'text-primary' 
-              : 'text-text-muted/60'
+            'text-sm font-bold tracking-wide whitespace-nowrap transition-colors duration-300',
+            isActive ? 'text-primary' : 'text-text-muted/60'
           )}
         >
           {children}
         </span>
         {isActive && (
-          <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-primary rounded-full" />
+          <div className="bg-primary absolute right-4 bottom-0 left-4 h-0.5 rounded-full" />
         )}
       </Link>
     );
@@ -87,17 +86,19 @@ export default function CategoryLink({
         className
       )}
     >
-      <div 
+      <div
         className={cn(
-          "absolute -left-4 h-full w-[2px] bg-accent-gold transition-all duration-300",
-          isActive ? "opacity-100 scale-y-100" : "opacity-0 scale-y-0 group-hover:opacity-40 group-hover:scale-y-50"
+          'bg-accent-gold absolute -left-4 h-full w-[2px] transition-all duration-300',
+          isActive
+            ? 'scale-y-100 opacity-100'
+            : 'scale-y-0 opacity-0 group-hover:scale-y-50 group-hover:opacity-40'
         )}
       />
       <span
         className={cn(
           'font-heading text-xl font-medium tracking-wide transition-colors duration-300',
-          isActive 
-            ? 'text-primary' 
+          isActive
+            ? 'text-primary'
             : 'text-text-muted/70 group-hover:text-primary'
         )}
       >

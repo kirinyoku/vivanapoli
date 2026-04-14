@@ -204,9 +204,6 @@ export default function OrdersManagementPage() {
       <div className="space-y-6">
         {filteredOrders.length === 0 ? (
           <div className="ring-border-light/60 rounded-[2.5rem] bg-white p-20 text-center shadow-xl ring-1 shadow-black/[0.02]">
-            <div className="bg-bg-page text-text-muted font-heading mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full text-3xl italic opacity-20">
-              ?
-            </div>
             <p className="text-text-muted font-medium italic opacity-60">
               {searchTerm || statusFilter !== 'all'
                 ? 'Ingen bestillinger samsvarer med valgt filter'
