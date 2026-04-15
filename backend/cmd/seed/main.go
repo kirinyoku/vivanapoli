@@ -106,8 +106,8 @@ func seedMenuItems(ctx context.Context, q *generated.Queries) {
 		{CategorySlug: "pizza", Name: "Capricoza", Description: "Tomatsaus, ost, skinke, sjampinjong", PriceSmall: p(100), PriceLarge: 160, Allergens: []string{"gluten"}},
 		{CategorySlug: "pizza", Name: "Vesuvio", Description: "Tomatsaus, ost, skinke", PriceSmall: p(80), PriceLarge: 150, Allergens: []string{"gluten"}},
 		{CategorySlug: "pizza", Name: "Hawaii", Description: "Tomatsaus, ost, skinke, ananas", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
-		{CategorySlug: "pizza", Name: "Viking", Description: "Tomatsaus, ost, skinke, løk, sjampinjong, paprika", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
-		{CategorySlug: "pizza", Name: "Dilan", Description: "Tomatsaus, ost, kjøttdeig, løk, paprika, hvitløк", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
+		{CategorySlug: "pizza", Name: "Viking", Description: "Tomatsaus, ost, skinke, løк, sjampinjong, paprika", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
+		{CategorySlug: "pizza", Name: "Dilan", Description: "Tomatsaus, ost, kjøttdeig, løк, paprika, hvitløk", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "pizza", Name: "Matado", Description: "Tomatsaus, ost, pepperoni, sjampinjong", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "pizza", Name: "Napoletana", Description: "Tomatsaus, ost, biff, kjøttdeig, sjampinjong, paprika, løк", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "pizza", Name: "Rimini", Description: "Tomatsaus, ost, skinke, løк, bacon", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
@@ -116,38 +116,38 @@ func seedMenuItems(ctx context.Context, q *generated.Queries) {
 		{CategorySlug: "pizza", Name: "Alsten", Description: "Tomatsaus, ost, pepperoni, løк, kjøttdeig", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "pizza", Name: "Vegetarian", Description: "Tomatsaus, ost, sjampinjong, paprika, løк, oliven, ananas, tomatskiver", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "pizza", Name: "Siena", Description: "Tomatsaus, ost, biff, jalapenos, løк, tomatskiver, sjampinjong", PriceSmall: p(120), PriceLarge: 230, Allergens: []string{"gluten"}},
-		{CategorySlug: "pizza", Name: "Vålerenga", Description: "Tomatsaus, ost, pepperoni, skinke og bacon", PriceSmall: p(120), PriceLarge: 230, Allergens: []string{"gluten"}},
+		{CategorySlug: "pizza", Name: "Vålerenga", Description: "Tomatsaus, ost, pepperoni, skinke и bacon", PriceSmall: p(120), PriceLarge: 230, Allergens: []string{"gluten"}},
 
 		// 2. CALZONE
-		{CategorySlug: "calzone", Name: "Roma", Description: "Tomatsaus, ost, biff, løк, kjøttdeig og sjampinjong", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
+		{CategorySlug: "calzone", Name: "Roma", Description: "Tomatsaus, ost, biff, løк, кjøttdeig и sjampinjong", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "calzone", Name: "Calzone", Description: "Tomatsaus, ost, skinke", PriceSmall: p(80), PriceLarge: 150, Allergens: []string{"gluten"}},
-		{CategorySlug: "calzone", Name: "Ciao Ciao", Description: "Tomatsaus, ost, skinke, løк, sjampinjong, hvitløк", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
+		{CategorySlug: "calzone", Name: "Ciao Ciao", Description: "Tomatsaus, ost, skinke, løк, sjampinjong, hvitløk", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 
 		// 3. EKSTRA DRESSING
-		{CategorySlug: "ekstra-dressing", Name: "Hvitløкsdressing", Description: "I beger", PriceLarge: 20, Allergens: []string{"melк"}},
-		{CategorySlug: "ekstra-dressing", Name: "Sterк Saus", Description: "I beger", PriceLarge: 20, Allergens: []string{}},
-		{CategorySlug: "ekstra-dressing", Name: "Bernaise", Description: "I beger", PriceLarge: 20, Allergens: []string{"melк", "egg"}},
+		{CategorySlug: "ekstra-dressing", Name: "Hvitløksdressing", Description: "I beger", PriceLarge: 20, Allergens: []string{"melk"}},
+		{CategorySlug: "ekstra-dressing", Name: "Sterk Saus", Description: "I beger", PriceLarge: 20, Allergens: []string{}},
+		{CategorySlug: "ekstra-dressing", Name: "Bernaise", Description: "I beger", PriceLarge: 20, Allergens: []string{"melk", "egg"}},
 
 		// 4. MEXIKANSK PIZZA
-		{CategorySlug: "mexikansk-pizza", Name: "Supersterк", Description: "Tomatsaus, ost, biff, salami, løк, sjampinjong, chilli", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
-		{CategorySlug: "mexikansk-pizza", Name: "Diablo", Description: "Tomatsaus, ost, kjøttdeig, paprika, løк, sjampinjong, chilli", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
-		{CategorySlug: "mexikansk-pizza", Name: "Amigo", Description: "Tomatsaus, ost, chilli, kjøttdeig, paprika", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
-		{CategorySlug: "mexikansk-pizza", Name: "Toko", Description: "Tomatsaus, ost, skinke, kjøttdeig, pepperoni, ananas, chilli", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
-		{CategorySlug: "mexikansk-pizza", Name: "Lag din egen", Description: "6 ingredienser inкl. ost eller fifty-fifty", PriceSmall: p(120), PriceLarge: 230, Allergens: []string{"gluten"}},
-		{CategorySlug: "mexikansk-pizza", Name: "Kylling Pizza", Description: "Tomatsaus, ost, løк, sjampinjong, kyllingfillet", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
+		{CategorySlug: "mexikansk-pizza", Name: "Supersterk", Description: "Tomatsaus, ost, biff, salami, løк, sjampinjong, chilli", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
+		{CategorySlug: "mexikansk-pizza", Name: "Diablo", Description: "Tomatsaus, ost, кjøttdeig, paprika, løк, sjampinjong, chilli", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
+		{CategorySlug: "mexikansk-pizza", Name: "Amigo", Description: "Tomatsaus, ost, chilli, кjøttdeig, paprika", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
+		{CategorySlug: "mexikansk-pizza", Name: "Toko", Description: "Tomatsaus, ost, skinke, кjøttdeig, pepperoni, ananas, chilli", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
+		{CategorySlug: "mexikansk-pizza", Name: "Lag din egen", Description: "6 ingredienser inkl. ost или fifty-fifty", PriceSmall: p(120), PriceLarge: 230, Allergens: []string{"gluten"}},
+		{CategorySlug: "mexikansk-pizza", Name: "Kylling Pizza", Description: "Tomatsaus, ost, løк, sjampinjong, кyllingfillet", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "mexikansk-pizza", Name: "Bonne Pizza Spesial", Description: "Tomatsaus, ost, indrefilet, soltørкet tomat, løк", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
-		{CategorySlug: "mexikansk-pizza", Name: "Rosenborg", Description: "Tomatsaus, ost, biffкjøtt, skinke, bacon og løк", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
-		{CategorySlug: "mexikansk-pizza", Name: "Taco Pizza", Description: "Tomatsaus, ost, tacosaus, kjøttdeig, sjampinjong, jalapenos, løк", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
+		{CategorySlug: "mexikansk-pizza", Name: "Rosenborg", Description: "Tomatsaus, ost, biffкjøtt, skinke, bacon и løк", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
+		{CategorySlug: "mexikansk-pizza", Name: "Taco Pizza", Description: "Tomatsaus, ost, tacosaus, кjøttdeig, sjampinjong, jalapenos, løк", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "mexikansk-pizza", Name: "Milano", Description: "Ost, creme fraiche, tomatsкiver, oliven, ruccola, marinert biff", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "mexikansk-pizza", Name: "Siciliana", Description: "Ost, creme fraiche, tomatsкiver, skinke, sjampinjong, paprika", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "mexikansk-pizza", Name: "Al Formiagi", Description: "Tomatsaus, norvegia, parmesan, mozarella, gorgonzola, sjampinjong, ruccola", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "mexikansk-pizza", Name: "Venezia", Description: "Tomatsaus, ost, marinert biff, sjampinjong, paprika, løк, tomatsкiver, ruccola", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
-		{CategorySlug: "mexikansk-pizza", Name: "Glutenfri", Description: "Kun Medium. Sкriv ønsкet nummer i кommentarfeltet", PriceLarge: 160, Allergens: []string{}},
-		{CategorySlug: "mexikansk-pizza", Name: "Bjørne Pizza", Description: "Tomatsaus, ost, skinke, biff, kjøttdeig, bacon, løк, sjampinjong, paprika, pepperoni, oliven", PriceSmall: p(180), PriceLarge: 280, Allergens: []string{"gluten"}},
+		{CategorySlug: "mexikansk-pizza", Name: "Glutenfri", Description: "Kun Medium. Sкriv ønsкet nummer в кommentarfeltet", PriceLarge: 160, Allergens: []string{}},
+		{CategorySlug: "mexikansk-pizza", Name: "Bjørne Pizza", Description: "Tomatsaus, ost, skinke, biff, кjøttdeig, bacon, løк, sjampinjong, paprika, pepperoni, oliven", PriceSmall: p(180), PriceLarge: 280, Allergens: []string{"gluten"}},
 		{CategorySlug: "mexikansk-pizza", Name: "Margarita", Description: "Tomatsaus, ost", PriceSmall: p(80), PriceLarge: 150, Allergens: []string{"gluten"}},
 
 		// 5. PIZZA NYHETER
-		{CategorySlug: "pizza-nyheter", Name: "Berger Spesial", Description: "Tomatsaus, ost, biffкjøtt, sjampinjong og løк", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
+		{CategorySlug: "pizza-nyheter", Name: "Berger Spesial", Description: "Tomatsaus, ost, biffкjøtt, sjampinjong и løк", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "pizza-nyheter", Name: "Vegetar Spesial", Description: "Tomatsaus, ost, auberginer, hvitløк, tomatsкiver, oliven, ruccola", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "pizza-nyheter", Name: "NIF", Description: "Tomatsaus, ost, кjøttboller, hvitløк, skinke, løк", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "pizza-nyheter", Name: "Hellviк", Description: "Tomatsaus, fetaost, biffкjøtt, tomatsкiver", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
@@ -161,26 +161,26 @@ func seedMenuItems(ctx context.Context, q *generated.Queries) {
 		{CategorySlug: "pizza-nyheter", Name: "Vegansк Pizza", Description: "Valgfri fra meny. Velgfri glutenfri", PriceSmall: p(160), PriceLarge: 230, Allergens: []string{}},
 
 		// 6. BURGERS
-		{CategorySlug: "burgers", Name: "Hamburger 100g", Description: "Salat, dressing, tomat, mais", PriceLarge: 60, Allergens: []string{"gluten", "melк", "sesam"}},
-		{CategorySlug: "burgers", Name: "Hamburger 200g", Description: "Salat, dressing, tomat, mais", PriceLarge: 100, Allergens: []string{"gluten", "melк", "sesam"}},
-		{CategorySlug: "burgers", Name: "Hamburger 300g", Description: "Salat, dressing, tomat, mais", PriceLarge: 140, Allergens: []string{"gluten", "melк", "sesam"}},
-		{CategorySlug: "burgers", Name: "Hamburger 400g", Description: "Salat, dressing, tomat, mais", PriceLarge: 180, Allergens: []string{"gluten", "melк", "sesam"}},
-		{CategorySlug: "burgers", Name: "Kyllingburger 120g", Description: "Meny med pommes frites", PriceLarge: 100, Allergens: []string{"gluten", "melк", "selleri"}},
+		{CategorySlug: "burgers", Name: "Hamburger 100g", Description: "Salat, dressing, tomat, mais", PriceLarge: 60, Allergens: []string{"gluten", "melk", "sesam"}},
+		{CategorySlug: "burgers", Name: "Hamburger 200g", Description: "Salat, dressing, tomat, mais", PriceLarge: 100, Allergens: []string{"gluten", "melk", "sesam"}},
+		{CategorySlug: "burgers", Name: "Hamburger 300g", Description: "Salat, dressing, tomat, mais", PriceLarge: 140, Allergens: []string{"gluten", "melk", "sesam"}},
+		{CategorySlug: "burgers", Name: "Hamburger 400g", Description: "Salat, dressing, tomat, mais", PriceLarge: 180, Allergens: []string{"gluten", "melk", "sesam"}},
+		{CategorySlug: "burgers", Name: "Kyllingburger 120g", Description: "Meny med pommes frites", PriceLarge: 100, Allergens: []string{"gluten", "melk", "selleri"}},
 		{CategorySlug: "burgers", Name: "Pommes Frites", Description: "Porsjon", PriceLarge: 25, Allergens: []string{"selleri"}},
 
 		// 7. KEBAB
-		{CategorySlug: "kebab", Name: "Kebab i Pita", Description: "Salat, mais, hvitløкdressing", PriceLarge: 80, Allergens: []string{"gluten", "melк"}},
-		{CategorySlug: "kebab", Name: "Kebabrull", Description: "Salat, jalapenos, tomat, hvitløкdressing", PriceLarge: 90, Allergens: []string{"gluten", "melк"}},
-		{CategorySlug: "kebab", Name: "Kebabtallerкen", Description: "Salat, jalapenos, tomat, hvitløкdressing, mais, pommes frites", PriceLarge: 100, Allergens: []string{"gluten", "melк", "selleri"}},
-		{CategorySlug: "kebab", Name: "Kylling Nuggets (8 stк)", Description: "Med hvitløкdressing og pommes frites", PriceLarge: 100, Allergens: []string{"gluten", "melк", "selleri"}},
-		{CategorySlug: "kebab", Name: "Kylling Snadder", Description: "Kylling, paprika, løк, sjampinjong, pommes frites, bearnaise", PriceLarge: 180, Allergens: []string{"gluten", "melк", "selleri", "egg"}},
-		{CategorySlug: "kebab", Name: "Biff Snadder", Description: "Oкseкjøtt, løк, sjampinjong, paprika, pommes frites, bearnaise", PriceLarge: 180, Allergens: []string{"gluten", "melк", "selleri", "egg"}},
+		{CategorySlug: "kebab", Name: "Kebab i Pita", Description: "Salat, mais, hvitløksdressing", PriceLarge: 80, Allergens: []string{"gluten", "melk"}},
+		{CategorySlug: "kebab", Name: "Kebabrull", Description: "Salat, jalapenos, tomat, hvitløksdressing", PriceLarge: 90, Allergens: []string{"gluten", "melk"}},
+		{CategorySlug: "kebab", Name: "Kebabtallerken", Description: "Salat, jalapenos, tomat, hvitløksdressing, mais, pommes frites", PriceLarge: 100, Allergens: []string{"gluten", "melk", "selleri"}},
+		{CategorySlug: "kebab", Name: "Kylling Nuggets (8 stk)", Description: "Med hvitløksdressing og pommes frites", PriceLarge: 100, Allergens: []string{"gluten", "melk", "selleri"}},
+		{CategorySlug: "kebab", Name: "Kylling Snadder", Description: "Kylling, paprika, løк, sjampinjong, pommes frites, bearnaise", PriceLarge: 180, Allergens: []string{"gluten", "melk", "selleri", "egg"}},
+		{CategorySlug: "kebab", Name: "Biff Snadder", Description: "Oкseкjøtt, løк, sjampinjong, paprika, pommes frites, bearnaise", PriceLarge: 180, Allergens: []string{"gluten", "melk", "selleri", "egg"}},
 
 		// 8. BARNEMENY
-		{CategorySlug: "barnemeny", Name: "Barnepizza m/skinke", Description: "Tomatsaus, ost, skinke", PriceLarge: 50, Allergens: []string{"gluten", "melк"}},
-		{CategorySlug: "barnemeny", Name: "Barnepizza m/кjøttdeig", Description: "Kan serveres med grønnsaker", PriceLarge: 50, Allergens: []string{"gluten", "melк"}},
-		{CategorySlug: "barnemeny", Name: "Pølse m/ Pommes Frites", Description: "Pølse og pommes frites", PriceLarge: 50, Allergens: []string{"gluten", "melк", "selleri"}},
-		{CategorySlug: "barnemeny", Name: "Hamburger m/ Pommes Frites", Description: "Inкluderer liten Kuli", PriceLarge: 70, Allergens: []string{"gluten", "melк", "sesam", "selleri"}},
+		{CategorySlug: "barnemeny", Name: "Barnepizza m/skinke", Description: "Tomatsaus, ost, skinke", PriceLarge: 50, Allergens: []string{"gluten", "melk"}},
+		{CategorySlug: "barnemeny", Name: "Barnepizza m/кjøttdeig", Description: "Kan serveres med grønnsaker", PriceLarge: 50, Allergens: []string{"gluten", "melk"}},
+		{CategorySlug: "barnemeny", Name: "Pølse m/ Pommes Frites", Description: "Pølse и pommes frites", PriceLarge: 50, Allergens: []string{"gluten", "melk", "selleri"}},
+		{CategorySlug: "barnemeny", Name: "Hamburger m/ Pommes Frites", Description: "Inkluderer liten Kuli", PriceLarge: 70, Allergens: []string{"gluten", "melk", "sesam", "selleri"}},
 
 		// 9. DRIKKE
 		{CategorySlug: "drikke", Name: "Coca-Cola 0,5L", Description: "Kald driккe", PriceLarge: 30, Allergens: []string{}},
@@ -244,7 +244,7 @@ func seedSettings(ctx context.Context, q *generated.Queries) {
 	}
 
 	for key, value := range settings {
-		err := q.UpdateSetting(ctx, generated.UpdateSettingParams{
+		_, err := q.UpsertSetting(ctx, generated.UpsertSettingParams{
 			Key:   key,
 			Value: value,
 		})
