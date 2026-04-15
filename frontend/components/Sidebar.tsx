@@ -17,36 +17,70 @@ export default async function Sidebar() {
 
   try {
     const [menuData, settingsData] = await Promise.all([
-      api.getMenu(),
-      api.getSettings(),
+      api.getMenu().catch(err => {
+        console.warn('Sidebar: Menu fetch failed, using empty data:', err.message);
+        return []; // Fallback empty menu
+      }),
+      api.getSettings().catch(err => {
+        console.warn('Sidebar: Settings fetch failed, using defaults:', err.message);
+        return {
+          address: 'Gamle Hellviksvei 3',
+          phone: '90 89 77 77',
+          delivery_time: '30-60 min',
+          is_open: 'true',
+          open_time: '14:00',
+          close_time: '22:00'
+        }; // Fallback default settings
+      }),
     ]);
 
-    // Collect all items with discounts
-    const discountItemsCount = menuData.flatMap(cat => 
-      cat.items.filter(item => item.discount_price_small !== null || item.discount_price_large !== null)
+    // menuData will be an empty array if catch was triggered
+    const discountItemsCount = (menuData || []).flatMap((cat) =>
+      (cat.items || []).filter(
+        (item) =>
+          item.discount_price_small !== null ||
+          item.discount_price_large !== null
+      )
     ).length;
 
-    let finalCategories = menuData.map(cat => ({ id: cat.id, name: cat.name, slug: cat.slug }));
+    let finalCategories = (menuData || []).map((cat) => ({
+      id: cat.id,
+      name: cat.name,
+      slug: cat.slug,
+    }));
+    
     if (discountItemsCount > 0) {
-      finalCategories = [{ id: -1, name: 'Tilbud', slug: 'tilbud' }, ...finalCategories];
+      finalCategories = [
+        { id: -1, name: 'Tilbud', slug: 'tilbud' },
+        ...finalCategories,
+      ];
     }
 
     categories = finalCategories;
     settings = settingsData;
-    isManualOpen = settings.is_open !== 'false';
+    isManualOpen = settings?.is_open !== 'false';
   } catch (error) {
-    console.error('Failed to fetch sidebar data:', error);
+    // This top-level catch is for any logic errors inside the try block
+    console.error('Sidebar SSR fatal error:', error);
   }
 
   return (
-    <aside className="border-border-light bg-bg-sidebar hidden flex-col border-r px-8 py-12 lg:flex">
-      <div className="mb-16">
+    <aside className="border-border-light bg-bg-sidebar custom-scrollbar hidden h-full flex-col overflow-y-auto border-r px-8 py-12 lg:flex">
+      <div className="mb-16 shrink-0">
         <Logo className="mb-2 text-4xl" asH1 />
-        <div className="flex items-center gap-2">
-          <div className="h-[1px] w-4 bg-accent-gold" />
+        <div className="mb-6 flex items-center gap-2">
+          <div className="bg-accent-gold h-[1px] w-4" />
           <p className="font-body text-text-muted text-[0.7rem] font-bold tracking-[0.2em] uppercase italic">
-            Ekte italiensk siden 2010
+            Den Beste Matleveringstjenesten i Byen Notodden
           </p>
+        </div>
+
+        <div className="flex h-8 origin-left scale-90 items-center">
+          <ShopStatusBadge
+            isManualClosed={!isManualOpen}
+            openTime={settings.open_time}
+            closeTime={settings.close_time}
+          />
         </div>
       </div>
 
@@ -66,7 +100,7 @@ export default async function Sidebar() {
       <div className="border-border-light mt-auto space-y-5 border-t pt-10">
         <div className="space-y-4">
           <div className="group flex items-center gap-4 transition-colors">
-            <div className="bg-primary/5 group-hover:bg-primary/10 flex h-9 w-9 items-center justify-center rounded-full transition-colors">
+            <div className="bg-primary/5 group-hover:bg-primary/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors">
               <MapPin className="text-primary h-4 w-4" />
             </div>
             <div className="flex flex-col">
@@ -74,13 +108,13 @@ export default async function Sidebar() {
                 Adresse
               </span>
               <span className="text-text-dark text-sm font-medium">
-                {settings.address || 'Gamle Hellviksvei 3'}
+                {settings.address || 'Storgata 74, 3674 Notodden'}
               </span>
             </div>
           </div>
 
           <div className="group flex items-center gap-4 transition-colors">
-            <div className="bg-primary/5 group-hover:bg-primary/10 flex h-9 w-9 items-center justify-center rounded-full transition-colors">
+            <div className="bg-primary/5 group-hover:bg-primary/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors">
               <Phone className="text-primary h-4 w-4" />
             </div>
             <div className="flex flex-col">
@@ -88,13 +122,13 @@ export default async function Sidebar() {
                 Telefon
               </span>
               <span className="text-text-dark text-sm font-medium">
-                {settings.phone || '90 89 77 77'}
+                {settings.phone || '47 48 44 44'}
               </span>
             </div>
           </div>
 
           <div className="group flex items-center gap-4 transition-colors">
-            <div className="bg-primary/5 group-hover:bg-primary/10 flex h-9 w-9 items-center justify-center rounded-full transition-colors">
+            <div className="bg-primary/5 group-hover:bg-primary/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors">
               <Truck className="text-primary h-4 w-4" />
             </div>
             <div className="flex flex-col">
@@ -102,21 +136,12 @@ export default async function Sidebar() {
                 Levering
               </span>
               <span className="text-text-dark text-sm font-medium italic">
-                {settings.delivery_time || '30-60 min'}
+                {settings.delivery_time || '60 min'}
               </span>
             </div>
           </div>
-        </div>
-
-        <div className="pt-2">
-          <ShopStatusBadge 
-            isManualClosed={!isManualOpen} 
-            openTime={settings.open_time}
-            closeTime={settings.close_time}
-          />
         </div>
       </div>
     </aside>
   );
 }
-

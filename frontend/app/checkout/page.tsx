@@ -391,33 +391,52 @@ export default function CheckoutPage() {
 
                 {formData.order_type === 'delivery' && (
                   <div className="animate-in fade-in slide-in-from-top-4 mt-10 duration-500">
-                    <div className="space-y-3">
-                      <label
-                        htmlFor="customer_address"
-                        className="text-text-muted px-1 text-[10px] font-bold tracking-[0.15em] uppercase"
-                      >
-                        Leveringsadresse
-                      </label>
-                      <input
-                        type="text"
-                        id="customer_address"
-                        name="customer_address"
-                        autoComplete="street-address"
-                        value={formData.customer_address}
-                        onChange={handleInputChange}
-                        placeholder="Gateadresse, postnummer og sted"
-                        className={cn(
-                          'bg-bg-page/50 w-full rounded-2xl border p-4 shadow-inner transition-all outline-none focus:ring-4',
-                          fieldErrors.customer_address
-                            ? 'border-red-500 focus:border-red-500 focus:ring-red-500/5'
-                            : 'border-border-light/60 focus:ring-primary/5 focus:border-primary'
+                    <div className="space-y-6">
+                      <div className="space-y-3">
+                        <label
+                          htmlFor="customer_address"
+                          className="text-text-muted px-1 text-[10px] font-bold tracking-[0.15em] uppercase"
+                        >
+                          Leveringsadresse
+                        </label>
+                        <input
+                          type="text"
+                          id="customer_address"
+                          name="customer_address"
+                          autoComplete="street-address"
+                          value={formData.customer_address}
+                          onChange={handleInputChange}
+                          placeholder="Gateadresse, postnummer og sted"
+                          className={cn(
+                            'bg-bg-page/50 w-full rounded-2xl border p-4 shadow-inner transition-all outline-none focus:ring-4',
+                            fieldErrors.customer_address
+                              ? 'border-red-500 focus:border-red-500 focus:ring-red-500/5'
+                              : 'border-border-light/60 focus:ring-primary/5 focus:border-primary'
+                          )}
+                        />
+                        {fieldErrors.customer_address && (
+                          <p className="mt-1 px-1 text-[10px] font-bold tracking-wider text-red-500 uppercase">
+                            {fieldErrors.customer_address}
+                          </p>
                         )}
-                      />
-                      {fieldErrors.customer_address && (
-                        <p className="mt-1 px-1 text-[10px] font-bold tracking-wider text-red-500 uppercase">
-                          {fieldErrors.customer_address}
-                        </p>
-                      )}
+                      </div>
+
+                      {/* Delivery Info Notice */}
+                      <div className="bg-bg-page/50 border-border-light/40 flex items-start gap-4 rounded-2xl border p-6">
+                        <div className="bg-primary/10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
+                          <Truck className="text-primary h-4 w-4" />
+                        </div>
+                        <div className="space-y-1">
+                          <h4 className="text-text-dark text-[10px] font-bold tracking-wider uppercase">
+                            Leveringsinformasjon
+                          </h4>
+                          <p className="text-text-muted text-xs leading-relaxed italic opacity-80">
+                            Normal leveringstid er innen 60 minutter. Ved stor
+                            pågang eller vanskelige adresser kan det ta noe
+                            lenger tid. Det gis ingen rabatt ved forsinkelser.
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -474,7 +493,7 @@ export default function CheckoutPage() {
                           Bestillingen betales direkte ved levering/henting. Vi
                           aksepterer{' '}
                           <span className="text-primary font-bold">
-                            Kort, Kontant и Vipps.
+                            Kort, Kontant og Vipps.
                           </span>
                         </p>
                       </div>
@@ -482,20 +501,6 @@ export default function CheckoutPage() {
                   </div>
                 </div>
               </section>
-
-              {isClosed && (
-                <div className="flex items-start gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-6 ring-1 ring-amber-100">
-                  <span className="text-2xl">🌙</span>
-                  <div className="space-y-1">
-                    <p className="font-bold text-amber-900">
-                      Vi har dessverre stengt nå
-                    </p>
-                    <p className="text-sm font-medium text-amber-800/80 italic">
-                      {shopStatus?.message}. Velkommen tilbake ved åpning!
-                    </p>
-                  </div>
-                </div>
-              )}
 
               {generalError && (
                 <div className="flex items-start gap-4 rounded-2xl border border-red-200 bg-red-50 p-6 ring-1 ring-red-100">
@@ -580,15 +585,30 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <div className="hidden pt-12 lg:block">
+                {/* Important: Shop Status Notification before Button */}
+                {isClosed && (
+                  <div className="mt-8 flex items-start gap-4 rounded-3xl border border-amber-200 bg-amber-50/50 p-6 ring-1 ring-amber-100">
+                    <span className="text-2xl drop-shadow-sm">🌙</span>
+                    <div className="space-y-1">
+                      <p className="text-sm font-bold text-amber-900 leading-tight">
+                        Vi har dessverre stengt nå
+                      </p>
+                      <p className="text-[11px] font-medium text-amber-800/80 italic leading-tight">
+                        {shopStatus?.message}. Velkommen tilbake ved åpning!
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <div className="hidden pt-10 lg:block">
                   <Button
                     onClick={handleSubmit}
                     size="lg"
                     disabled={isSubmitting || isClosed}
                     className={cn(
-                      'w-full rounded-2xl py-7 text-lg font-bold tracking-[0.1em] shadow-2xl transition-all active:scale-95',
+                      'w-full rounded-[2rem] py-8 text-lg font-bold tracking-[0.1em] shadow-2xl transition-all active:scale-95',
                       isClosed
-                        ? 'bg-text-muted/20 text-text-muted cursor-not-allowed shadow-none'
+                        ? 'bg-text-muted/10 text-text-muted/40 cursor-not-allowed shadow-none grayscale border border-border-light/20'
                         : 'shadow-primary/30'
                     )}
                   >
@@ -600,16 +620,16 @@ export default function CheckoutPage() {
                   </Button>
                 </div>
 
-                {/* Mobile CTA - Now moved here after summary */}
+                {/* Mobile CTA */}
                 <div className="pt-8 lg:hidden">
                   <Button
                     onClick={handleSubmit}
                     size="lg"
                     disabled={isSubmitting || isClosed}
                     className={cn(
-                      'w-full rounded-2xl py-7 text-lg tracking-widest shadow-2xl transition-all active:scale-95',
+                      'w-full rounded-[2rem] py-8 text-lg font-bold tracking-widest shadow-2xl transition-all active:scale-95',
                       isClosed
-                        ? 'bg-text-muted/20 text-text-muted cursor-not-allowed shadow-none'
+                        ? 'bg-text-muted/10 text-text-muted/40 cursor-not-allowed shadow-none grayscale border border-border-light/20'
                         : 'shadow-primary/30'
                     )}
                   >

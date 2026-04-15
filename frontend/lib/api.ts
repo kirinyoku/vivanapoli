@@ -13,8 +13,9 @@ import {
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
-type FetchOptions = RequestInit & {
+type FetchOptions<T> = RequestInit & {
   params?: Record<string, string>;
+  fallback?: T;
 };
 
 interface ApiResponse<T> {
@@ -33,9 +34,9 @@ export class ApiError extends Error {
 
 async function request<T>(
   endpoint: string,
-  options: FetchOptions = {}
+  options: FetchOptions<T> = {}
 ): Promise<T> {
-  const { params, ...init } = options;
+  const { params, fallback, ...init } = options;
 
   let url = `${API_BASE_URL}${endpoint}`;
   if (params) {
@@ -63,14 +64,17 @@ async function request<T>(
     });
 
     if (!response.ok) {
-      let errorMessage = 'An error occurred';
+      let errorMessage = `Server responded with ${response.status}`;
       try {
         const errorData = await response.json();
-        // Handle both {"error": "message"} and {"data": {"error": "message"}} formats
         errorMessage = errorData.error || errorData.data?.error || errorMessage;
       } catch {
-        // ignore json parse error
+        // use default message
       }
+      
+      console.warn(`[API] ${init.method || 'GET'} ${endpoint} failed (${response.status}): ${errorMessage}`);
+      
+      if (fallback !== undefined) return fallback;
       throw new ApiError(errorMessage, response.status);
     }
 
@@ -85,26 +89,37 @@ async function request<T>(
     const result: ApiResponse<T> = await response.json();
     return result.data;
   } catch (err) {
-    if (err instanceof ApiError) throw err;
-
-    // Log the actual error for debugging
-    console.error('API request failed:', err);
+    if (err instanceof ApiError) {
+      // If we already handled it and decided to throw (no fallback), re-throw
+      throw err;
+    }
 
     // Provide more specific error message
-    let errorMessage =
-      'Kunne ikke koble til serveren. Vennligst sjekk internettforbindelsen din.';
+    let errorMessage = 'Kunne ikke koble til serveren. Vennligst sjekk internettforbindelsen din.';
     if (err instanceof Error) {
       errorMessage = err.message;
     }
-
+    
+    console.warn(`[API] Request ${endpoint} failed: ${errorMessage}`);
+    
+    if (fallback !== undefined) return fallback;
     throw new ApiError(errorMessage, 503);
   }
 }
 
 export const api = {
   // Public
-  getMenu: () => request<MenuCategory[]>('/menu'),
-  getSettings: () => request<RestaurantSettings>('/settings'),
+  getMenu: () => request<MenuCategory[]>('/menu', { fallback: [] }),
+  getSettings: () => request<RestaurantSettings>('/settings', { 
+    fallback: {
+      address: 'Storgata 74, 3674 Notodden',
+      phone: '47 48 44 44',
+      delivery_time: '60 min',
+      is_open: 'true',
+      open_time: '14:00',
+      close_time: '21:00'
+    } as RestaurantSettings 
+  }),
   placeOrder: (orderData: CreateOrderRequest) =>
     request<Order>('/orders', {
       method: 'POST',

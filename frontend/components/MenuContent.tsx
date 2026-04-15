@@ -10,7 +10,7 @@ import ScrollSpy from '@/components/ScrollSpy';
 import { api } from '@/lib/api';
 import { MenuCategory, RestaurantSettings } from '@/types';
 import ShopStatusBadge from '@/components/ui/ShopStatusBadge';
-import { MapPin, Phone, Clock, Truck } from 'lucide-react';
+import { MapPin, Phone, Clock, Truck, AlertCircle } from 'lucide-react';
 import CategoryLink from '@/components/ui/CategoryLink';
 
 export default function MenuContent() {
@@ -20,34 +20,50 @@ export default function MenuContent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([api.getMenu(), api.getSettings()])
+    Promise.all([
+      api.getMenu().catch(err => {
+        console.warn('MenuContent: Menu fetch failed:', err.message);
+        return []; // Fallback empty menu
+      }),
+      api.getSettings().catch(err => {
+        console.warn('MenuContent: Settings fetch failed:', err.message);
+        return {
+          address: 'Gamle Hellviksvei 3',
+          phone: '90 89 77 77',
+          delivery_time: '30-60 min',
+          is_open: 'true',
+          open_time: '14:00',
+          close_time: '22:00'
+        } as RestaurantSettings;
+      })
+    ])
       .then(([menuData, settingsData]) => {
         // Collect all items with discounts
-        const discountItems = menuData.flatMap((cat) =>
-          cat.items.filter(
+        const discountItems = (menuData || []).flatMap((cat) =>
+          (cat.items || []).filter(
             (item) =>
               item.discount_price_small !== null ||
               item.discount_price_large !== null
           )
         );
 
-        let finalCategories = menuData;
+        let finalCategories = menuData || [];
         if (discountItems.length > 0) {
           const offersCategory: MenuCategory = {
-            id: -1, // Use a unique ID for the virtual category
+            id: -1, 
             name: 'Tilbud',
             slug: 'tilbud',
             items: discountItems,
           };
-          finalCategories = [offersCategory, ...menuData];
+          finalCategories = [offersCategory, ...finalCategories];
         }
 
         setCategories(finalCategories);
         setSettings(settingsData);
       })
       .catch((err) => {
-        console.error('Failed to fetch data:', err);
-        setError(err.message || 'Kunne ikke laste menyen.');
+        // This catch is for any critical logic errors
+        console.error('MenuContent: Fatal fetch failure:', err);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -149,6 +165,26 @@ export default function MenuContent() {
             ))}
           </div>
 
+          {/* Allergy Information Notice */}
+          <div className="bg-bg-sidebar/50 border-border-light/40 mt-12 rounded-2xl border p-6 lg:mt-20 lg:p-10">
+            <div className="flex items-start gap-4">
+              <div className="bg-accent-gold/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full">
+                <AlertCircle className="text-accent-gold h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-text-dark mb-2 text-sm font-bold tracking-wide uppercase">
+                  Allergi-informasjon
+                </h3>
+                <p className="text-text-muted leading-relaxed text-sm opacity-80">
+                  Hvitløkssaus inneholder majones og kefir. Bernaisesaus
+                  inneholder egg og melk. Alle pizzaer lages med hvetemel.
+                  Hamburgerbrød inneholder sesamfrø. Kebab-brød inneholder
+                  hvetemel. Alle retter med pommes frites inneholder selleri.
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Mobile Only Footer */}
           <footer className="border-border-light/40 mt-8 mb-8 border-t py-10 lg:hidden">
             <Logo className="mb-6 text-2xl" />
@@ -162,7 +198,7 @@ export default function MenuContent() {
                     Adresse
                   </span>
                   <span className="text-text-dark text-sm font-medium">
-                    {settings?.address || 'Gamle Hellviksvei 3'}
+                    {settings?.address || 'Storgata 74, 3674 Notodden'}
                   </span>
                 </div>
               </div>
@@ -176,7 +212,7 @@ export default function MenuContent() {
                     Telefon
                   </span>
                   <span className="text-text-dark text-sm font-medium">
-                    {settings?.phone || '90 89 77 77'}
+                    {settings?.phone || '47 48 44 44'}
                   </span>
                 </div>
               </div>
@@ -190,7 +226,7 @@ export default function MenuContent() {
                     Levering
                   </span>
                   <span className="text-text-dark text-sm font-medium italic">
-                    {settings?.delivery_time || '30-60 min'}
+                    {settings?.delivery_time || '60 min'}
                   </span>
                 </div>
               </div>
@@ -204,14 +240,15 @@ export default function MenuContent() {
                     Åpningstider
                   </span>
                   <span className="text-text-dark text-sm font-medium">
-                    {settings?.open_time} - {settings?.close_time}
+                    {settings?.open_time || '14:00'} - {settings?.close_time || '21:00'}
                   </span>
                 </div>
               </div>
             </div>
 
             <p className="text-text-muted mt-12 text-center text-[10px] font-bold tracking-[0.2em] uppercase opacity-40">
-              © 2026 Viva Napoli — Ekte italiensk siden 2010
+              © 2026 VivaNapoli Notodden — Den Beste Matleveringstjenesten i
+              Byen Notodden
             </p>
           </footer>
         </>

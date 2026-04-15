@@ -14,20 +14,28 @@ const inter = Inter({
   variable: '--font-body',
 });
 
-const title = 'Viva Napoli — Ekte italiensk pizza på Nesoddtangen';
+const title = 'Viva Napoli — Den Beste Matleveringstjenesten i Byen Notodden';
 const description =
-  'Bestill din favorittpizza, burger eller kebab fra Viva Napoli på Nesoddtangen. Rask levering og ferske ingredienser.';
+  'Bestill din favorittpizza, burger eller kebab fra VivaNapoli på Nesoddtangen. Rask levering og ferske ingredienser.';
 const siteUrl = 'https://vivanapolinotodden.no';
 
 export const metadata: Metadata = {
   title: {
     default: title,
-    template: `%s | Viva Napoli`,
+    template: `%s | VivaNapoli`,
   },
   description,
-  keywords: ['pizza', 'nesoddtangen', 'takeaway', 'restaurant', 'burger', 'kebab', 'italiensk'],
-  authors: [{ name: 'Viva Napoli' }],
-  creator: 'Viva Napoli',
+  keywords: [
+    'pizza',
+    'nesoddtangen',
+    'takeaway',
+    'restaurant',
+    'burger',
+    'kebab',
+    'italiensk',
+  ],
+  authors: [{ name: 'VivaNapoli' }],
+  creator: 'VivaNapoli',
   metadataBase: new URL(siteUrl),
   alternates: {
     canonical: '/',
@@ -36,7 +44,7 @@ export const metadata: Metadata = {
     title,
     description,
     url: siteUrl,
-    siteName: 'Viva Napoli',
+    siteName: 'VivaNapoli',
     locale: 'no_NO',
     type: 'website',
   },
@@ -55,22 +63,22 @@ export default function RootLayout({
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Restaurant',
-    name: 'Viva Napoli',
+    name: 'VivaNapoli',
     image: 'https://vivanapolinotodden.no/next.svg', // Replace with real logo/hero image
     '@id': 'https://vivanapolinotodden.no',
     url: 'https://vivanapolinotodden.no',
     telephone: '90897777',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: 'Gamle Hellviksvei 3',
-      addressLocality: 'Nesoddtangen',
-      postalCode: '1450',
+      streetAddress: 'Storgata 74',
+      addressLocality: 'Notodden',
+      postalCode: '3674',
       addressCountry: 'NO',
     },
     geo: {
       '@type': 'GeoCoordinates',
-      latitude: 59.8631, // Replace with real coordinates if available
-      longitude: 10.6558,
+      latitude: 59.56263127217169,
+      longitude: 9.264647422863261,
     },
     openingHoursSpecification: [
       {
@@ -85,7 +93,7 @@ export default function RootLayout({
           'Sunday',
         ],
         opens: '11:00',
-        closes: '22:00',
+        closes: '21:00',
       },
     ],
     priceRange: '$$',
@@ -105,7 +113,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="flex min-h-full flex-col font-body">
+      <body className="font-body flex min-h-full flex-col">
         {children}
         <CartPanel />
       </body>
