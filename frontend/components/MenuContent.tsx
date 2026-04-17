@@ -20,26 +20,34 @@ export default function MenuContent() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setLoading(true);
+    setError(null);
+
     Promise.all([
       api.getMenu().catch(err => {
-        console.warn('MenuContent: Menu fetch failed:', err.message);
-        return []; // Fallback empty menu
+        console.error('MenuContent: Menu fetch failed:', err);
+        throw err; // Re-throw to be caught by the outer catch
       }),
       api.getSettings().catch(err => {
-        console.warn('MenuContent: Settings fetch failed:', err.message);
+        console.warn('MenuContent: Settings fetch failed, using defaults:', err.message);
         return {
-          address: 'Gamle Hellviksvei 3',
-          phone: '90 89 77 77',
-          delivery_time: '30-60 min',
+          address: 'Storgata 74, 3674 Notodden',
+          phone: '47 48 44 44',
+          delivery_time: '60 min',
           is_open: 'true',
           open_time: '14:00',
-          close_time: '22:00'
+          close_time: '21:00'
         } as RestaurantSettings;
       })
     ])
       .then(([menuData, settingsData]) => {
+        if (!menuData || menuData.length === 0) {
+          setError('Kunne ikke laste menyen. Vennligst prøv igjen senere.');
+          return;
+        }
+
         // Collect all items with discounts
-        const discountItems = (menuData || []).flatMap((cat) =>
+        const discountItems = menuData.flatMap((cat) =>
           (cat.items || []).filter(
             (item) =>
               item.discount_price_small !== null ||
@@ -47,7 +55,7 @@ export default function MenuContent() {
           )
         );
 
-        let finalCategories = menuData || [];
+        let finalCategories = menuData;
         if (discountItems.length > 0) {
           const offersCategory: MenuCategory = {
             id: -1, 
@@ -62,8 +70,8 @@ export default function MenuContent() {
         setSettings(settingsData);
       })
       .catch((err) => {
-        // This catch is for any critical logic errors
         console.error('MenuContent: Fatal fetch failure:', err);
+        setError('Kunne ikke koble til serveren. Vennligst sjekk internettforbindelsen din.');
       })
       .finally(() => setLoading(false));
   }, []);

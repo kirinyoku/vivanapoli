@@ -34,7 +34,8 @@ export class ApiError extends Error {
 
 async function request<T>(
   endpoint: string,
-  options: FetchOptions<T> = {}
+  options: FetchOptions<T> = {},
+  retries = 2
 ): Promise<T> {
   const { params, fallback, ...init } = options;
 
@@ -74,6 +75,13 @@ async function request<T>(
       
       console.warn(`[API] ${init.method || 'GET'} ${endpoint} failed (${response.status}): ${errorMessage}`);
       
+      // Retry for 5xx errors or network issues
+      if (retries > 0 && (response.status >= 500 || response.status === 429)) {
+        console.log(`[API] Retrying ${endpoint}... (${retries} left)`);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return request(endpoint, options, retries - 1);
+      }
+
       if (fallback !== undefined) return fallback;
       throw new ApiError(errorMessage, response.status);
     }
@@ -90,11 +98,16 @@ async function request<T>(
     return result.data;
   } catch (err) {
     if (err instanceof ApiError) {
-      // If we already handled it and decided to throw (no fallback), re-throw
       throw err;
     }
 
-    // Provide more specific error message
+    // Network errors (fetch failed entirely)
+    if (retries > 0) {
+      console.log(`[API] Network error, retrying ${endpoint}... (${retries} left)`);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return request(endpoint, options, retries - 1);
+    }
+
     let errorMessage = 'Kunne ikke koble til serveren. Vennligst sjekk internettforbindelsen din.';
     if (err instanceof Error) {
       errorMessage = err.message;
@@ -109,17 +122,8 @@ async function request<T>(
 
 export const api = {
   // Public
-  getMenu: () => request<MenuCategory[]>('/menu', { fallback: [] }),
-  getSettings: () => request<RestaurantSettings>('/settings', { 
-    fallback: {
-      address: 'Storgata 74, 3674 Notodden',
-      phone: '47 48 44 44',
-      delivery_time: '60 min',
-      is_open: 'true',
-      open_time: '14:00',
-      close_time: '21:00'
-    } as RestaurantSettings 
-  }),
+  getMenu: () => request<MenuCategory[]>('/menu'),
+  getSettings: () => request<RestaurantSettings>('/settings'),
   placeOrder: (orderData: CreateOrderRequest) =>
     request<Order>('/orders', {
       method: 'POST',

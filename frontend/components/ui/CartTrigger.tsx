@@ -29,6 +29,7 @@ export default function CartTrigger({
   return (
     <button
       onClick={toggleCart}
+      aria-label="Handlekurv"
       className={cn(
         'relative inline-flex cursor-pointer items-center justify-center rounded-full p-2 transition-all duration-200 hover:bg-black/5 hover:shadow-md border-none bg-transparent',
         className
