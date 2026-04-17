@@ -19,6 +19,7 @@ type loginRequest struct {
 // loginResponse returns the signed JWT to the client upon successful login.
 type loginResponse struct {
 	Token string `json:"token"`
+	Email string `json:"email"`
 }
 
 // contextKey is a custom type for context keys to avoid collisions with
@@ -60,7 +61,10 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondData(w, http.StatusOK, loginResponse{Token: token})
+	respondData(w, http.StatusOK, loginResponse{
+		Token: token,
+		Email: admin.Email,
+	})
 }
 
 // generateJWT creates a new HS256 signed token.

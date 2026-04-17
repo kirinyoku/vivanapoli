@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -55,6 +56,11 @@ func (req *createOrderRequest) validate() string {
 	if strings.TrimSpace(req.CustomerPhone) == "" {
 		return "customer_phone is required"
 	}
+	// Basic validation for Norwegian phone numbers (8 digits)
+	phoneCleaned := strings.ReplaceAll(req.CustomerPhone, " ", "")
+	if len(phoneCleaned) != 8 {
+		return "customer_phone must be 8 digits"
+	}
 	if req.OrderType != "delivery" && req.OrderType != "pickup" {
 		return "order_type must be 'delivery' or 'pickup'"
 	}
@@ -93,6 +99,16 @@ func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 
 	if errMsg := req.validate(); errMsg != "" {
 		respondBadRequest(w, errMsg)
+		return
+	}
+
+	// Check if shop is open according to settings and business hours
+	if open, msg, err := h.checkShopOpen(ctx); err != nil {
+		log.Printf("CreateOrder: failed to check shop status: %v", err)
+		respondInternalError(w)
+		return
+	} else if !open {
+		respondBadRequest(w, msg)
 		return
 	}
 
@@ -139,12 +155,73 @@ func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	respondData(w, http.StatusCreated, createOrderResponse{
-		ID:         order.ID,
-		Status:     string(order.OrderStatus),
-		TotalPrice: totalPrice,
-		Items:      snapshots,
-	})
+	respondData(w, http.StatusCreated, toOrderResponse(order))
+}
+
+func (h *Handler) checkShopOpen(ctx context.Context) (bool, string, error) {
+	rows, err := h.queries.GetAllSettings(ctx)
+	if err != nil {
+		return false, "", err
+	}
+
+	settings := make(map[string]string)
+	for _, row := range rows {
+		settings[row.Key] = row.Value
+	}
+
+	if settings["is_open"] == "false" {
+		return false, "The shop is closed for new orders", nil
+	}
+
+	openTime := settings["open_time"]
+	closeTime := settings["close_time"]
+	if openTime == "" || closeTime == "" {
+		// Use defaults if not set in DB
+		openTime = "14:00"
+		closeTime = "22:00"
+	}
+
+	loc, err := time.LoadLocation("Europe/Oslo")
+	if err != nil {
+		// Fallback to UTC if timezone data is missing, but log it
+		log.Printf("checkShopOpen: failed to load Europe/Oslo: %v", err)
+		loc = time.UTC
+	}
+
+	now := time.Now().In(loc)
+	currentMinutes := now.Hour()*60 + now.Minute()
+
+	parseTime := func(t string) (int, error) {
+		parts := strings.Split(t, ":")
+		if len(parts) != 2 {
+			return 0, fmt.Errorf("invalid time format")
+		}
+		h, err := strconv.Atoi(parts[0])
+		if err != nil {
+			return 0, err
+		}
+		m, err := strconv.Atoi(parts[1])
+		if err != nil {
+			return 0, err
+		}
+		return h*60 + m, nil
+	}
+
+	openMinutes, err := parseTime(openTime)
+	if err != nil {
+		return false, "", fmt.Errorf("invalid open_time: %w", err)
+	}
+
+	closeMinutes, err := parseTime(closeTime)
+	if err != nil {
+		return false, "", fmt.Errorf("invalid close_time: %w", err)
+	}
+
+	if currentMinutes < openMinutes || currentMinutes >= closeMinutes {
+		return false, fmt.Sprintf("The shop is currently closed. Opening hours: %s - %s", openTime, closeTime), nil
+	}
+
+	return true, "", nil
 }
 
 func (h *Handler) buildOrderSnapshots(

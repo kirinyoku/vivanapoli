@@ -28,12 +28,12 @@ services:
       - "8080:8080"
     environment:
       - PORT=8080
-      - DB_URL=postgres://user:password@localhost:5432/vivanapoli?sslmode=disable
+      - DB_URL=postgres://postgres:postgres@postgres:5432/vivanapoli?sslmode=disable
       - ALLOWED_ORIGINS=http://localhost:3000
-      - JWT_SECRET=
-      - RESEND_API_KEY=
-      - ORDER_EMAIL_TO=
-      - ORDER_EMAIL_FROM=
+      - JWT_SECRET=Oe10GeolXyGcxa521MFaPi3zC2ryqR5f5INx2w4pcbU
+      - RESEND_API_KEY=re_5zE56LPV_5GJu32hLorrCRbDRwhDXrwMx
+      - ORDER_EMAIL_TO=rudenokaleksandr21@gmail.com
+      - ORDER_EMAIL_FROM=onboarding@resend.dev
 
 volumes:
   postgres_data:

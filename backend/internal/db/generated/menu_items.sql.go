@@ -19,7 +19,7 @@ INSERT INTO menu_items (
     allergens, is_available, sort_order
 )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-RETURNING id, category_id, name, description, price_small, price_large, discount_price_small, discount_price_large, allergens, is_available, sort_order, created_at
+RETURNING id, category_id, name, description, price_small, price_large, allergens, is_available, sort_order, created_at, discount_price_small, discount_price_large
 `
 
 type CreateMenuItemParams struct {
@@ -56,12 +56,12 @@ func (q *Queries) CreateMenuItem(ctx context.Context, arg CreateMenuItemParams) 
 		&i.Description,
 		&i.PriceSmall,
 		&i.PriceLarge,
-		&i.DiscountPriceSmall,
-		&i.DiscountPriceLarge,
 		&i.Allergens,
 		&i.IsAvailable,
 		&i.SortOrder,
 		&i.CreatedAt,
+		&i.DiscountPriceSmall,
+		&i.DiscountPriceLarge,
 	)
 	return i, err
 }
@@ -77,7 +77,7 @@ func (q *Queries) DeleteMenuItem(ctx context.Context, id int32) error {
 }
 
 const getAvailableMenuItemsByCategory = `-- name: GetAvailableMenuItemsByCategory :many
-SELECT id, category_id, name, description, price_small, price_large, discount_price_small, discount_price_large, allergens, is_available, sort_order, created_at FROM menu_items
+SELECT id, category_id, name, description, price_small, price_large, allergens, is_available, sort_order, created_at, discount_price_small, discount_price_large FROM menu_items
 WHERE category_id = $1 AND is_available = TRUE
 ORDER BY sort_order ASC
 `
@@ -98,12 +98,12 @@ func (q *Queries) GetAvailableMenuItemsByCategory(ctx context.Context, categoryI
 			&i.Description,
 			&i.PriceSmall,
 			&i.PriceLarge,
-			&i.DiscountPriceSmall,
-			&i.DiscountPriceLarge,
 			&i.Allergens,
 			&i.IsAvailable,
 			&i.SortOrder,
 			&i.CreatedAt,
+			&i.DiscountPriceSmall,
+			&i.DiscountPriceLarge,
 		); err != nil {
 			return nil, err
 		}
@@ -116,7 +116,7 @@ func (q *Queries) GetAvailableMenuItemsByCategory(ctx context.Context, categoryI
 }
 
 const getMenuItemByID = `-- name: GetMenuItemByID :one
-SELECT id, category_id, name, description, price_small, price_large, discount_price_small, discount_price_large, allergens, is_available, sort_order, created_at FROM menu_items
+SELECT id, category_id, name, description, price_small, price_large, allergens, is_available, sort_order, created_at, discount_price_small, discount_price_large FROM menu_items
 WHERE id = $1
 `
 
@@ -130,18 +130,18 @@ func (q *Queries) GetMenuItemByID(ctx context.Context, id int32) (MenuItem, erro
 		&i.Description,
 		&i.PriceSmall,
 		&i.PriceLarge,
-		&i.DiscountPriceSmall,
-		&i.DiscountPriceLarge,
 		&i.Allergens,
 		&i.IsAvailable,
 		&i.SortOrder,
 		&i.CreatedAt,
+		&i.DiscountPriceSmall,
+		&i.DiscountPriceLarge,
 	)
 	return i, err
 }
 
 const getMenuItems = `-- name: GetMenuItems :many
-SELECT id, category_id, name, description, price_small, price_large, discount_price_small, discount_price_large, allergens, is_available, sort_order, created_at FROM menu_items
+SELECT id, category_id, name, description, price_small, price_large, allergens, is_available, sort_order, created_at, discount_price_small, discount_price_large FROM menu_items
 ORDER BY sort_order ASC
 `
 
@@ -161,12 +161,12 @@ func (q *Queries) GetMenuItems(ctx context.Context) ([]MenuItem, error) {
 			&i.Description,
 			&i.PriceSmall,
 			&i.PriceLarge,
-			&i.DiscountPriceSmall,
-			&i.DiscountPriceLarge,
 			&i.Allergens,
 			&i.IsAvailable,
 			&i.SortOrder,
 			&i.CreatedAt,
+			&i.DiscountPriceSmall,
+			&i.DiscountPriceLarge,
 		); err != nil {
 			return nil, err
 		}
@@ -179,7 +179,7 @@ func (q *Queries) GetMenuItems(ctx context.Context) ([]MenuItem, error) {
 }
 
 const getMenuItemsByCategory = `-- name: GetMenuItemsByCategory :many
-SELECT id, category_id, name, description, price_small, price_large, discount_price_small, discount_price_large, allergens, is_available, sort_order, created_at FROM menu_items
+SELECT id, category_id, name, description, price_small, price_large, allergens, is_available, sort_order, created_at, discount_price_small, discount_price_large FROM menu_items
 WHERE category_id = $1
 ORDER BY sort_order ASC
 `
@@ -200,12 +200,12 @@ func (q *Queries) GetMenuItemsByCategory(ctx context.Context, categoryID int32) 
 			&i.Description,
 			&i.PriceSmall,
 			&i.PriceLarge,
-			&i.DiscountPriceSmall,
-			&i.DiscountPriceLarge,
 			&i.Allergens,
 			&i.IsAvailable,
 			&i.SortOrder,
 			&i.CreatedAt,
+			&i.DiscountPriceSmall,
+			&i.DiscountPriceLarge,
 		); err != nil {
 			return nil, err
 		}
@@ -231,7 +231,7 @@ SET
     is_available         = $10,
     sort_order           = $11
 WHERE id = $1
-RETURNING id, category_id, name, description, price_small, price_large, discount_price_small, discount_price_large, allergens, is_available, sort_order, created_at
+RETURNING id, category_id, name, description, price_small, price_large, allergens, is_available, sort_order, created_at, discount_price_small, discount_price_large
 `
 
 type UpdateMenuItemParams struct {
@@ -270,12 +270,12 @@ func (q *Queries) UpdateMenuItem(ctx context.Context, arg UpdateMenuItemParams) 
 		&i.Description,
 		&i.PriceSmall,
 		&i.PriceLarge,
-		&i.DiscountPriceSmall,
-		&i.DiscountPriceLarge,
 		&i.Allergens,
 		&i.IsAvailable,
 		&i.SortOrder,
 		&i.CreatedAt,
+		&i.DiscountPriceSmall,
+		&i.DiscountPriceLarge,
 	)
 	return i, err
 }
