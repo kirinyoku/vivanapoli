@@ -1,97 +1,131 @@
-# Viva Napoli (Backend)
+# Viva Napoli - Backend API
 
-## Stack
-- **Go 1.25** — The main programming language.
-- **Chi v5** — A fast and simple router for HTTP requests.
-- **sqlc** — Generates safe Go code from SQL queries.
-- **pgx v5** — A driver to connect to the PostgreSQL database.
-- **golang-migrate** — A tool to manage database changes (migrations).
-- **slog** — Structured logging (built-in Go library).
-- **Docker & Docker Compose** — For running the app and database in containers.
+High-performance REST API for the Viva Napoli pizzeria, built with Go and PostgreSQL.
 
----
+## Tech Stack
 
-## Project Structure
-```text
-backend/
-├── cmd/
-│   ├── server/          # Main entry point (main.go)
-│   └── seed/            # Script to fill the database with initial data
-├── internal/
-│   ├── config/          # Loads settings from the .env file
-│   ├── db/              # Database connection, migrations, and sqlc
-│   │   ├── generated/   # Code created by sqlc (DO NOT EDIT)
-│   │   ├── migrations/  # SQL files for database structure
-│   │   └── queries/     # SQL files for database actions
-│   └── handler/         # HTTP handlers (business logic)
-├── Dockerfile           # Instructions to build the app image
-└── docker-compose.yml   # Configuration for App + Database services
+- **Language:** Go 1.22+
+- **Router:** [Chi v5](https://github.com/go-chi/chi)
+- **Database:** PostgreSQL 16
+- **Query Tool:** [sqlc](https://sqlc.dev/) (Type-safe SQL)
+- **Driver:** [pgx v5](https://github.com/jackc/pgx)
+- **Migrations:** [golang-migrate](https://github.com/golang-migrate/migrate)
+- **Email:** Resend API
+
+## Detailed Documentation
+
+For in-depth technical details, please refer to the following:
+
+- [API Specification](../docs/API_SPECIFICATION.md) — Endpoints, payloads, and auth.
+- [Database Schema](../docs/DATABASE_SCHEMA.md) — Table structures and relationships.
+- [Backend Internals](../docs/BACKEND_INTERNALS.md) — Architecture and logic patterns.
+- [Authentication](../docs/AUTHENTICATION.md) — JWT and security implementation.
+- [OpenAPI Specification](../docs/openapi.yaml) — Machine‑readable API definition (Swagger/OpenAPI 3.0).
+
+## OpenAPI Specification
+
+The API is fully described by an OpenAPI 3.0 specification located at [`docs/openapi.yaml`](../docs/openapi.yaml). This machine‑readable definition can be used to:
+
+- Generate API clients for various languages (TypeScript, Python, Go, etc.)
+- Automate API testing with tools like Postman or Newman
+- Render interactive documentation via Swagger UI or Redoc
+
+### Viewing the Documentation
+
+You can explore the API interactively using a Swagger UI instance. If you have the backend running locally, you can:
+
+1. **Use a local Swagger UI** – Place the `openapi.yaml` file in any OpenAPI‑compatible viewer (e.g., [Swagger Editor](https://editor.swagger.io/), [Redoc](https://redocly.github.io/redoc/)).
+2. **Generate static HTML** – Run the following command to produce a standalone HTML page:
+
+   ```bash
+   npx @redocly/cli build-docs docs/openapi.yaml --output openapi.html
+   ```
+
+3. **Integrate with your IDE** – Many IDEs (Visual Studio Code, IntelliJ) have built‑in OpenAPI preview plugins.
+
+### Generating a TypeScript Client
+
+To generate a TypeScript client with `openapi‑typescript‑codegen`:
+
+```bash
+npx openapi-typescript-codegen --input docs/openapi.yaml --output ./client --client fetch
 ```
 
----
-
-## Database Methods (sqlc)
-We use `sqlc` to turn SQL into Go functions. These are the main methods in the `Queries` struct:
-
-| Entity | Methods |
-| :--- | :--- |
-| **Categories** | `CreateCategory`, `GetCategories`, `UpdateCategory`, `DeleteCategory` |
-| **Menu Items** | `CreateMenuItem`, `GetMenuItems`, `GetAvailableMenuItemsByCategory`, `UpdateMenuItem`, `DeleteMenuItem` |
-| **Orders** | `CreateOrder`, `GetOrders`, `UpdateOrderStatus` |
-| **Settings** | `GetAllSettings`, `UpsertSetting` |
-| **Admin** | `GetAdminByEmail`, `CreateAdmin` |
+This creates a fully typed SDK that matches the backend endpoints.
 
 ---
 
-## How to run
+## Getting Started
 
 ### Prerequisites
-- Go 1.25 or higher
+
+- Go 1.22 or higher
 - Docker & Docker Compose
-- `migrate` tool (if you want to run migrations manually)
+- `sqlc` CLI (for regenerating DB code)
+- `migrate` CLI (for database migrations)
 
-### 1. Quick Start (Using Docker)
-Run the entire project with one command:
+### 1. Environment Configuration
+
+Copy the example environment file and fill in the required values:
+
 ```bash
-docker-compose up --build
+cp .env-example .env
 ```
 
-### 2. Manual Start (For Development)
-1. Start the database only: `docker-compose up -d postgres`
-2. Create a `.env` file (use `.env-example` as a template).
-3. Run migrations: `make migrate-up`
-4. Fill the database with data (optional): `make seed`
-5. Start the server: `go run cmd/server/main.go`
+### 2. Database Setup
 
----
+Start the PostgreSQL container:
 
-## API Endpoints
-
-### Public Endpoints
-- `GET  /health` — Check if the server is running.
-- `GET  /api/menu` — Get the menu grouped by categories.
-- `GET  /api/settings` — Get restaurant information.
-- `POST /api/orders` — Create a new order.
-
-### Admin Endpoints (Protected — Needs JWT)
-- `POST /api/admin/login` — Log in and get a token.
-- **Categories:** `GET/POST/PUT/DELETE` at `/api/admin/menu/categories`
-- **Items:** `GET/POST/PUT/DELETE` at `/api/admin/menu/items`
-- **Orders:** `GET /api/admin/orders`, `PUT /api/admin/orders/{id}/status`
-- **Settings:** `PUT /api/admin/settings`
-
----
-
-## Basic testing
-To run the tests, use:
 ```bash
-go test ./internal/handler/... -v
+docker-compose up -d postgres
 ```
 
----
+Run migrations to create the schema:
 
-## Useful Commands (Makefile)
-- `make sqlc`: Update Go code from SQL files.
-- `make migrate-up`: Apply all database changes.
-- `make migrate-down`: Undo the last database change.
-- `make seed`: Fill the database with start data.
+```bash
+make migrate-up
+```
+
+### 3. Seeding Data
+
+Populate the database with initial categories and menu items:
+
+```bash
+make seed
+```
+
+_Note: This also creates a default admin user (`admin@vivanapoli.no` / `admin123`)._
+
+### 4. Running the Server
+
+```bash
+make server
+```
+
+The API will be available at `http://localhost:8080`.
+
+## Development Commands
+
+| Command                        | Description                         |
+| :----------------------------- | :---------------------------------- |
+| `make migrate-up`              | Apply all pending migrations        |
+| `make migrate-down`            | Rollback the last migration         |
+| `make migrate-create name=...` | Create a new SQL migration file     |
+| `make sqlc`                    | Regenerate Go code from SQL queries |
+| `make seed`                    | Run the database seeder             |
+
+## Project Structure
+
+- `cmd/server/` — Application entry point and graceful shutdown logic.
+- `cmd/seed/` — Database seeding script.
+- `internal/config/` — Environment variable mapping.
+- `internal/db/` — Database logic.
+  - `migrations/` — SQL schema history.
+  - `queries/` — Raw SQL queries for `sqlc`.
+  - `generated/` — Type-safe Go code generated by `sqlc`.
+- `internal/handler/` — HTTP handlers, middleware, and business logic.
+
+## Deployment
+
+A production-ready `Dockerfile` is provided for containerized deployment.
+Refer to the [Deployment Guide](../docs/DEPLOYMENT.md) for full instructions.
