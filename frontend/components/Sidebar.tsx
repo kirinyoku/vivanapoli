@@ -17,19 +17,25 @@ export default async function Sidebar() {
 
   try {
     const [menuData, settingsData] = await Promise.all([
-      api.getMenu().catch(err => {
-        console.warn('Sidebar: Menu fetch failed, using empty data:', err.message);
+      api.getMenu().catch((err) => {
+        console.warn(
+          'Sidebar: Menu fetch failed, using empty data:',
+          err.message
+        );
         return []; // Fallback empty menu
       }),
-      api.getSettings().catch(err => {
-        console.warn('Sidebar: Settings fetch failed, using defaults:', err.message);
+      api.getSettings().catch((err) => {
+        console.warn(
+          'Sidebar: Settings fetch failed, using defaults:',
+          err.message
+        );
         return {
           address: 'Gamle Hellviksvei 3',
           phone: '90 89 77 77',
           delivery_time: '30-60 min',
           is_open: 'true',
           open_time: '14:00',
-          close_time: '22:00'
+          close_time: '22:00',
         }; // Fallback default settings
       }),
     ]);
@@ -48,7 +54,7 @@ export default async function Sidebar() {
       name: cat.name,
       slug: cat.slug,
     }));
-    
+
     if (discountItemsCount > 0) {
       finalCategories = [
         { id: -1, name: 'Tilbud', slug: 'tilbud' },

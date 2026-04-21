@@ -29,7 +29,24 @@ export default function CartPanel() {
 
   useEffect(() => {
     setMounted(true);
-    api.getSettings().then(setSettings).catch(console.error);
+    api
+      .getSettings()
+      .then(setSettings)
+      .catch((err) => {
+        console.warn(
+          'CartPanel: Settings fetch failed, using defaults:',
+          err.message
+        );
+        setSettings({
+          address: 'Storgata 74, 3674 Notodden',
+          phone: '47 48 44 44',
+          delivery_time: '60 min',
+          is_open: 'true',
+          open_time: '14:00',
+          close_time: '21:00',
+          min_order_price: '200',
+        } as RestaurantSettings);
+      });
   }, []);
 
   // Scroll lock when cart is open on mobile

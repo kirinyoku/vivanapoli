@@ -72,13 +72,19 @@ async function request<T>(
       } catch {
         // use default message
       }
-      
-      console.warn(`[API] ${init.method || 'GET'} ${endpoint} failed (${response.status}): ${errorMessage}`);
-      
+
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          `[API] ${init.method || 'GET'} ${endpoint} failed (${response.status}): ${errorMessage}`
+        );
+      }
+
       // Retry for 5xx errors or network issues
       if (retries > 0 && (response.status >= 500 || response.status === 429)) {
-        console.log(`[API] Retrying ${endpoint}... (${retries} left)`);
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        if (process.env.NODE_ENV !== 'production') {
+          console.log(`[API] Retrying ${endpoint}... (${retries} left)`);
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         return request(endpoint, options, retries - 1);
       }
 
@@ -103,18 +109,25 @@ async function request<T>(
 
     // Network errors (fetch failed entirely)
     if (retries > 0) {
-      console.log(`[API] Network error, retrying ${endpoint}... (${retries} left)`);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(
+          `[API] Network error, retrying ${endpoint}... (${retries} left)`
+        );
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       return request(endpoint, options, retries - 1);
     }
 
-    let errorMessage = 'Kunne ikke koble til serveren. Vennligst sjekk internettforbindelsen din.';
+    let errorMessage =
+      'Kunne ikke koble til serveren. Vennligst sjekk internettforbindelsen din.';
     if (err instanceof Error) {
       errorMessage = err.message;
     }
-    
-    console.warn(`[API] Request ${endpoint} failed: ${errorMessage}`);
-    
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn(`[API] Request ${endpoint} failed: ${errorMessage}`);
+    }
+
     if (fallback !== undefined) return fallback;
     throw new ApiError(errorMessage, 503);
   }

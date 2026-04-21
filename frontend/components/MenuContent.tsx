@@ -24,21 +24,24 @@ export default function MenuContent() {
     setError(null);
 
     Promise.all([
-      api.getMenu().catch(err => {
-        console.error('MenuContent: Menu fetch failed:', err);
+      api.getMenu().catch((err) => {
+        console.warn('MenuContent: Menu fetch failed:', err.message);
         throw err; // Re-throw to be caught by the outer catch
       }),
-      api.getSettings().catch(err => {
-        console.warn('MenuContent: Settings fetch failed, using defaults:', err.message);
+      api.getSettings().catch((err) => {
+        console.warn(
+          'MenuContent: Settings fetch failed, using defaults:',
+          err.message
+        );
         return {
           address: 'Storgata 74, 3674 Notodden',
           phone: '47 48 44 44',
           delivery_time: '60 min',
           is_open: 'true',
           open_time: '14:00',
-          close_time: '21:00'
+          close_time: '21:00',
         } as RestaurantSettings;
-      })
+      }),
     ])
       .then(([menuData, settingsData]) => {
         if (!menuData || menuData.length === 0) {
@@ -58,7 +61,7 @@ export default function MenuContent() {
         let finalCategories = menuData;
         if (discountItems.length > 0) {
           const offersCategory: MenuCategory = {
-            id: -1, 
+            id: -1,
             name: 'Tilbud',
             slug: 'tilbud',
             items: discountItems,
@@ -70,8 +73,10 @@ export default function MenuContent() {
         setSettings(settingsData);
       })
       .catch((err) => {
-        console.error('MenuContent: Fatal fetch failure:', err);
-        setError('Kunne ikke koble til serveren. Vennligst sjekk internettforbindelsen din.');
+        console.warn('MenuContent: Fatal fetch failure:', err.message);
+        setError(
+          'Kunne ikke koble til serveren. Vennligst sjekk internettforbindelsen din.'
+        );
       })
       .finally(() => setLoading(false));
   }, []);
@@ -183,7 +188,7 @@ export default function MenuContent() {
                 <h3 className="text-text-dark mb-2 text-sm font-bold tracking-wide uppercase">
                   Allergi-informasjon
                 </h3>
-                <p className="text-text-muted leading-relaxed text-sm opacity-80">
+                <p className="text-text-muted text-sm leading-relaxed opacity-80">
                   Hvitløkssaus inneholder majones og kefir. Bernaisesaus
                   inneholder egg og melk. Alle pizzaer lages med hvetemel.
                   Hamburgerbrød inneholder sesamfrø. Kebab-brød inneholder
@@ -248,7 +253,8 @@ export default function MenuContent() {
                     Åpningstider
                   </span>
                   <span className="text-text-dark text-sm font-medium">
-                    {settings?.open_time || '14:00'} - {settings?.close_time || '21:00'}
+                    {settings?.open_time || '14:00'} -{' '}
+                    {settings?.close_time || '21:00'}
                   </span>
                 </div>
               </div>
