@@ -86,7 +86,7 @@ export default function MenuContent() {
   return (
     <div
       id="menu-scroll-container"
-      className="h-full overflow-y-auto scroll-smooth px-4 py-0 lg:px-12 lg:py-16"
+      className="h-full overflow-y-auto scroll-smooth px-4 py-0 lg:px-12 lg:py-12"
     >
       <ScrollSpy categories={categorySlugs} />
 

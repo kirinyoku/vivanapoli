@@ -71,8 +71,8 @@ export default async function Sidebar() {
   }
 
   return (
-    <aside className="border-border-light bg-bg-sidebar custom-scrollbar hidden h-full flex-col overflow-y-auto border-r px-8 py-12 lg:flex">
-      <div className="mb-16 shrink-0">
+    <aside className="border-border-light bg-bg-sidebar hidden h-full flex-col overflow-hidden border-r px-8 py-12 lg:flex">
+      <div className="mb-8 shrink-0">
         <Logo className="mb-2 text-4xl" asH1 />
         <div className="mb-6 flex items-center gap-2">
           <div className="bg-accent-gold h-[1px] w-4" />
@@ -90,20 +90,22 @@ export default async function Sidebar() {
         </div>
       </div>
 
-      <nav className="flex-grow">
-        <p className="text-text-muted mb-6 text-[0.7rem] font-bold tracking-[0.2em] uppercase opacity-50">
+      <div className="flex min-h-0 flex-grow flex-col">
+        <p className="text-text-muted mb-2 text-sm font-bold tracking-[0.2em] uppercase opacity-50">
           Meny
         </p>
-        <ul className="space-y-2">
-          {categories.map((cat) => (
-            <li key={cat.id}>
-              <CategoryLink href={`#${cat.slug}`}>{cat.name}</CategoryLink>
-            </li>
-          ))}
-        </ul>
-      </nav>
+        <nav className="custom-scrollbar flex-grow overflow-x-hidden overflow-y-auto">
+          <ul className="space-y-2">
+            {categories.map((cat) => (
+              <li key={cat.id}>
+                <CategoryLink href={`#${cat.slug}`}>{cat.name}</CategoryLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
 
-      <div className="border-border-light mt-auto space-y-5 border-t pt-10">
+      <div className="border-border-light mt-auto shrink-0 space-y-5 border-t pt-10">
         <div className="space-y-4">
           <div className="group flex items-center gap-4 transition-colors">
             <div className="bg-primary/5 group-hover:bg-primary/10 flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors">
