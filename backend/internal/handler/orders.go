@@ -40,15 +40,9 @@ type orderItemSnapshot struct {
 	TotalPrice float64 `json:"total_price"`
 }
 
-type createOrderResponse struct {
-	ID         int32               `json:"id"`
-	Status     string              `json:"status"`
-	TotalPrice float64             `json:"total_price"`
-	Items      []orderItemSnapshot `json:"items"`
-}
-
 // validate checks the integrity of the order request.
 // It enforces that delivery orders must have an address.
+// Norwegian phone numbers are validated as exactly 8 digits (spaces stripped).
 func (req *createOrderRequest) validate() string {
 	if strings.TrimSpace(req.CustomerName) == "" {
 		return "customer_name is required"
@@ -56,7 +50,9 @@ func (req *createOrderRequest) validate() string {
 	if strings.TrimSpace(req.CustomerPhone) == "" {
 		return "customer_phone is required"
 	}
-	// Basic validation for Norwegian phone numbers (8 digits)
+	// Norwegian phone numbers are always 8 digits. We strip spaces to handle
+	// formats like "123 45 678". International prefixes (+47) are not expected
+	// from a local ordering system.
 	phoneCleaned := strings.ReplaceAll(req.CustomerPhone, " ", "")
 	if len(phoneCleaned) != 8 {
 		return "customer_phone must be 8 digits"
@@ -85,10 +81,18 @@ func (req *createOrderRequest) validate() string {
 }
 
 // CreateOrder processes a new customer order.
-// 1. Validates input.
-// 2. Fetches current prices from DB (snapshots).
-// 3. Saves to database.
-// 4. Sends email notification to the restaurant (asynchronously).
+//
+// Critical security decision: prices are NEVER taken from the client request.
+// Instead, we fetch current prices from the database and calculate totals
+// server-side. This prevents price manipulation attacks where a malicious
+// client submits a lower price.
+//
+// Flow:
+// 1. Validate input fields.
+// 2. Check if the shop is open (settings + business hours).
+// 3. Fetch current item prices from DB (snapshots) and calculate total.
+// 4. Save order to database.
+// 5. Send email notification to the restaurant (async goroutine).
 func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -147,8 +151,10 @@ func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// We send the email in a separate goroutine so the user doesn't
-	// have to wait for the email service to respond.
+	// Email is sent in a background goroutine so the HTTP response is not
+	// blocked by the external API call to Resend. If the email fails,
+	// we log the error but do not fail the order — the restaurant can
+	// still see the order in the admin panel.
 	go func() {
 		if err := h.sendOrderEmail(order, snapshots); err != nil {
 			log.Printf("CreateOrder: failed to send email for order %d: %v", order.ID, err)
@@ -158,6 +164,13 @@ func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	respondData(w, http.StatusCreated, toOrderResponse(order))
 }
 
+// checkShopOpen verifies that the restaurant is currently accepting orders.
+// It checks two conditions:
+//  1. The manual "is_open" toggle in settings (for closures/holidays).
+//  2. The configured opening hours (open_time/close_time).
+//
+// Timezone is Europe/Oslo, with UTC fallback if the system timezone DB is
+// not available (e.g. in minimal Docker images missing tzdata).
 func (h *Handler) checkShopOpen(ctx context.Context) (bool, string, error) {
 	rows, err := h.queries.GetAllSettings(ctx)
 	if err != nil {
@@ -176,14 +189,16 @@ func (h *Handler) checkShopOpen(ctx context.Context) (bool, string, error) {
 	openTime := settings["open_time"]
 	closeTime := settings["close_time"]
 	if openTime == "" || closeTime == "" {
-		// Use defaults if not set in DB
+		// Default hours are used as a safety net if settings haven't been
+		// configured yet (e.g. after a fresh DB migration).
 		openTime = "14:00"
 		closeTime = "22:00"
 	}
 
 	loc, err := time.LoadLocation("Europe/Oslo")
 	if err != nil {
-		// Fallback to UTC if timezone data is missing, but log it
+		// Fallback to UTC if timezone data is missing — the Dockerfile
+		// installs tzdata, but a minimal base image might not have it.
 		log.Printf("checkShopOpen: failed to load Europe/Oslo: %v", err)
 		loc = time.UTC
 	}
@@ -191,6 +206,8 @@ func (h *Handler) checkShopOpen(ctx context.Context) (bool, string, error) {
 	now := time.Now().In(loc)
 	currentMinutes := now.Hour()*60 + now.Minute()
 
+	// parseTime converts "HH:MM" to total minutes since midnight.
+	// This avoids time-of-day comparison pitfalls with string sorting.
 	parseTime := func(t string) (int, error) {
 		parts := strings.Split(t, ":")
 		if len(parts) != 2 {
@@ -224,6 +241,10 @@ func (h *Handler) checkShopOpen(ctx context.Context) (bool, string, error) {
 	return true, "", nil
 }
 
+// buildOrderSnapshots fetches current menu item data from the DB and
+// calculates line-item totals server-side. This is the security-critical
+// function that prevents price manipulation — the frontend only sends
+// item IDs, quantities, and sizes; all prices come from the database.
 func (h *Handler) buildOrderSnapshots(
 	ctx context.Context,
 	items []orderItemRequest,
@@ -264,6 +285,10 @@ func (h *Handler) buildOrderSnapshots(
 
 // resolvePrice determines which price (small/large) to use based on the requested size.
 // It returns an error if the requested size has no price defined in the DB.
+//
+// Note: this function does NOT apply discount prices. Discounts are stored
+// as separate columns (discount_price_small/large) for display purposes
+// in the admin panel but are not automatically applied to orders.
 func resolvePrice(item generated.MenuItem, size string) (float64, error) {
 	switch size {
 	case "small":
@@ -283,6 +308,10 @@ func resolvePrice(item generated.MenuItem, size string) (float64, error) {
 	}
 }
 
+// floatToNumeric converts a float64 to pgtype.Numeric for PostgreSQL storage.
+// The conversion goes through a formatted string ("%.2f") to ensure
+// the value stored in the database has at most 2 decimal places,
+// matching the expected currency precision.
 func floatToNumeric(f float64) pgtype.Numeric {
 	n := pgtype.Numeric{}
 	_ = n.Scan(fmt.Sprintf("%.2f", f))
@@ -290,7 +319,11 @@ func floatToNumeric(f float64) pgtype.Numeric {
 }
 
 // sendOrderEmail generates an HTML email for the restaurant owners.
-// It uses Resend and falls back gracefully if the API key is missing.
+// It uses Resend and falls back gracefully if the API key is missing
+// (e.g. in development or CI environments).
+//
+// The email is written in Norwegian (Norsk) since the restaurant staff
+// are located in Notodden, Norway.
 func (h *Handler) sendOrderEmail(order generated.Order, items []orderItemSnapshot) error {
 	if h.config.ResendApiKey == "" {
 		log.Println("sendOrderEmail: RESEND_API_KEY is not set, skipping email")
@@ -398,7 +431,10 @@ func toOrderResponse(o generated.Order) orderResponse {
 	}
 }
 
+// ---------------------------------------------------------------------------
 // Admin Order Handlers
+// ---------------------------------------------------------------------------
+
 func (h *Handler) AdminGetOrders(w http.ResponseWriter, r *http.Request) {
 	orders, err := h.queries.GetOrders(r.Context())
 	if err != nil {
@@ -445,6 +481,8 @@ func (h *Handler) AdminUpdateOrderStatus(w http.ResponseWriter, r *http.Request)
 	respondData(w, http.StatusOK, toOrderResponse(order))
 }
 
+// AdminGetStats returns today's order count and total revenue for the admin dashboard.
+// The query aggregates data from the current calendar day (midnight-to-midnight).
 func (h *Handler) AdminGetStats(w http.ResponseWriter, r *http.Request) {
 	stats, err := h.queries.GetTodayStats(r.Context())
 	if err != nil {

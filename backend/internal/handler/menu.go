@@ -11,7 +11,9 @@ import (
 )
 
 // menuItemResponse is the public DTO for a menu item.
-// Prices are pointers to float64 to correctly represent NULL values from the DB.
+// Prices are *float64 to correctly represent NULL from the DB — a NULL price
+// means "this size is not available for this item" (e.g. burgers only have large).
+// Using a pointer also distinguishes "0 NOK" from "not set".
 type menuItemResponse struct {
 	ID                 int32    `json:"id"`
 	CategoryID         int32    `json:"category_id"`
@@ -33,6 +35,8 @@ type categoryResponse struct {
 }
 
 // toMenuItemResponse converts a DB model to a JSON-friendly response struct.
+// This explicit mapping decouples the DB schema from the API contract:
+// renaming a DB column won't silently change the JSON output.
 func toMenuItemResponse(item generated.MenuItem) menuItemResponse {
 	return menuItemResponse{
 		ID:                 item.ID,
@@ -48,9 +52,13 @@ func toMenuItemResponse(item generated.MenuItem) menuItemResponse {
 	}
 }
 
-// GetMenu fetches all categories and their items in a nested structure.
-// NOTE: This performs multiple queries (N+1-ish) which is acceptable for a
-// small menu, but might need optimization if the menu grows significantly.
+// GetMenu fetches all categories and their available items in a nested structure.
+//
+// Performance note: this runs one query for categories + one per category for
+// items (N+1-ish). For a pizzeria with ~15 categories this is ~16 queries,
+// which is acceptable — each is a simple indexed lookup. If the menu grows
+// significantly (50+ categories), consider a single JOIN query with client-side
+// grouping to reduce round-trips.
 func (h *Handler) GetMenu(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -64,7 +72,8 @@ func (h *Handler) GetMenu(w http.ResponseWriter, r *http.Request) {
 	response := make([]categoryResponse, 0, len(categories))
 
 	for _, cat := range categories {
-		// We only fetch items that are marked as 'available' for the public menu.
+		// Only fetch items marked as 'available' — unavailable items are
+		// hidden from customers but still visible in the admin panel.
 		items, err := h.queries.GetAvailableMenuItemsByCategory(ctx, cat.ID)
 		if err != nil {
 			log.Printf("GetMenu: failed to get items for category %d: %v", cat.ID, err)
@@ -88,7 +97,10 @@ func (h *Handler) GetMenu(w http.ResponseWriter, r *http.Request) {
 	respondData(w, http.StatusOK, response)
 }
 
+// ---------------------------------------------------------------------------
 // Admin Menu Categories Handlers
+// ---------------------------------------------------------------------------
+
 func (h *Handler) AdminGetCategories(w http.ResponseWriter, r *http.Request) {
 	categories, err := h.queries.GetCategories(r.Context())
 	if err != nil {
@@ -167,10 +179,14 @@ func (h *Handler) AdminDeleteCategory(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// ---------------------------------------------------------------------------
 // Admin Menu Items Handlers
+// ---------------------------------------------------------------------------
 
 // adminMenuItemRequest handles the input for creating/updating items.
-// We use *float64 for prices to differentiate between 0 and "not provided" (null).
+// Prices are *float64 to distinguish "set to 0" from "not provided" (null).
+// The JSON decoder leaves nil for missing fields, which is then converted
+// to pgtype.Numeric{Valid: false} by ptrToPgNumeric.
 type adminMenuItemRequest struct {
 	CategoryID         int32    `json:"category_id"`
 	Name               string   `json:"name"`
@@ -232,7 +248,7 @@ func (h *Handler) AdminCreateMenuItem(w http.ResponseWriter, r *http.Request) {
 	item, err := h.queries.CreateMenuItem(r.Context(), params)
 	if err != nil {
 		log.Printf("ERROR AdminCreateMenuItem: %v", err)
-		respondError(w, http.StatusInternalServerError, "Kunne ikke opprette produkt: " + err.Error())
+		respondError(w, http.StatusInternalServerError, "Kunne ikke opprette produkt: "+err.Error())
 		return
 	}
 
@@ -279,7 +295,7 @@ func (h *Handler) AdminUpdateMenuItem(w http.ResponseWriter, r *http.Request) {
 	item, err := h.queries.UpdateMenuItem(r.Context(), params)
 	if err != nil {
 		log.Printf("ERROR AdminUpdateMenuItem: %v", err)
-		respondError(w, http.StatusInternalServerError, "Kunne ikke oppdatere produkt: " + err.Error())
+		respondError(w, http.StatusInternalServerError, "Kunne ikke oppdatere produkt: "+err.Error())
 		return
 	}
 
@@ -304,21 +320,25 @@ func (h *Handler) AdminDeleteMenuItem(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// ptrToPgNumeric converts a Go float64 pointer to a PostgreSQL numeric type.
-// This is required because pgx/sqlc uses pgtype.Numeric for high-precision decimals.
+// ptrToPgNumeric converts a Go *float64 to pgtype.Numeric for sqlc-generated queries.
+//
+// pgx/sqlc uses pgtype.Numeric to handle PostgreSQL's NUMERIC type with
+// arbitrary precision. We convert via string (FormatFloat) rather than
+// directly assigning float64 to avoid floating-point representation issues:
+// e.g. 19.99 → "19.99" (correct), not 19.990000000000002.
+// Precision -1 means "shortest representation that round-trips exactly".
 func ptrToPgNumeric(f *float64) pgtype.Numeric {
 	if f == nil {
 		return pgtype.Numeric{Valid: false}
 	}
 	n := pgtype.Numeric{}
-	// Use -1 precision to let strconv decide the best string representation.
-	// This avoids rounding issues before sending to Postgres.
 	_ = n.Scan(strconv.FormatFloat(*f, 'f', -1, 64))
 	return n
 }
 
-// pgNumericToPtr converts a PostgreSQL numeric back to a Go float64 pointer.
-// Returns nil if the value is NULL in the database.
+// pgNumericToPtr converts a pgtype.Numeric back to a Go *float64.
+// Returns nil for NULL database values — the JSON encoder then omits
+// the field (omitempty) or renders it as null depending on the struct tag.
 func pgNumericToPtr(n pgtype.Numeric) *float64 {
 	if !n.Valid {
 		return nil

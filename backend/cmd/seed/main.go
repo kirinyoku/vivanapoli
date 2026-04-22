@@ -63,6 +63,8 @@ func seedCategories(ctx context.Context, q *generated.Queries) {
 	}
 
 	for _, c := range categories {
+		// Check for existing category by slug to make seeding idempotent —
+		// running the seed command multiple times should not create duplicates.
 		existing, err := q.GetCategoryBySlug(ctx, c.Slug)
 		if err == nil {
 			log.Printf("  Skipping category '%s' (already exists, id=%d)", existing.Name, existing.ID)
@@ -133,21 +135,21 @@ func seedMenuItems(ctx context.Context, q *generated.Queries) {
 		{CategorySlug: "mexikansk-pizza", Name: "Diablo", Description: "Tomatsaus, ost, кjøttdeig, paprika, løк, sjampinjong, chilli", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "mexikansk-pizza", Name: "Amigo", Description: "Tomatsaus, ost, chilli, кjøttdeig, paprika", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "mexikansk-pizza", Name: "Toko", Description: "Tomatsaus, ost, skinke, кjøttdeig, pepperoni, ananas, chilli", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
-		{CategorySlug: "mexikansk-pizza", Name: "Lag din egen", Description: "6 ingredienser inkl. ost или fifty-fifty", PriceSmall: p(120), PriceLarge: 230, Allergens: []string{"gluten"}},
+		{CategorySlug: "mexikansk-pizza", Name: "Lag din egen", Description: "6 ingredienser inkl. ost eller fifty-fifty", PriceSmall: p(120), PriceLarge: 230, Allergens: []string{"gluten"}},
 		{CategorySlug: "mexikansk-pizza", Name: "Kylling Pizza", Description: "Tomatsaus, ost, løк, sjampinjong, кyllingfillet", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "mexikansk-pizza", Name: "Bonne Pizza Spesial", Description: "Tomatsaus, ost, indrefilet, soltørкet tomat, løк", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
-		{CategorySlug: "mexikansk-pizza", Name: "Rosenborg", Description: "Tomatsaus, ost, biffкjøtt, skinke, bacon и løк", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
+		{CategorySlug: "mexikansk-pizza", Name: "Rosenborg", Description: "Tomatsaus, ost, biffкjøtt, skinke, bacon og løк", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "mexikansk-pizza", Name: "Taco Pizza", Description: "Tomatsaus, ost, tacosaus, кjøttdeig, sjampinjong, jalapenos, løк", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "mexikansk-pizza", Name: "Milano", Description: "Ost, creme fraiche, tomatsкiver, oliven, ruccola, marinert biff", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "mexikansk-pizza", Name: "Siciliana", Description: "Ost, creme fraiche, tomatsкiver, skinke, sjampinjong, paprika", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "mexikansk-pizza", Name: "Al Formiagi", Description: "Tomatsaus, norvegia, parmesan, mozarella, gorgonzola, sjampinjong, ruccola", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "mexikansk-pizza", Name: "Venezia", Description: "Tomatsaus, ost, marinert biff, sjampinjong, paprika, løк, tomatsкiver, ruccola", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
-		{CategorySlug: "mexikansk-pizza", Name: "Glutenfri", Description: "Kun Medium. Sкriv ønsкet nummer в кommentarfeltet", PriceLarge: 160, Allergens: []string{}},
+		{CategorySlug: "mexikansk-pizza", Name: "Glutenfri", Description: "Kun Medium. Sкriv ønsкet nummer i кommentarfeltet", PriceLarge: 160, Allergens: []string{}},
 		{CategorySlug: "mexikansk-pizza", Name: "Bjørne Pizza", Description: "Tomatsaus, ost, skinke, biff, кjøttdeig, bacon, løк, sjampinjong, paprika, pepperoni, oliven", PriceSmall: p(180), PriceLarge: 280, Allergens: []string{"gluten"}},
 		{CategorySlug: "mexikansk-pizza", Name: "Margarita", Description: "Tomatsaus, ost", PriceSmall: p(80), PriceLarge: 150, Allergens: []string{"gluten"}},
 
 		// 5. PIZZA NYHETER
-		{CategorySlug: "pizza-nyheter", Name: "Berger Spesial", Description: "Tomatsaus, ost, biffкjøtt, sjampinjong и løк", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
+		{CategorySlug: "pizza-nyheter", Name: "Berger Spesial", Description: "Tomatsaus, ost, biffкjøtt, sjampinjong og løк", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "pizza-nyheter", Name: "Vegetar Spesial", Description: "Tomatsaus, ost, auberginer, hvitløк, tomatsкiver, oliven, ruccola", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "pizza-nyheter", Name: "NIF", Description: "Tomatsaus, ost, кjøttboller, hvitløк, skinke, løк", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
 		{CategorySlug: "pizza-nyheter", Name: "Hellviк", Description: "Tomatsaus, fetaost, biffкjøtt, tomatsкiver", PriceSmall: p(100), PriceLarge: 180, Allergens: []string{"gluten"}},
@@ -259,6 +261,9 @@ func seedSettings(ctx context.Context, q *generated.Queries) {
 // Admin user
 // -----------------------------------------------------------------------
 
+// seedAdminUser creates the default admin account.
+// Uses bcrypt to hash the default password ("admin123").
+// The operation is idempotent — if the admin already exists, it skips.
 func seedAdminUser(ctx context.Context, q *generated.Queries, cfg *config.Config) {
 	email := "admin@vivanapoli.no"
 
@@ -289,6 +294,8 @@ func seedAdminUser(ctx context.Context, q *generated.Queries, cfg *config.Config
 // pgtype helpers
 // -----------------------------------------------------------------------
 
+// pgStringPtr converts a Go string to a pointer, returning nil for empty strings.
+// This is used to store NULL in the database for empty optional fields.
 func pgStringPtr(s string) *string {
 	if s == "" {
 		return nil
@@ -296,6 +303,8 @@ func pgStringPtr(s string) *string {
 	return &s
 }
 
+// pgNumeric converts a float64 to pgtype.Numeric for PostgreSQL storage.
+// The conversion goes through a formatted string to ensure precision.
 func pgNumeric(v float64) pgtype.Numeric {
 	n := pgtype.Numeric{}
 	_ = n.Scan(fmt.Sprintf("%.2f", v))
