@@ -11,6 +11,14 @@ interface CategoryModalProps {
   category?: Category | null;
 }
 
+/**
+ * Modal for creating / editing a category.
+ *
+ * Dual-purpose: when `category` is provided it pre-fills the form for editing,
+ * otherwise empty fields are shown for creation. Slug auto-generation from the name
+ * only runs during creation to avoid silently overwriting a slug that may already
+ * be referenced externally (URLs, links).
+ */
 export default function CategoryModal({
   isOpen,
   onClose,
@@ -22,6 +30,11 @@ export default function CategoryModal({
   const [sortOrder, setSortOrder] = useState(0);
   const [loading, setLoading] = useState(false);
 
+  /**
+   * Reset form fields whenever the modal opens or the target category changes.
+   * `isOpen` is included as a dependency so the form re-initializes every time
+   * the modal is shown (important if the user closes & re-opens without saving).
+   */
   useEffect(() => {
     if (category) {
       setName(category.name);
@@ -34,11 +47,18 @@ export default function CategoryModal({
     }
   }, [category, isOpen]);
 
+  /**
+   * Handles name input and auto-generates a URL-safe slug for new categories.
+   *
+   * Slug generation is intentionally skipped when editing — once a category is saved
+   * its slug may be referenced externally (URLs, links), so mutating it silently
+   * on every keystroke would be surprising. The regex strips all non-alphanumeric
+   * characters except hyphens and underscores.
+   */
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setName(val);
     if (!category) {
-      // Auto-generate slug from name if creating new
       setSlug(
         val
           .toLowerCase()
@@ -61,6 +81,11 @@ export default function CategoryModal({
     }
   };
 
+  /**
+   * Early return rather than conditional render around the JSX.
+   * Keeps the component tree flatter and avoids nesting the entire
+   * markup in a ternary inside the parent.
+   */
   if (!isOpen) return null;
 
   return (

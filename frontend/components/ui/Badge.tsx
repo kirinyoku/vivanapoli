@@ -1,6 +1,16 @@
 import { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
+/**
+ * Small decorative label used to tag items with a status or category.
+ *
+ * Variants map to distinct semantic roles:
+ *  - `success`: green background, used for "open" status
+ *  - `hot` / `error`: both use the same "hot" palette (red tones); `error` is
+ *     effectively a semantic alias of `hot` for when the intent is error display
+ *  - `outline`: subtle bordered style (default), used for neutral/fallback cases
+ *  - `ghost`: minimal, used for secondary or supplementary labels
+ */
 interface BadgeProps {
   children: ReactNode;
   variant?: 'success' | 'hot' | 'outline' | 'ghost';

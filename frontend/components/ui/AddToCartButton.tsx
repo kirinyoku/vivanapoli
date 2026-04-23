@@ -5,6 +5,18 @@ import { useCartStore } from '@/store/useCartStore';
 import { Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+/**
+ * Button that adds a single menu item to the cart via the Zustand cart store.
+ *
+ * Three visual variants:
+ *  - `primary` (default): filled button, used as the main CTA ("Bestill")
+ *  - `outline`: bordered button, used for secondary size options ("Legg til")
+ *  - `link`: a plain text-style button with no background, for inline use
+ *
+ * The `link` variant renders a native `<button>` instead of the `Button`
+ * component to give full control over styling without the Button's opinionated
+ * shape/size classes.
+ */
 interface AddToCartButtonProps {
   itemId: number;
   name: string;
@@ -26,6 +38,10 @@ export default function AddToCartButton({
 }: AddToCartButtonProps) {
   const { addItem } = useCartStore();
 
+  /**
+   * Dispatch to the Zustand cart store.
+   * `size` is passed through so the cart can display "Liten" vs "Stor" separately.
+   */
   const handleAdd = () => {
     addItem({
       menu_item_id: itemId,
@@ -35,6 +51,12 @@ export default function AddToCartButton({
     });
   };
 
+  /**
+   * Default button text maps by variant:
+   *  - outline → "Legg til" (add to cart)
+   *  - primary → "Bestill" (order)
+   * A custom `label` prop always takes precedence.
+   */
   const buttonText = label || (variant === 'outline' ? 'Legg til' : 'Bestill');
 
   if (variant === 'link') {

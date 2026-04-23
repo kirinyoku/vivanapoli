@@ -1,5 +1,12 @@
 import { cn } from '@/lib/utils';
 
+/**
+ * Section heading with an optional description.
+ *
+ * When no description is provided a small gold accent bar is shown in its
+ * place — this keeps the visual rhythm consistent across sections that
+ * don't need explanatory text.
+ */
 interface SectionTitleProps {
   title: string;
   description?: string;
@@ -14,23 +21,23 @@ export default function SectionTitle({
   return (
     <div
       className={cn(
-        'mb-12 border-b border-border-light/60 pb-6 text-left relative',
+        'border-border-light/60 relative mb-12 border-b pb-6 text-left',
         className
       )}
     >
-      <div className="flex items-center gap-4 mb-3">
-        <h2 className="font-heading text-5xl font-semibold text-text-dark tracking-tight">
+      <div className="mb-3 flex items-center gap-4">
+        <h2 className="font-heading text-text-dark text-5xl font-semibold tracking-tight">
           {title}
         </h2>
-        <div className="flex-grow h-[1px] bg-border-light/60" />
+        <div className="bg-border-light/60 h-[1px] flex-grow" />
       </div>
-      
+
       {description ? (
-        <p className="font-body text-[1.1rem] italic text-text-muted opacity-80 max-w-2xl leading-relaxed">
+        <p className="font-body text-text-muted max-w-2xl text-[1.1rem] leading-relaxed italic opacity-80">
           {description}
         </p>
       ) : (
-        <div className="h-1 w-16 bg-accent-gold rounded-full" />
+        <div className="bg-accent-gold h-1 w-16 rounded-full" />
       )}
     </div>
   );

@@ -1,3 +1,10 @@
+/**
+ * Skeleton placeholder shown while menu items are loading.
+ *
+ * Uses Tailwind's `animate-pulse` for a gentle shimmer effect.
+ * The dimensions of the placeholder elements approximate the real content
+ * layout so the page structure is stable during loading (avoiding layout shift).
+ */
 export default function MenuItemSkeleton() {
   return (
     <div className="flex animate-pulse flex-col gap-2">

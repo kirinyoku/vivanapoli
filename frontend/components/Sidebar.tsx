@@ -10,6 +10,18 @@ interface Category {
   slug: string;
 }
 
+/**
+ * Sidebar component – desktop‑only left sidebar with restaurant info and menu navigation.
+ *
+ * This is a **server component** (no `'use client'`). It fetches menu categories
+ * and settings on the server side, so the data is ready when the page loads.
+ *
+ * Key details:
+ * - Automatically prepends a "Tilbud" category if any menu items have discounts.
+ * - Falls back to sensible defaults if the API fails (empty menu, hardcoded settings).
+ * - Displays restaurant contact info, opening hours, and delivery time in the footer.
+ * - Uses `CategoryLink` components that integrate with the scroll spy for active‑state highlighting.
+ */
 export default async function Sidebar() {
   let categories: Category[] = [];
   let settings: any = {};

@@ -4,6 +4,18 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useNavStore } from '@/store/useNavStore';
 
+/**
+ * Navigation link for a menu category with scroll-to behaviour and active-state highlighting.
+ *
+ * Unlike a standard Next `<Link>`, this component:
+ *  1. Intercepts the click (`e.preventDefault()`)
+ *  2. Scrolls the target section into view with an offset that depends on the variant
+ *  3. Updates the Zustand store's `activeCategory` and the browser's URL hash
+ *
+ * Two visual variants:
+ *  - `sidebar`: gold accent line on the left, larger text
+ *  - `horizontal`: smaller text with an underline when active
+ */
 interface CategoryLinkProps {
   href: string;
   children: React.ReactNode;
@@ -22,6 +34,18 @@ export default function CategoryLink({
   const activeCategory = useNavStore((state) => state.activeCategory);
   const isActive = propIsActive || href === `#${activeCategory}`;
 
+  /**
+   * Custom scroll handler that replaces the default link navigation.
+   *
+   * We locate the target element by its `id`, find the nearest scrollable
+   * ancestor (`.overflow-y-auto`) or fall back to `window`, and scroll with
+   * a smooth animation. The offset varies:
+   *  - `horizontal` variant: 120px (accounts for a fixed header)
+   *  - `sidebar` variant: 60px
+   *
+   * After scrolling we update the store and the URL hash without causing
+   * a page reload (using `pushState`).
+   */
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const id = href.replace('#', '');

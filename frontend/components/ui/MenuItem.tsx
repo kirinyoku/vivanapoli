@@ -3,6 +3,19 @@ import Badge from '@/components/ui/Badge';
 import AddToCartButton from '@/components/ui/AddToCartButton';
 import { cn } from '@/lib/utils';
 
+/**
+ * Displays a single menu item card with name, description, pricing, allergens, and add-to-cart.
+ *
+ * Three price display scenarios:
+ *  1. **Both `price_small` and `price_large`** — two-column layout with size labels,
+ *     each with its own AddToCartButton ("Liten" / "Stor").
+ *  2. **Only `price_large`** — single button with the label "Bestill" (or the size name
+ *     when paired with small).
+ *  3. **Single `price` (legacy)** — full-width layout with a single "Bestill" button.
+ *
+ * When a discount price is present, the original price is shown with a strikethrough
+ * and the discount price is displayed prominently in the primary colour.
+ */
 interface MenuItemProps {
   id: number;
   name: string;
@@ -15,6 +28,17 @@ interface MenuItemProps {
   allergens?: string[];
   isHot?: boolean;
 }
+
+/**
+ * Helper: build the display name for a size-specific AddToCartButton.
+ * When the item has both sizes, we append "(Liten)" or "(Stor)" so the
+ * cart can distinguish between the two variants of the same product.
+ */
+const buildCartItemName = (
+  baseName: string,
+  sizeLabel: string,
+  hasMultiplePrices: boolean
+) => (hasMultiplePrices ? `${baseName} (${sizeLabel})` : baseName);
 
 export default function MenuItem({
   id,
@@ -30,6 +54,11 @@ export default function MenuItem({
 }: MenuItemProps) {
   const hasMultiplePrices = price_small && price_large;
   const hasDiscount = !!(discount_price_small || discount_price_large);
+  /**
+   * Discount prices are independent per size — one size may be on sale while
+   * the other is at full price. Each column renders its own discount logic
+   * rather than assuming a uniform sale across both sizes.
+   */
 
   return (
     <article className="group hover:border-border-light/40 relative flex flex-col gap-3 rounded-2xl border border-transparent p-4 transition-all duration-300 hover:bg-white hover:shadow-2xl hover:shadow-black/5 lg:p-5">

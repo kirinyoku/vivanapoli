@@ -1,5 +1,20 @@
 'use client';
 
+/**
+ * Main menu content – the core component of the homepage.
+ *
+ * Fetches the full menu (categories + items) and restaurant settings from the
+ * backend, then renders them in a scrollable layout with:
+ * - A sticky mobile header with category navigation
+ * - A "Tilbud" (offers) section automatically prepended if any items have discounts
+ * - Skeleton loaders during loading, error state with retry
+ * - Allergy information section
+ * - A mobile‑only footer with contact details
+ *
+ * The component uses `Promise.all` with per‑fetch error handling so that a
+ * settings failure does not prevent the menu from rendering (fallback defaults
+ * are used for settings).
+ */
 import { useState, useEffect } from 'react';
 import SectionTitle from '@/components/ui/SectionTitle';
 import MenuItem from '@/components/ui/MenuItem';

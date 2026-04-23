@@ -1,5 +1,15 @@
 'use client';
 
+/**
+ * Cart panel (slide‑over drawer on mobile, fixed sidebar on desktop).
+ *
+ * Displays the current order items with quantity controls, price breakdown,
+ * and a checkout button. It also enforces the minimum order price by disabling
+ * the checkout button when the subtotal is too low.
+ *
+ * The panel is hidden on certain pages (checkout, admin, order success) to
+ * avoid visual clutter and scroll locking conflicts.
+ */
 import { useState, useEffect } from 'react';
 import Price from '@/components/ui/Price';
 import Button from '@/components/ui/Button';

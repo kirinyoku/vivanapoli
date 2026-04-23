@@ -13,6 +13,20 @@ interface MenuItemModalProps {
   initialCategoryId?: number;
 }
 
+/**
+ * Modal for creating / editing a menu item.
+ *
+ * Dual-purpose form (create vs. edit) driven by the `item` prop.
+ * Price fields intentionally use `string` state for controlled inputs —
+ * this allows intermediate states like `""` or `"12."` during typing
+ * without immediately coercing to `number` (which would drop the trailing
+ * decimal point and frustrate the user). Parsing to `number` happens on submit.
+ *
+ * Validation enforces:
+ *  - no negative prices
+ *  - discount cannot exceed the regular price
+ *  - a category must be selected
+ */
 export default function MenuItemModal({
   isOpen,
   onClose,
@@ -23,16 +37,35 @@ export default function MenuItemModal({
 }: MenuItemModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  /**
+   * Price fields are stored as strings rather than numbers to support
+   * intermediate states during typing (e.g., `""`, `"12."`, `"12,5"`).
+   * If stored as numbers, the controlled input would reject valid partial
+   * inputs like a trailing decimal. Parsing to `number | null` happens at
+   * submit time via `parseFloat`.
+   */
   const [priceSmall, setPriceSmall] = useState<string>('');
   const [priceLarge, setPriceLarge] = useState<string>('');
   const [discountPriceSmall, setDiscountPriceSmall] = useState<string>('');
   const [discountPriceLarge, setDiscountPriceLarge] = useState<string>('');
   const [categoryId, setCategoryId] = useState<number>(0);
+  /**
+   * Allergens stored as a comma-separated string in the form and split
+   * into an array on submit. This keeps the input simple and avoids
+   * managing dynamic arrays of individual allergen fields.
+   */
   const [allergens, setAllergens] = useState<string>('');
   const [isAvailable, setIsAvailable] = useState(true);
   const [sortOrder, setSortOrder] = useState(0);
   const [loading, setLoading] = useState(false);
 
+  /**
+   * Re-initialise form state whenever the modal opens or the target item changes.
+   *
+   * For new items (`item === null`) we pick the first available category as default,
+   * or fall back to `initialCategoryId` if provided — this saves the user a click
+   * when adding items from within a specific category view.
+   */
   useEffect(() => {
     if (item) {
       setName(item.name || '');
@@ -65,17 +98,19 @@ export default function MenuItemModal({
     e.preventDefault();
     setLoading(true);
     try {
+      /** Parse comma-separated allergens, trim whitespace, drop empty entries. */
       const allergenList = allergens
         .split(',')
         .map((a) => a.trim())
         .filter((a) => a !== '');
 
+      /** Convert string price fields to numbers. Empty string → null (price not set). */
       const pSmall = priceSmall ? parseFloat(priceSmall) : null;
       const pLarge = priceLarge ? parseFloat(priceLarge) : null;
       const dSmall = discountPriceSmall ? parseFloat(discountPriceSmall) : null;
       const dLarge = discountPriceLarge ? parseFloat(discountPriceLarge) : null;
 
-      // 1. Check for negative values
+      /* 1. Reject negative prices — neither regular nor discount should be below zero. */
       if (
         (pSmall !== null && pSmall < 0) ||
         (pLarge !== null && pLarge < 0) ||
@@ -87,7 +122,7 @@ export default function MenuItemModal({
         return;
       }
 
-      // 2. Check if discount is higher than price
+      /* 2. Reject discount prices that exceed the regular price — a sale should never cost more. */
       if (
         (pSmall !== null && dSmall !== null && dSmall > pSmall) ||
         (pLarge !== null && dLarge !== null && dLarge > pLarge)
@@ -104,6 +139,13 @@ export default function MenuItemModal({
         price_large: pLarge,
         discount_price_small: dSmall,
         discount_price_large: dLarge,
+        /**
+         * `parseInt(categoryId.toString())` guards against the case where
+         * `categoryId` starts as a string (e.g. from an HTML select value)
+         * despite its type annotation. The `|| 0` / `parseInt(…||0)` pattern
+         * below ensures NaN becomes 0 for the sort_order, but we bail out
+         * explicitly here with a user-facing alert if category is missing.
+         */
         category_id: parseInt(categoryId.toString()),
         allergens: allergenList,
         is_available: isAvailable,
@@ -125,6 +167,10 @@ export default function MenuItemModal({
     }
   };
 
+  /**
+   * Early return: hiding the modal by not rendering anything keeps the
+   * DOM clean and avoids interference from the overlay when it's closed.
+   */
   if (!isOpen) return null;
 
   return (

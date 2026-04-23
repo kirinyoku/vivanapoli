@@ -3,6 +3,18 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
+/**
+ * Reusable button component wrapping a native `<button>` with preset variants and sizes.
+ *
+ * Uses `forwardRef` so parent components or form libraries can access the underlying
+ * DOM node. The `displayName` assignment is required for React DevTools to show a
+ * meaningful name (it defaults to `"Button"` without it due to the anonymous forwardRef
+ * wrapper).
+ *
+ * Disabled state is handled via utility classes (`pointer-events-none`, `opacity-50`)
+ * rather than the HTML `disabled` attribute alone, giving consistent visual behaviour
+ * regardless of variant.
+ */
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'ghost' | 'link' | 'outline';
   size?: 'sm' | 'md' | 'lg' | 'icon';
