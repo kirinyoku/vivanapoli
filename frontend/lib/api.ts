@@ -13,16 +13,27 @@ import {
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
+/**
+ * Extended fetch options adding URL query params and a fallback value
+ * that is returned on error instead of throwing — useful for gracefully
+ * degrading parts of the UI when the API is unavailable.
+ */
 type FetchOptions<T> = RequestInit & {
   params?: Record<string, string>;
   fallback?: T;
 };
 
+/** Standardised API response wrapper: the real payload lives under `data`. */
 interface ApiResponse<T> {
   data: T;
   error?: string;
 }
 
+/**
+ * Typed error class that carries the HTTP status code alongside the message.
+ * Used by callers (e.g. `useAdminAuth`) to distinguish 401 Unauthorized
+ * from other failures and react accordingly (e.g. redirect to login).
+ */
 export class ApiError extends Error {
   status: number;
   constructor(message: string, status: number) {
@@ -32,6 +43,20 @@ export class ApiError extends Error {
   }
 }
 
+/**
+ * Core request function used by every method in the `api` object.
+ *
+ * Features:
+ *  - Auto-attaches `Content-Type: application/json` unless the body is FormData.
+ *  - Reads the admin JWT from `localStorage` and adds it as a Bearer token
+ *    (only on the client — `typeof window !== 'undefined'` guards SSR).
+ *  - Retries up to `retries` (default 2) times on 5xx / 429 responses and
+ *    on network errors, with a 1 s delay between attempts.
+ *  - Accepts an optional `fallback` value: when provided, a failed request
+ *    returns the fallback instead of throwing, allowing the UI to degrade
+ *    gracefully during startup or offline scenarios.
+ *  - Handles 204 No Content and zero-length responses by returning `undefined`.
+ */
 async function request<T>(
   endpoint: string,
   options: FetchOptions<T> = {},
@@ -93,6 +118,11 @@ async function request<T>(
     }
 
     // Handle 204 No Content and other empty responses
+    /**
+     * Handle empty responses (204 No Content, or explicit zero-length body).
+     * Some endpoints (DELETE, some PUTs) return no data, which would cause
+     * JSON.parse to throw on an empty string.
+     */
     if (
       response.status === 204 ||
       response.headers.get('content-length') === '0'
@@ -107,7 +137,10 @@ async function request<T>(
       throw err;
     }
 
-    // Network errors (fetch failed entirely)
+    /**
+     * Network errors — `fetch` itself threw (e.g. DNS failure, connection refused).
+     * These are distinct from HTTP error responses handled above.
+     */
     if (retries > 0) {
       if (process.env.NODE_ENV !== 'production') {
         console.log(
@@ -133,8 +166,19 @@ async function request<T>(
   }
 }
 
+/**
+ * Typed API client wrapping every backend endpoint.
+ *
+ * Methods are grouped by domain:
+ *  - Public (menu, settings, orders)
+ *  - Admin auth
+ *  - Admin CRUD (categories, items, orders, settings)
+ *
+ * Every method delegates to the internal `request()` function which
+ * handles auth headers, JSON parsing, retries, and error normalisation.
+ */
 export const api = {
-  // Public
+  // ── Public endpoints ────────────────────────────────────────
   getMenu: () => request<MenuCategory[]>('/menu'),
   getSettings: () => request<RestaurantSettings>('/settings'),
   placeOrder: (orderData: CreateOrderRequest) =>
@@ -143,14 +187,14 @@ export const api = {
       body: JSON.stringify(orderData),
     }),
 
-  // Admin Auth
+  // ── Admin authentication ────────────────────────────────────
   login: (credentials: LoginRequest) =>
     request<LoginResponse>('/admin/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     }),
 
-  // Admin Categories
+  // ── Admin category management ────────────────────────────────
   getCategories: () => request<Category[]>('/admin/menu/categories'),
   createCategory: (data: Partial<Category>) =>
     request<Category>('/admin/menu/categories', {
@@ -180,7 +224,7 @@ export const api = {
   deleteItem: (id: number) =>
     request<void>(`/admin/menu/items/${id}`, { method: 'DELETE' }),
 
-  // Admin Orders
+  // ── Admin order management ───────────────────────────────────
   getOrders: () => request<Order[]>('/admin/orders'),
   getStats: () =>
     request<{ total_orders: number; total_revenue: number }>('/admin/stats'),

@@ -1,7 +1,20 @@
+/**
+ * Global test setup for Vitest.
+ *
+ * Runs once before the entire test suite. Its job is to polyfill browser
+ * APIs that are absent in the `jsdom` environment but required by our
+ * components and stores:
+ *
+ *  1. **localStorage** — the Zustand cart store uses `persist` middleware
+ *     backed by localStorage. Without this mock every test that imports
+ *     `useCartStore` would throw.
+ *  2. **IntersectionObserver** — used by the `ScrollSpy` component for
+ *     scroll-based category highlighting. jsdom does not implement it.
+ */
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
-// Mock localStorage
+// ── localStorage mock ─────────────────────────────────────────
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
@@ -24,7 +37,7 @@ Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,
 });
 
-// Mock IntersectionObserver
+// ── IntersectionObserver mock ─────────────────────────────────
 class IntersectionObserverMock {
   root = null;
   rootMargin = '';

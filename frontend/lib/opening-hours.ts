@@ -1,3 +1,4 @@
+/** Possible shop statuses — used by `ShopStatusBadge` to pick the Badge variant. */
 export type StatusType = 'open' | 'closed' | 'closing_soon';
 
 export interface ShopStatus {
@@ -6,10 +7,20 @@ export interface ShopStatus {
 }
 
 /**
- * Calculates if the shop is currently open based on Norway's timezone.
- * @param openTime - Opening time in HH:mm format (e.g., "14:00")
- * @param closeTime - Closing time in HH:mm format (e.g., "22:00")
- * @param isManualClosed - Force-closed flag from admin settings
+ * Calculates the current shop status based on Norway local time (Europe/Oslo).
+ *
+ * The function uses `Intl.DateTimeFormat` with the `Europe/Oslo` timezone to
+ * determine the current time, which correctly handles DST transitions and
+ * does not depend on the server's or client's system timezone setting.
+ *
+ * Three-state logic:
+ *  - `open` — within business hours and more than 30 min until closing
+ *  - `closing_soon` — within business hours but 30 min or less until closing
+ *  - `closed` — outside business hours (shows "Åpner" or "Åpner i morgen")
+ *
+ * @param openTime - Opening time in HH:mm (default "14:00")
+ * @param closeTime - Closing time in HH:mm (default "22:00")
+ * @param isManualClosed - Admin override that forces "closed" regardless of schedule
  */
 export function getShopStatus(
   openTime: any = '14:00',
@@ -34,7 +45,8 @@ export function getShopStatus(
     hour12: false,
   }).formatToParts(now);
 
-  const getPart = (type: string) => norwayTime.find(p => p.type === type)?.value;
+  const getPart = (type: string) =>
+    norwayTime.find((p) => p.type === type)?.value;
 
   const hours = parseInt(getPart('hour') || '0');
   const minutes = parseInt(getPart('minute') || '0');
@@ -46,7 +58,10 @@ export function getShopStatus(
   const openTimeInMinutes = (openH || 0) * 60 + (openM || 0);
   const closeTimeInMinutes = (closeH || 0) * 60 + (closeM || 0);
 
-  if (currentTimeInMinutes >= openTimeInMinutes && currentTimeInMinutes < closeTimeInMinutes) {
+  if (
+    currentTimeInMinutes >= openTimeInMinutes &&
+    currentTimeInMinutes < closeTimeInMinutes
+  ) {
     // If less than 30 minutes until closing
     if (closeTimeInMinutes - currentTimeInMinutes <= 30) {
       return { status: 'closing_soon', message: `Stenger snart (${strClose})` };
@@ -54,14 +69,14 @@ export function getShopStatus(
     return { status: 'open', message: `Åpent til ${strClose}` };
   }
 
-  // If closed, check when it opens next
+  // Before opening time → shows opening time ("Åpner 14:00")
   if (currentTimeInMinutes < openTimeInMinutes) {
     return { status: 'closed', message: `Stengt - Åpner ${strOpen}` };
   }
 
-  // If already closed today
-  return { 
-    status: 'closed', 
-    message: `Stengt - Åpner i morgen ${strOpen}` 
+  // After closing time → shows next day's opening ("Åpner i morgen 14:00")
+  return {
+    status: 'closed',
+    message: `Stengt - Åpner i morgen ${strOpen}`,
   };
 }

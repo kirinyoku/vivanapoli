@@ -1,4 +1,18 @@
 {
+  /*
+   * TypeScript configuration for the Next.js frontend.
+   *
+   * Key settings:
+   *  - target: ES2017 — wide browser support while keeping modern syntax
+   *  - strict: true — enables all strict type-checking options
+   *  - moduleResolution: "bundler" — required by Next.js (and Vite); resolves
+   *    modules using the same algorithm as bundlers like webpack / Turbopack
+   *  - jsx: "react-jsx" — the modern JSX transform (no need to import React)
+   *  - incremental: true — enables `.tsbuildinfo` for faster subsequent builds
+   *  - paths["@/*"] — the `@/` import alias used throughout the project,
+   *    mapped to the project root so `@/components/ui/Button` works everywhere
+   */
+
   "compilerOptions": {
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
