@@ -10,6 +10,14 @@ import { cn } from '@/lib/utils';
 import CategoryModal from '@/components/admin/CategoryModal';
 import MenuItemModal from '@/components/admin/MenuItemModal';
 
+/**
+ * Menu management page for the admin panel.
+ *
+ * Allows administrators to view, add, edit, and delete categories and menu items.
+ * The page fetches the entire menu structure (categories with items) from the
+ * backend and provides modal dialogs for CRUD operations. Deletions require a
+ * two‑step confirmation to prevent accidental removal.
+ */
 export default function MenuManagementPage() {
   const { handleApiError } = useAdminAuth();
   const [categories, setCategories] = useState<MenuCategory[]>([]);

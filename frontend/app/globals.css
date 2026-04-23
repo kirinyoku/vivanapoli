@@ -1,28 +1,66 @@
+/**
+ * Global CSS styles and Tailwind CSS configuration.
+ *
+ * This file defines the design system for the VivaNapoli restaurant website.
+ * It uses Tailwind CSS v4 with a custom theme and provides utility classes
+ * for scrollbars, animations, and other common UI needs.
+ */
+
 @import 'tailwindcss';
 
+/**
+ * Custom theme variables.
+ *
+ * The color palette is inspired by Italian cuisine: deep reds (primary),
+ * warm gold accents, and muted text colors for readability.
+ *
+ * Note: Tailwind v4 uses `@theme` to define design tokens that can be
+ * referenced via `bg-primary`, `text-text-dark`, etc.
+ */
 @theme {
-  --color-primary: #8b0000;
-  --color-primary-dark: #6b0000;
-  --color-text-dark: #1a1a1a;
-  --color-text-muted: #666666;
-  --color-bg-page: #f9f8f4;
-  --color-bg-sidebar: #ffffff;
-  --color-accent-gold: #c5a059;
-  --color-border-light: #ecebe4;
-  --color-status-success-bg: #e7f5ed;
-  --color-status-success-text: #16a34a;
-  --color-tag-hot-bg: #fee2e2;
-  --color-tag-hot-text: #dc2626;
+  --color-primary: #8b0000; /* Deep red – brand primary color */
+  --color-primary-dark: #6b0000; /* Darker red for hover states */
+  --color-text-dark: #1a1a1a; /* Main text color (near black) */
+  --color-text-muted: #666666; /* Secondary text, less prominent */
+  --color-bg-page: #f9f8f4; /* Page background (off‑white with a warm tint) */
+  --color-bg-sidebar: #ffffff; /* Sidebar background (pure white) */
+  --color-accent-gold: #c5a059; /* Gold accent for highlights, badges, icons */
+  --color-border-light: #ecebe4; /* Subtle borders between sections */
+  --color-status-success-bg: #e7f5ed; /* Success message background */
+  --color-status-success-text: #16a34a; /* Success text color */
+  --color-tag-hot-bg: #fee2e2; /* Background for "Hot" tags */
+  --color-tag-hot-text: #dc2626; /* Text color for "Hot" tags */
 
+  /**
+   * Font families.
+   *
+   * The `var(--font-heading)` and `var(--font-body)` are set by Next.js font
+   * loaders in `layout.tsx`. The fallback values ensure typography works
+   * even if the font variables are not yet loaded.
+   */
   --font-heading: var(--font-heading), 'Cormorant Garamond', serif;
   --font-body: var(--font-body), 'Inter', sans-serif;
 }
 
+/**
+ * CSS custom properties for global layout.
+ *
+ * These variables are kept separate from the Tailwind theme because they are
+ * used directly in CSS (e.g., `var(--background)`) and are not automatically
+ * exposed as Tailwind utilities. They also serve as a fallback for older
+ * browsers that do not support `@theme`.
+ */
 :root {
-  --background: #f9f8f4;
-  --foreground: #1a1a1a;
+  --background: #f9f8f4; /* Matches --color-bg-page, used for body background */
+  --foreground: #1a1a1a; /* Matches --color-text-dark, used for body text */
 }
 
+/**
+ * Base body styles.
+ *
+ * The `-webkit-font-smoothing` and `-moz-osx-font-smoothing` properties
+ * improve font rendering on macOS and other WebKit‑based browsers.
+ */
 body {
   background-color: var(--background);
   color: var(--foreground);
@@ -31,7 +69,22 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/**
+ * Utility classes defined in the `utilities` layer.
+ *
+ * These classes are generated after Tailwind's default utilities, so they
+ * can override any existing utility if needed.
+ */
 @layer utilities {
+  /**
+   * Completely hide scrollbars while keeping the element scrollable.
+   *
+   * Uses vendor‑specific pseudo‑elements for WebKit browsers and standard
+   * CSS properties for Firefox and newer browsers.
+   *
+   * Note: Hiding scrollbars can affect accessibility; use only when
+   * scrollable content is obvious from context (e.g., a carousel).
+   */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -40,10 +93,22 @@ body {
     scrollbar-width: none;
   }
 
+  /**
+   * Extremely slow spinning animation (20 seconds per full rotation).
+   *
+   * Used for decorative elements (like a rotating pizza icon) where a
+   * subtle, continuous motion is desired without being distracting.
+   */
   .animate-spin-slow {
     animation: spin 20s linear infinite;
   }
 
+  /**
+   * Keyframes for the spin animation.
+   *
+   * Defined here because `@keyframes` cannot be placed inside a Tailwind
+   * `@layer`. The animation is referenced by `.animate-spin-slow`.
+   */
   @keyframes spin {
     from {
       transform: rotate(0deg);
@@ -53,6 +118,16 @@ body {
     }
   }
 
+  /**
+   * Custom styled scrollbar for containers where a subtle scrollbar is needed.
+   *
+   * The scrollbar is thin (6px) with a light gray thumb and a transparent
+   * track. Works in both WebKit (Chrome, Safari) and standard CSS Scrollbars
+   * (Firefox).
+   *
+   * Important: The `scrollbar-color` property is only supported in Firefox;
+   * WebKit uses the `::-webkit-scrollbar` pseudo‑elements.
+   */
   .custom-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: #c1c1c1 transparent;

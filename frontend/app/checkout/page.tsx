@@ -1,5 +1,15 @@
 'use client';
 
+/**
+ * Checkout page – where customers enter their details and place an order.
+ *
+ * This is a client‑side component because it manages form state, interacts with
+ * the cart store, and submits orders to the backend. It also handles real‑time
+ * validation, shop‑status checks, and error feedback.
+ *
+ * The page is designed to be a single‑step checkout: customer information,
+ * order type (delivery/pickup), and payment method (cash on delivery only).
+ */
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -590,10 +600,10 @@ export default function CheckoutPage() {
                   <div className="mt-8 flex items-start gap-4 rounded-3xl border border-amber-200 bg-amber-50/50 p-6 ring-1 ring-amber-100">
                     <span className="text-2xl drop-shadow-sm">🌙</span>
                     <div className="space-y-1">
-                      <p className="text-sm font-bold text-amber-900 leading-tight">
+                      <p className="text-sm leading-tight font-bold text-amber-900">
                         Vi har dessverre stengt nå
                       </p>
-                      <p className="text-[11px] font-medium text-amber-800/80 italic leading-tight">
+                      <p className="text-[11px] leading-tight font-medium text-amber-800/80 italic">
                         {shopStatus?.message}. Velkommen tilbake ved åpning!
                       </p>
                     </div>
@@ -608,7 +618,7 @@ export default function CheckoutPage() {
                     className={cn(
                       'w-full rounded-[2rem] py-8 text-lg font-bold tracking-[0.1em] shadow-2xl transition-all active:scale-95',
                       isClosed
-                        ? 'bg-text-muted/10 text-text-muted/40 cursor-not-allowed shadow-none grayscale border border-border-light/20'
+                        ? 'bg-text-muted/10 text-text-muted/40 border-border-light/20 cursor-not-allowed border shadow-none grayscale'
                         : 'shadow-primary/30'
                     )}
                   >
@@ -629,7 +639,7 @@ export default function CheckoutPage() {
                     className={cn(
                       'w-full rounded-[2rem] py-8 text-lg font-bold tracking-widest shadow-2xl transition-all active:scale-95',
                       isClosed
-                        ? 'bg-text-muted/10 text-text-muted/40 cursor-not-allowed shadow-none grayscale border border-border-light/20'
+                        ? 'bg-text-muted/10 text-text-muted/40 border-border-light/20 cursor-not-allowed border shadow-none grayscale'
                         : 'shadow-primary/30'
                     )}
                   >

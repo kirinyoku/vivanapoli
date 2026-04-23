@@ -9,6 +9,13 @@ import Price from '@/components/ui/Price';
 import { cn, formatDate } from '@/lib/utils';
 import { Clock } from 'lucide-react';
 
+/**
+ * Orders management page for the admin panel.
+ *
+ * Lists all orders with search and status filtering. Each order can be expanded
+ * to view details and update its status. Orders are sorted by creation date
+ * descending (newest first) by default.
+ */
 export default function OrdersManagementPage() {
   const { handleApiError } = useAdminAuth();
   const [orders, setOrders] = useState<Order[]>([]);

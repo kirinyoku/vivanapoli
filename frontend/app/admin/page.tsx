@@ -20,6 +20,18 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
+/**
+ * Admin dashboard – main overview page for the admin panel.
+ *
+ * Displays key metrics (orders, revenue, average order value), recent orders,
+ * shop status with a toggle button, and quick shortcuts. Data is fetched from
+ * the backend on mount and refreshed every 2 minutes.
+ *
+ * The component uses `Promise.allSettled` to handle partial API failures
+ * gracefully (e.g., if settings fail to load, the dashboard still shows
+ * orders and stats). The shop status toggle uses an optimistic update pattern
+ * for a snappier user experience.
+ */
 export default function AdminDashboard() {
   const { handleApiError } = useAdminAuth();
   const [stats, setStats] = useState({ total_orders: 0, total_revenue: 0 });

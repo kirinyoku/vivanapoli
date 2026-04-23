@@ -8,6 +8,16 @@ import Button from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
 import { Power } from 'lucide-react';
 
+/**
+ * Settings page for the admin panel.
+ *
+ * Allows administrators to update restaurant settings: address, phone, opening
+ * hours, delivery time, minimum order price, and manual open/close status.
+ * Time slots are generated dynamically in 30‑minute increments (00:00–23:30).
+ *
+ * The page uses a controlled form pattern: changes are only saved when the user
+ * explicitly clicks "Lagre innstillinger".
+ */
 export default function SettingsPage() {
   const { handleApiError } = useAdminAuth();
   const [settings, setSettings] = useState<RestaurantSettings | null>(null);
