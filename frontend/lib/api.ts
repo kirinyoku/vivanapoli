@@ -104,6 +104,19 @@ async function request<T>(
         );
       }
 
+      // ── Auto‑logout on 401 Unauthorized ──────────────────────
+      // When the admin JWT expires (after 24 h) the backend returns 401.
+      // Instead of letting the user hang in the admin panel until they
+      // manually log out, we clear the expired token and redirect to
+      // the login page immediately. This is a global interceptor that
+      // catches every API call regardless of whether the caller uses
+      // `useAdminAuth.handleApiError`.
+      if (response.status === 401 && typeof window !== 'undefined') {
+        localStorage.removeItem('viva-admin-token');
+        window.location.href = '/admin/login';
+        throw new ApiError(errorMessage, response.status);
+      }
+
       // Retry for 5xx errors or network issues
       if (retries > 0 && (response.status >= 500 || response.status === 429)) {
         if (process.env.NODE_ENV !== 'production') {
