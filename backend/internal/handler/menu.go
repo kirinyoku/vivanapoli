@@ -334,13 +334,14 @@ func (h *Handler) AdminDeleteMenuItem(w http.ResponseWriter, r *http.Request) {
 // arbitrary precision. We convert via string (FormatFloat) rather than
 // directly assigning float64 to avoid floating-point representation issues:
 // e.g. 19.99 → "19.99" (correct), not 19.990000000000002.
-// Precision -1 means "shortest representation that round-trips exactly".
+// Precision 2 ensures consistent decimal formatting (e.g. 100.00 not "100"),
+// which matches PostgreSQL NUMERIC storage for currency values.
 func ptrToPgNumeric(f *float64) pgtype.Numeric {
 	if f == nil {
 		return pgtype.Numeric{Valid: false}
 	}
 	n := pgtype.Numeric{}
-	if err := n.Scan(strconv.FormatFloat(*f, 'f', -1, 64)); err != nil {
+	if err := n.Scan(strconv.FormatFloat(*f, 'f', 2, 64)); err != nil {
 		log.Printf("ptrToPgNumeric: failed to scan value %v: %v", *f, err)
 	}
 	return n

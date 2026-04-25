@@ -298,7 +298,7 @@ func (h *Handler) buildOrderSnapshots(
 func resolvePrice(item generated.MenuItem, size string) (float64, error) {
 	switch size {
 	case "small":
-		if pgNumericToPtr(item.PriceSmall) == nil || !item.PriceSmall.Valid {
+		if pgNumericToPtr(item.PriceSmall) == nil {
 			return 0, fmt.Errorf("size 'small' is not available")
 		}
 		f, err := item.PriceSmall.Float64Value()
