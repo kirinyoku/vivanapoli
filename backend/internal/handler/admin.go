@@ -52,14 +52,14 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	admin, err := h.queries.GetAdminByEmail(r.Context(), req.Email)
 	if err != nil {
 		// Generic error to prevent email enumeration attacks.
-		respondData(w, http.StatusUnauthorized, map[string]string{"error": "invalid credentials"})
+		respondError(w, http.StatusUnauthorized, "invalid credentials")
 		return
 	}
 
 	// bcrypt comparison — constant-time, safe against timing attacks.
 	err = bcrypt.CompareHashAndPassword([]byte(admin.PasswordHash), []byte(req.Password))
 	if err != nil {
-		respondData(w, http.StatusUnauthorized, map[string]string{"error": "invalid credentials"})
+		respondError(w, http.StatusUnauthorized, "invalid credentials")
 		return
 	}
 
@@ -108,14 +108,14 @@ func (h *Handler) AdminOnly(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
-			respondData(w, http.StatusUnauthorized, map[string]string{"error": "authorization header required"})
+			respondError(w, http.StatusUnauthorized, "authorization header required")
 			return
 		}
 
 		// Expecting format: "Bearer <token>"
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			respondData(w, http.StatusUnauthorized, map[string]string{"error": "invalid authorization format"})
+			respondError(w, http.StatusUnauthorized, "invalid authorization format")
 			return
 		}
 
@@ -131,13 +131,13 @@ func (h *Handler) AdminOnly(next http.Handler) http.Handler {
 		})
 
 		if err != nil || !token.Valid {
-			respondData(w, http.StatusUnauthorized, map[string]string{"error": "invalid or expired token"})
+			respondError(w, http.StatusUnauthorized, "invalid or expired token")
 			return
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
-			respondData(w, http.StatusUnauthorized, map[string]string{"error": "invalid token claims"})
+			respondError(w, http.StatusUnauthorized, "invalid token claims")
 			return
 		}
 
@@ -145,7 +145,7 @@ func (h *Handler) AdminOnly(next http.Handler) http.Handler {
 		// This is a known quirk — MapClaims stores numbers as float64.
 		adminIDFloat, ok := claims["admin_id"].(float64)
 		if !ok {
-			respondData(w, http.StatusUnauthorized, map[string]string{"error": "missing admin_id in token"})
+			respondError(w, http.StatusUnauthorized, "missing admin_id in token")
 			return
 		}
 
