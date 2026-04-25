@@ -227,7 +227,7 @@ func (h *Handler) AdminCreateMenuItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if req.CategoryID == 0 {
-		log.Printf("DEBUG: Received request with CategoryID=0. Full req: %+v", req)
+		log.Printf("AdminCreateMenuItem: category_id is required (got 0)")
 		respondBadRequest(w, "Kategori er obligatorisk (received 0)")
 		return
 	}
@@ -273,7 +273,7 @@ func (h *Handler) AdminUpdateMenuItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if req.CategoryID == 0 {
-		log.Printf("DEBUG: Received request with CategoryID=0. Full req: %+v", req)
+		log.Printf("AdminUpdateMenuItem: category_id is required (got 0)")
 		respondBadRequest(w, "Kategori er obligatorisk (received 0)")
 		return
 	}
@@ -332,7 +332,9 @@ func ptrToPgNumeric(f *float64) pgtype.Numeric {
 		return pgtype.Numeric{Valid: false}
 	}
 	n := pgtype.Numeric{}
-	_ = n.Scan(strconv.FormatFloat(*f, 'f', -1, 64))
+	if err := n.Scan(strconv.FormatFloat(*f, 'f', -1, 64)); err != nil {
+		log.Printf("ptrToPgNumeric: failed to scan value %v: %v", *f, err)
+	}
 	return n
 }
 
@@ -343,7 +345,11 @@ func pgNumericToPtr(n pgtype.Numeric) *float64 {
 	if !n.Valid {
 		return nil
 	}
-	f, _ := n.Float64Value()
+	f, err := n.Float64Value()
+	if err != nil {
+		log.Printf("pgNumericToPtr: failed to convert numeric: %v", err)
+		return nil
+	}
 	if !f.Valid {
 		return nil
 	}

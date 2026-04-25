@@ -48,7 +48,9 @@ func NewPool(dbURL string) (*pgxpool.Pool, error) {
 	// Ping confirms the TCP + PostgreSQL handshake is complete and the pool
 	// can immediately serve queries. Without this, the first real request would
 	// pay the connection-establishment penalty.
-	if err := pool.Ping(context.Background()); err != nil {
+	pingCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := pool.Ping(pingCtx); err != nil {
 		return nil, fmt.Errorf("failed to ping pool: %w", err)
 	}
 

@@ -21,8 +21,8 @@ WHERE id = $1
 RETURNING *;
 
 -- name: GetTodayStats :one
-SELECT 
+SELECT
     COUNT(*)::int as total_orders,
     COALESCE(SUM(total_price), 0)::numeric as total_revenue
 FROM orders
-WHERE created_at >= CURRENT_DATE;
+WHERE created_at >= $1::timestamp;

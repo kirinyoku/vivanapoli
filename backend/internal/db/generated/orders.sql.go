@@ -7,6 +7,7 @@ package generated
 
 import (
 	"context"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -116,11 +117,11 @@ func (q *Queries) GetOrders(ctx context.Context) ([]Order, error) {
 }
 
 const getTodayStats = `-- name: GetTodayStats :one
-SELECT 
+SELECT
     COUNT(*)::int as total_orders,
     COALESCE(SUM(total_price), 0)::numeric as total_revenue
 FROM orders
-WHERE created_at >= CURRENT_DATE
+WHERE created_at >= $1::timestamp
 `
 
 type GetTodayStatsRow struct {
@@ -128,8 +129,8 @@ type GetTodayStatsRow struct {
 	TotalRevenue pgtype.Numeric `json:"total_revenue"`
 }
 
-func (q *Queries) GetTodayStats(ctx context.Context) (GetTodayStatsRow, error) {
-	row := q.db.QueryRow(ctx, getTodayStats)
+func (q *Queries) GetTodayStats(ctx context.Context, osloMidnight time.Time) (GetTodayStatsRow, error) {
+	row := q.db.QueryRow(ctx, getTodayStats, osloMidnight)
 	var i GetTodayStatsRow
 	err := row.Scan(&i.TotalOrders, &i.TotalRevenue)
 	return i, err

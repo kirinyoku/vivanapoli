@@ -156,6 +156,11 @@ func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	// we log the error but do not fail the order — the restaurant can
 	// still see the order in the admin panel.
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Printf("CreateOrder: panic in sendOrderEmail goroutine: %v", r)
+			}
+		}()
 		if err := h.sendOrderEmail(order, snapshots); err != nil {
 			log.Printf("CreateOrder: failed to send email for order %d: %v", order.ID, err)
 		}
@@ -295,13 +300,19 @@ func resolvePrice(item generated.MenuItem, size string) (float64, error) {
 		if pgNumericToPtr(item.PriceSmall) == nil || !item.PriceSmall.Valid {
 			return 0, fmt.Errorf("size 'small' is not available")
 		}
-		f, _ := item.PriceSmall.Float64Value()
+		f, err := item.PriceSmall.Float64Value()
+		if err != nil {
+			return 0, fmt.Errorf("failed to convert small price: %w", err)
+		}
 		return f.Float64, nil
 	case "large":
 		if !item.PriceLarge.Valid {
 			return 0, fmt.Errorf("size 'large' is not available")
 		}
-		f, _ := item.PriceLarge.Float64Value()
+		f, err := item.PriceLarge.Float64Value()
+		if err != nil {
+			return 0, fmt.Errorf("failed to convert large price: %w", err)
+		}
 		return f.Float64, nil
 	default:
 		return 0, fmt.Errorf("unknown size '%s'", size)
@@ -314,7 +325,9 @@ func resolvePrice(item generated.MenuItem, size string) (float64, error) {
 // matching the expected currency precision.
 func floatToNumeric(f float64) pgtype.Numeric {
 	n := pgtype.Numeric{}
-	_ = n.Scan(fmt.Sprintf("%.2f", f))
+	if err := n.Scan(fmt.Sprintf("%.2f", f)); err != nil {
+		log.Printf("floatToNumeric: failed to scan value %.2f: %v", f, err)
+	}
 	return n
 }
 
@@ -330,7 +343,11 @@ func (h *Handler) sendOrderEmail(order generated.Order, items []orderItemSnapsho
 		return nil
 	}
 
-	f, _ := order.TotalPrice.Float64Value()
+	f, err := order.TotalPrice.Float64Value()
+	if err != nil {
+		log.Printf("sendOrderEmail: failed to convert total price: %v", err)
+		return fmt.Errorf("failed to convert total price: %w", err)
+	}
 	totalPrice := f.Float64
 
 	var itemsHtml strings.Builder
@@ -389,7 +406,7 @@ func (h *Handler) sendOrderEmail(order generated.Order, items []orderItemSnapsho
 		Html:    htmlContent,
 	}
 
-	_, err := h.resend.Emails.Send(params)
+	_, err = h.resend.Emails.Send(params)
 	if err != nil {
 		return fmt.Errorf("failed to send email via Resend: %w", err)
 	}
@@ -413,9 +430,14 @@ type orderResponse struct {
 
 func toOrderResponse(o generated.Order) orderResponse {
 	var items []orderItemSnapshot
-	_ = json.Unmarshal(o.Items, &items)
+	if err := json.Unmarshal(o.Items, &items); err != nil {
+		log.Printf("toOrderResponse: failed to unmarshal items for order %d: %v", o.ID, err)
+	}
 
-	f, _ := o.TotalPrice.Float64Value()
+	f, err := o.TotalPrice.Float64Value()
+	if err != nil {
+		log.Printf("toOrderResponse: failed to convert total price for order %d: %v", o.ID, err)
+	}
 
 	return orderResponse{
 		ID:              o.ID,
@@ -482,9 +504,21 @@ func (h *Handler) AdminUpdateOrderStatus(w http.ResponseWriter, r *http.Request)
 }
 
 // AdminGetStats returns today's order count and total revenue for the admin dashboard.
-// The query aggregates data from the current calendar day (midnight-to-midnight).
+// The query aggregates data from the current calendar day (midnight-to-midnight)
+// in the restaurant's local timezone (Europe/Oslo), not UTC.
 func (h *Handler) AdminGetStats(w http.ResponseWriter, r *http.Request) {
-	stats, err := h.queries.GetTodayStats(r.Context())
+	ctx := r.Context()
+
+	loc, err := time.LoadLocation("Europe/Oslo")
+	if err != nil {
+		log.Printf("AdminGetStats: failed to load timezone: %v", err)
+		respondInternalError(w)
+		return
+	}
+	now := time.Now().In(loc)
+	osloMidnight := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, loc)
+
+	stats, err := h.queries.GetTodayStats(ctx, osloMidnight)
 	if err != nil {
 		log.Printf("AdminGetStats: database query failed: %v", err)
 		respondError(w, http.StatusInternalServerError, "failed to fetch stats")
