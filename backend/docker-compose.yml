@@ -26,14 +26,36 @@ services:
         condition: service_healthy
     ports:
       - "8080:8080"
+    # The following environment variables must be set for the Go application to run correctly.
     environment:
-      - PORT=8080
-      - DB_URL=postgres://postgres:postgres@postgres:5432/vivanapoli?sslmode=disable
-      - ALLOWED_ORIGINS=http://localhost:3000
-      - JWT_SECRET=Oe10GeolXyGcxa521MFaPi3zC2ryqR5f5INx2w4pcbU
-      - RESEND_API_KEY=re_5zE56LPV_5GJu32hLorrCRbDRwhDXrwMx
-      - ORDER_EMAIL_TO=rudenokaleksandr21@gmail.com
-      - ORDER_EMAIL_FROM=onboarding@resend.dev
+      # PORT — the port number the Go application listens on. Must match the port
+      # exposed in the Dockerfile and the port mapping in this docker-compose file.
+      - PORT=
+      # DB_URL — connection string for the PostgreSQL database. The format is:
+      # postgres://USER:PASSWORD@HOST:PORT/DBNAME?sslmode=disable
+      - DB_URL=
+      # ALLOWED_ORIGINS — comma-separated list of allowed origins for CORS. During
+      # development, this should include the URL of your frontend (e.g. http://localhost:3000).
+      # In production, set this to the URL of your deployed frontend (e.g. https://yourdomain.com) and make sure to use HTTPS.
+      # You can specify multiple origins like this: http://localhost:3000,https://yourdomain.com
+      - ALLOWED_ORIGINS=
+      # JWT_SECRET — a random string used to sign and verify JSON Web Tokens for authentication.
+      - JWT_SECRET=
+      # RESEND_API_KEY — API key for Resend (https://resend.com), a transactional
+      # email service used to send order notifications. Generate a key at:
+      # https://resend.com/api-keys
+      - RESEND_API_KEY=
+      # ORDER_EMAIL_TO — recipient address for order notification emails (i.e. the
+      # restaurant's inbox). Must be a verified domain in your Resend account
+      # (https://resend.com/domains) unless you're on a paid plan that allows
+      # sending to unverified addresses.
+      - ORDER_EMAIL_TO=
+      # ORDER_EMAIL_FROM — sender address used in the "From" header of order
+      # emails. During development / on the free Resend plan this must be the
+      # default "onboarding@resend.dev" sender. For production, configure a
+      # custom domain (https://resend.com/domains) and use your own address
+      # (e.g. "orders@yourdomain.com").
+      - ORDER_EMAIL_FROM=
 
 volumes:
   postgres_data:
