@@ -7,6 +7,19 @@ import (
 	"github.com/kirinyoku/vivanapoli/backend/internal/db/generated"
 )
 
+// allowedSettingsKeys defines the whitelist of setting keys that can be
+// modified via the AdminUpdateSettings endpoint. This prevents accidental
+// or malicious insertion of garbage keys into the settings table.
+var allowedSettingsKeys = map[string]bool{
+	"address":                true,
+	"phone":                  true,
+	"opening_hours":          true,
+	"open_time":              true,
+	"close_time":             true,
+	"is_open":                true,
+	"delivery_time_estimate": true,
+}
+
 // GetSettings fetches all restaurant configuration from the 'settings' table.
 // It transforms the DB rows (key/value pairs) into a flat JSON object for the frontend.
 //
@@ -43,6 +56,14 @@ func (h *Handler) AdminUpdateSettings(w http.ResponseWriter, r *http.Request) {
 	var req map[string]string
 	if !decodeJSON(w, r, &req) {
 		return
+	}
+
+	// Validate that all provided keys are in the allowed whitelist.
+	for key := range req {
+		if !allowedSettingsKeys[key] {
+			respondError(w, http.StatusBadRequest, "unknown setting key: "+key)
+			return
+		}
 	}
 
 	// Iterates through the map and updates each setting in the DB.

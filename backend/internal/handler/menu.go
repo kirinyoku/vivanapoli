@@ -278,6 +278,14 @@ func (h *Handler) AdminUpdateMenuItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Verify the menu item exists before attempting to update it.
+	// If it doesn't exist, return 404 instead of letting sqlc return a 500.
+	if _, err := h.queries.GetMenuItemByID(r.Context(), int32(id)); err != nil {
+		log.Printf("AdminUpdateMenuItem: menu item %d not found: %v", id, err)
+		respondError(w, http.StatusNotFound, "Menu item not found")
+		return
+	}
+
 	params := generated.UpdateMenuItemParams{
 		ID:                 int32(id),
 		CategoryID:         req.CategoryID,

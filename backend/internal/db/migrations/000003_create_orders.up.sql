@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS orders (
     id SERIAL PRIMARY KEY,
     customer_name VARCHAR(255) NOT NULL,
     customer_phone VARCHAR(255) NOT NULL,
-    customer_address TEXT NOT NULL,
+    customer_address TEXT NOT NULL DEFAULT '',
     order_type order_type NOT NULL,
     order_status order_status NOT NULL DEFAULT 'new',
     items JSONB NOT NULL,

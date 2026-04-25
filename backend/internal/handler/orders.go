@@ -50,10 +50,11 @@ func (req *createOrderRequest) validate() string {
 	if strings.TrimSpace(req.CustomerPhone) == "" {
 		return "customer_phone is required"
 	}
-	// Norwegian phone numbers are always 8 digits. We strip spaces to handle
-	// formats like "123 45 678". International prefixes (+47) are not expected
-	// from a local ordering system.
+	// Norwegian phone numbers are always 8 digits. We strip spaces and the
+	// international prefix (+47) to handle formats like "123 45 678" or
+	// "+47 123 45 678".
 	phoneCleaned := strings.ReplaceAll(req.CustomerPhone, " ", "")
+	phoneCleaned = strings.TrimPrefix(phoneCleaned, "+47")
 	if len(phoneCleaned) != 8 {
 		return "customer_phone must be 8 digits"
 	}
@@ -218,7 +219,7 @@ func (h *Handler) checkShopOpen(ctx context.Context) (bool, string, error) {
 		if len(parts) != 2 {
 			return 0, fmt.Errorf("invalid time format")
 		}
-		h, err := strconv.Atoi(parts[0])
+		hourVal, err := strconv.Atoi(parts[0])
 		if err != nil {
 			return 0, err
 		}
@@ -226,7 +227,7 @@ func (h *Handler) checkShopOpen(ctx context.Context) (bool, string, error) {
 		if err != nil {
 			return 0, err
 		}
-		return h*60 + m, nil
+		return hourVal*60 + m, nil
 	}
 
 	openMinutes, err := parseTime(openTime)
@@ -340,6 +341,14 @@ func floatToNumeric(f float64) pgtype.Numeric {
 func (h *Handler) sendOrderEmail(order generated.Order, items []orderItemSnapshot) error {
 	if h.config.ResendApiKey == "" {
 		log.Println("sendOrderEmail: RESEND_API_KEY is not set, skipping email")
+		return nil
+	}
+	if h.config.OrderEmailFrom == "" {
+		log.Println("sendOrderEmail: ORDER_EMAIL_FROM is not set, skipping email")
+		return nil
+	}
+	if h.config.OrderEmailTo == "" {
+		log.Println("sendOrderEmail: ORDER_EMAIL_TO is not set, skipping email")
 		return nil
 	}
 

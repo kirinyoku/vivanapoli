@@ -54,7 +54,7 @@ func main() {
 	// to the channel, so a single signal won't be lost even if we're
 	// temporarily not ready to receive.
 	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(done, os.Interrupt, syscall.SIGTERM)
 
 	// 7. Start server in a separate goroutine so the main goroutine
 	// can block on the signal channel for graceful shutdown.

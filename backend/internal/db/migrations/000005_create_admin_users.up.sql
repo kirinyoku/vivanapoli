@@ -1,4 +1,4 @@
-CREATE TABLE admin_users (
+CREATE TABLE IF NOT EXISTS admin_users (
     id            SERIAL PRIMARY KEY,
     email         VARCHAR(200) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
