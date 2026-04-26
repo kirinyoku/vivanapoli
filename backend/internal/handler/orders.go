@@ -292,12 +292,20 @@ func (h *Handler) buildOrderSnapshots(
 // resolvePrice determines which price (small/large) to use based on the requested size.
 // It returns an error if the requested size has no price defined in the DB.
 //
-// Note: this function does NOT apply discount prices. Discounts are stored
-// as separate columns (discount_price_small/large) for display purposes
-// in the admin panel but are not automatically applied to orders.
+// Discount prices (discount_price_small/large) take priority when set.
+// If no discount price is defined for the requested size, the regular price is used.
 func resolvePrice(item generated.MenuItem, size string) (float64, error) {
 	switch size {
 	case "small":
+		// Discount price takes priority if set
+		if item.DiscountPriceSmall.Valid {
+			f, err := item.DiscountPriceSmall.Float64Value()
+			if err != nil {
+				return 0, fmt.Errorf("failed to convert discount small price: %w", err)
+			}
+			return f.Float64, nil
+		}
+		// Fall back to regular price
 		if pgNumericToPtr(item.PriceSmall) == nil {
 			return 0, fmt.Errorf("size 'small' is not available")
 		}
@@ -307,6 +315,15 @@ func resolvePrice(item generated.MenuItem, size string) (float64, error) {
 		}
 		return f.Float64, nil
 	case "large":
+		// Discount price takes priority if set
+		if item.DiscountPriceLarge.Valid {
+			f, err := item.DiscountPriceLarge.Float64Value()
+			if err != nil {
+				return 0, fmt.Errorf("failed to convert discount large price: %w", err)
+			}
+			return f.Float64, nil
+		}
+		// Fall back to regular price
 		if !item.PriceLarge.Valid {
 			return 0, fmt.Errorf("size 'large' is not available")
 		}
