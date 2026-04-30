@@ -23,8 +23,8 @@ export interface ShopStatus {
  * @param isManualClosed - Admin override that forces "closed" regardless of schedule
  */
 export function getShopStatus(
-  openTime: any = '14:00',
-  closeTime: any = '22:00',
+  openTime: string = '14:00',
+  closeTime: string = '22:00',
   isManualClosed: boolean = false
 ): ShopStatus {
   if (isManualClosed === true) {
