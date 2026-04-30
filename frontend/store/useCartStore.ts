@@ -9,7 +9,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
  * entries, while clicking the same size again increments `quantity`.
  */
 export interface CartItem {
-  id: number;
+  id: string | number;
   menu_item_id: number;
   name: string;
   price: number;
@@ -20,8 +20,8 @@ export interface CartItem {
 interface CartState {
   items: CartItem[];
   addItem: (item: Omit<CartItem, 'id' | 'quantity'>) => void;
-  removeItem: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void;
+  removeItem: (id: string | number) => void;
+  updateQuantity: (id: string | number, quantity: number) => void;
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
@@ -30,14 +30,14 @@ interface CartState {
 /**
  * Zustand store for the shopping cart with `persist` middleware.
  *
- * Cart data is saved to `localStorage` under the key `viva-napoli-cart`
+ * Cart data is saved to `localStorage` under the key `viva-napoli-cart-v1`
  * so it survives page reloads. The persist middleware handles serialisation
  * and re-hydration automatically.
  *
  * Design decisions:
- *  - Cart entries use a timestamp-based `id` rather than a DB auto-increment
- *    because they are client-side only. This avoids collisions and keeps
- *    the store self-contained without a backend round-trip.
+ *  - Cart entries use a unique UUID `id` (via `crypto.randomUUID()`) rather
+ *    than a DB auto-increment because they are client-side only. This avoids
+ *    collisions and keeps the store self-contained without a backend round-trip.
  *  - Items with the same `menu_item_id` + `size` are merged (quantity +1)
  *    rather than duplicated, preventing duplicate entries for the same
  *    product variant in the cart list.
@@ -52,7 +52,7 @@ export const useCartStore = create<CartState>()(
        *
        * Matching is done on `(menu_item_id + size)` so that the same pizza
        * in "small" and "large" are treated as distinct cart entries.
-       * New entries get a client-side unique `id` (timestamp-based) and
+       * New entries get a client-side unique `id` (UUID-based) and
        * start with `quantity: 1`.
        */
       addItem: (newItem) => {
@@ -68,7 +68,10 @@ export const useCartStore = create<CartState>()(
           updatedItems[existingItemIndex].quantity += 1;
           set({ items: updatedItems });
         } else {
-          const cartId = Date.now();
+          const cartId =
+            typeof crypto !== 'undefined' && crypto.randomUUID
+              ? crypto.randomUUID()
+              : Date.now();
           set({
             items: [...items, { ...newItem, id: cartId, quantity: 1 }],
           });
@@ -114,7 +117,7 @@ export const useCartStore = create<CartState>()(
       },
     }),
     {
-      name: 'viva-napoli-cart',
+      name: 'viva-napoli-cart-v1',
       storage: createJSONStorage(() => localStorage),
     }
   )

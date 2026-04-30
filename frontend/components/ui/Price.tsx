@@ -13,8 +13,17 @@ interface PriceProps {
 }
 
 export default function Price({ amount, className }: PriceProps) {
-  // Norwegian price format (e.g., 189,-)
-  const formatted = `${amount},-`;
+  // Norwegian price format
+  // Integer: 189,-
+  // Decimal: 149,50
+  const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  
+  let formatted = '';
+  if (Number.isInteger(numericAmount)) {
+    formatted = `${numericAmount},-`;
+  } else {
+    formatted = numericAmount.toFixed(2).replace('.', ',');
+  }
 
   return (
     <span

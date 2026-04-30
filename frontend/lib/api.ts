@@ -187,8 +187,14 @@ async function request<T>(
  */
 export const api = {
   // ── Public endpoints ────────────────────────────────────────
-  getMenu: () => request<MenuCategory[]>('/menu'),
-  getSettings: () => request<RestaurantSettings>('/settings'),
+  getMenu: () =>
+    request<MenuCategory[]>('/menu', {
+      next: { revalidate: 3600, tags: ['menu'] },
+    } as any),
+  getSettings: () =>
+    request<RestaurantSettings>('/settings', {
+      next: { revalidate: 3600, tags: ['settings'] },
+    } as any),
   placeOrder: (orderData: CreateOrderRequest) =>
     request<Order>('/orders', {
       method: 'POST',

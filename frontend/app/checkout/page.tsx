@@ -121,6 +121,15 @@ export default function CheckoutPage() {
       errors.customer_address = 'Leveringsadresse er obligatorisk';
     }
 
+    // Minimum order price validation
+    const minOrderPrice = parseInt(settings?.min_order_price || '0');
+    if (totalPrice < minOrderPrice) {
+      setGeneralError(
+        `Minimumsbestilling er ${minOrderPrice},-. Vennligst legg til mer i kurven.`
+      );
+      return false;
+    }
+
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -593,6 +602,12 @@ export default function CheckoutPage() {
                       className="text-primary text-4xl leading-none"
                     />
                   </div>
+                  {settings?.min_order_price &&
+                    totalPrice < parseInt(settings.min_order_price) && (
+                      <p className="mt-4 text-center text-[10px] font-bold tracking-wider text-red-500 uppercase">
+                        Min. bestilling: {settings.min_order_price},-
+                      </p>
+                    )}
                 </div>
 
                 {/* Important: Shop Status Notification before Button */}

@@ -29,6 +29,7 @@ export default function CategoryModal({
   const [slug, setSlug] = useState('');
   const [sortOrder, setSortOrder] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   /**
    * Reset form fields whenever the modal opens or the target category changes.
@@ -36,6 +37,7 @@ export default function CategoryModal({
    * the modal is shown (important if the user closes & re-opens without saving).
    */
   useEffect(() => {
+    setError(null);
     if (category) {
       setName(category.name);
       setSlug(category.slug);
@@ -71,11 +73,12 @@ export default function CategoryModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
     try {
       await onSave({ name, slug, sort_order: sortOrder });
       onClose();
-    } catch (err) {
-      alert('Feil ved lagring av kategori');
+    } catch (err: any) {
+      setError(err.message || 'Feil ved lagring av kategori');
     } finally {
       setLoading(false);
     }
@@ -98,6 +101,11 @@ export default function CategoryModal({
         </div>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 p-6">
+            {error && (
+              <div className="rounded-md bg-red-50 p-3 text-sm font-medium text-red-800">
+                {error}
+              </div>
+            )}
             <div>
               <label className="block cursor-default text-sm font-medium text-gray-700">
                 Navn

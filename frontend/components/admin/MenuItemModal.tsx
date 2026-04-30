@@ -58,6 +58,7 @@ export default function MenuItemModal({
   const [isAvailable, setIsAvailable] = useState(true);
   const [sortOrder, setSortOrder] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   /**
    * Re-initialise form state whenever the modal opens or the target item changes.
@@ -67,6 +68,7 @@ export default function MenuItemModal({
    * when adding items from within a specific category view.
    */
   useEffect(() => {
+    setError(null);
     if (item) {
       setName(item.name || '');
       setDescription(item.description || '');
@@ -117,7 +119,7 @@ export default function MenuItemModal({
         (dSmall !== null && dSmall < 0) ||
         (dLarge !== null && dLarge < 0)
       ) {
-        alert('Prisene kan ikke være negative');
+        setError('Prisene kan ikke være negative');
         setLoading(false);
         return;
       }
@@ -127,7 +129,7 @@ export default function MenuItemModal({
         (pSmall !== null && dSmall !== null && dSmall > pSmall) ||
         (pLarge !== null && dLarge !== null && dLarge > pLarge)
       ) {
-        alert('Tilbudsprisen kan ikke være høyere enn originalprisen');
+        setError('Tilbudsprisen kan ikke være høyere enn originalprisen');
         setLoading(false);
         return;
       }
@@ -153,7 +155,7 @@ export default function MenuItemModal({
       };
 
       if (!payload.category_id || payload.category_id === 0) {
-        alert('Vennligst velg en kategori');
+        setError('Vennligst velg en kategori');
         setLoading(false);
         return;
       }
@@ -161,7 +163,7 @@ export default function MenuItemModal({
       await onSave(payload);
       onClose();
     } catch (err: any) {
-      alert('Feil ved lagring: ' + (err.message || 'Ukjent feil'));
+      setError(err.message || 'Feil ved lagring');
     } finally {
       setLoading(false);
     }
@@ -183,6 +185,11 @@ export default function MenuItemModal({
         </div>
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 gap-4 p-6 md:grid-cols-2">
+            {error && (
+              <div className="rounded-md bg-red-50 p-3 text-sm font-medium text-red-800 md:col-span-2">
+                {error}
+              </div>
+            )}
             <div className="md:col-span-2">
               <label className="block cursor-default text-sm font-medium text-gray-700">
                 Navn

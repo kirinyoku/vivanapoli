@@ -52,7 +52,7 @@ export default function MenuItem({
   allergens,
   isHot,
 }: MenuItemProps) {
-  const hasMultiplePrices = price_small && price_large;
+  const hasMultiplePrices = price_small !== null && price_large !== null;
   const hasDiscount = !!(discount_price_small || discount_price_large);
   /**
    * Discount prices are independent per size — one size may be on sale while

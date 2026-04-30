@@ -13,6 +13,7 @@ import type { Metadata } from 'next';
 import { Cormorant_Garamond, Inter } from 'next/font/google';
 import './globals.css';
 import CartPanel from '@/components/CartPanel';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 /**
  * Load custom fonts via Next.js font optimization.
@@ -238,7 +239,7 @@ export default function RootLayout({
        * `font-body` applies the Inter font family defined in `globals.css`.
        */}
       <body className="font-body flex min-h-full flex-col">
-        {children}
+        <ErrorBoundary>{children}</ErrorBoundary>
         {/**
          * The cart panel is rendered outside the page content so that it is always
          * visible (fixed positioning) and does not interfere with the layout of
